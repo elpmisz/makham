@@ -93,7 +93,7 @@ include_once(__DIR__ . "/../layout/header.php");
                         </div>
                       </td>
                       <td class="text-center"><span class="item-unit"></span></td>
-                      <td class="text-center"><span class="item-price"></span></td>
+                      <td class="text-center"><input type="hidden" class="product-price" name="product_price[]"><span class="item-price"></span></td>
                       <td class="text-center"><span class="item-remain"></span></td>
                       <td>
                         <input type="number" class="form-control form-control-sm text-center item-quantity" name="product_quantity[]" min="0" step="0.01" required>
@@ -286,12 +286,13 @@ include_once(__DIR__ . "/../layout/header.php");
       })
       .then((res) => {
         let result = res.data;
-        row.find(".item-remain").text(parseFloat(result.product_remain).toLocaleString("en-US", {
+        row.find(".item-remain").text(parseFloat(result.issue_remain).toLocaleString("en-US", {
           minimumFractionDigits: 2
         }));
+        row.find(".product-price").val(result.price);
         row.find(".item-price").text(result.price);
         row.find(".item-unit").text(result.unit_name);
-        row.find(".item-quantity").prop("max", result.product_remain);
+        row.find(".item-quantity").prop("max", result.issue_remain);
       }).catch((error) => {
         console.log(error);
       });

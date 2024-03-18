@@ -19,26 +19,80 @@ class Sale
     return "SALE CLASS";
   }
 
-  public function sale_count($data)
+  public function sale_last()
   {
-    $sql = "SELECT COUNT(*) FROM inventory.sale WHERE name = ? AND status = 1";
+    $sql = "SELECT IFNULL(MAX(a.last) + 1,1) last
+    FROM inventory.sale a
+    WHERE YEAR(a.created) = YEAR(NOW())";
     $stmt = $this->dbcon->prepare($sql);
-    $stmt->execute($data);
-    return $stmt->fetchColumn();
+    $stmt->execute();
+    $row = $stmt->fetch();
+    return (isset($row['last']) ? $row['last'] : "");
+  }
+
+  public function amount_update($data)
+  {
+    $sql = "UPDATE inventory.sale SET
+    amount  = ?
+    WHERE id = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    return $stmt->execute($data);
   }
 
   public function sale_insert($data)
   {
-    $sql = "INSERT INTO inventory.sale(uuid,name,text) VALUES(uuid(),?,?)";
+    $sql = "INSERT INTO inventory.sale(uuid,last,user_id,text,promotion,vat) VALUES(uuid(),?,?,?,?,?)";
+    $stmt = $this->dbcon->prepare($sql);
+    return $stmt->execute($data);
+  }
+
+  public function item_insert($data)
+  {
+    $sql = "SELECT a.uuid,a.text,a.user_id,CONCAT(b.firstname,' ',b.lastname) username,
+    a.promotion,c.name promotion_name,c.discount,a.vat,a.amount,
+    ((a.amount * c.discount) / 100) discount_amount,
+    (a.amount - ((a.amount * c.discount) / 100)) discount_total,
+    (
+      ((a.amount - 
+      ((a.amount * c.discount) / 100)) * 7) / 100
+    ) vat_total,
+    (
+      (a.amount - ((a.amount * c.discount) / 100)) + 
+      (((a.amount - ((a.amount * c.discount) / 100)) * 7) / 100)
+    ) sale_total,
+    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
+    FROM inventory.sale a
+    LEFT JOIN inventory.user b
+    ON a.user_id = b.id
+    LEFT JOIN inventory.promotion c
+    ON a.promotion = c.id
+    WHERE a.uuid = ?";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
 
   public function sale_view($data)
   {
-    $sql = "SELECT uuid,name,text,status 
-    FROM inventory.sale 
-    WHERE uuid = ?";
+    $sql = "SELECT a.uuid,a.text,CONCAT('SA',YEAR(a.created),LPAD(a.last,4,'0')) ticket,
+    a.user_id,CONCAT(b.firstname,' ',b.lastname) fullname,
+    a.promotion,c.name promotion_name,c.type promotion_type,c.discount,a.vat,a.amount,
+    ((a.amount * c.discount) / 100) discount_amount,
+    (a.amount - ((a.amount * c.discount) / 100)) discount_total,
+    (
+      ((a.amount - 
+      ((a.amount * c.discount) / 100)) * 7) / 100
+    ) vat_total,
+    (
+      (a.amount - ((a.amount * c.discount) / 100)) + 
+      (((a.amount - ((a.amount * c.discount) / 100)) * 7) / 100)
+    ) sale_total,
+    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
+    FROM inventory.sale a
+    LEFT JOIN inventory.user b
+    ON a.user_id = b.id
+    LEFT JOIN inventory.promotion c
+    ON a.promotion = c.id
+    WHERE a.uuid = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -98,11 +152,22 @@ class Sale
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.uuid,a.name,a.text,
+    $sql = "SELECT a.uuid,a.text,a.user_id,CONCAT(b.firstname,' ',b.lastname) username,
+    a.promotion,c.name promotion_name,c.discount,a.vat,a.amount,
+    ((a.amount * c.discount) / 100) discount_amount,
+    (a.amount - ((a.amount * c.discount) / 100)) discount_total,
+    (
+      ((a.amount - 
+      ((a.amount * c.discount) / 100)) * 7) / 100
+    ) vat_total,
+    ROUND((
+      (a.amount - ((a.amount * c.discount) / 100)) + 
+      (((a.amount - ((a.amount * c.discount) / 100)) * 7) / 100)
+    ),2) sale_total,
     (
       CASE
-        WHEN a.status = 1 THEN 'ใช้งาน'
-        WHEN a.status = 2 THEN 'ระงับการใช้งาน'
+        WHEN a.status = 1 THEN 'ทำรายการเรียบร้อยแล้ว'
+        WHEN a.status = 2 THEN 'รายการถูกยกเลิก'
         ELSE NULL
       END
     ) status_name,
@@ -113,17 +178,21 @@ class Sale
         ELSE NULL
       END
     ) status_color,
-    DATE_FORMAT(a.updated, '%d/%m/%Y, %H:%i น.') updated
-    FROM inventory.sale a ";
+    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
+    FROM inventory.sale a
+    LEFT JOIN inventory.user b
+    ON a.user_id = b.id
+    LEFT JOIN inventory.promotion c
+    ON a.promotion = c.id ";
 
     if (!empty($keyword)) {
-      $sql .= " WHERE a.name LIKE '%{$keyword}%' ";
+      $sql .= " WHERE a.text LIKE '%{$keyword}%' ";
     }
 
     if ($filter_order) {
       $sql .= " ORDER BY {$column[$order_column]} {$order_dir} ";
     } else {
-      $sql .= " ORDER BY a.status ASC, a.name ASC ";
+      $sql .= " ORDER BY a.status ASC, a.created DESC ";
     }
 
     $sql2 = "";
@@ -143,9 +212,12 @@ class Sale
       $status = "<a href='/sale/edit/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a>";
       $data[] = [
         $status,
-        $row['name'],
+        $row['username'],
         str_replace("\n", "<br>", $row['text']),
-        $row['updated'],
+        $row['promotion_name'],
+        "{$row['vat']} %",
+        $row['sale_total'],
+        $row['created'],
       ];
     }
 

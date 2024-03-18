@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: database
--- Generation Time: Mar 15, 2024 at 02:39 PM
+-- Generation Time: Mar 18, 2024 at 09:53 AM
 -- Server version: 11.3.2-MariaDB-1:11.3.2+maria~ubu2204
--- PHP Version: 8.2.16
+-- PHP Version: 8.2.17
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -1135,7 +1135,8 @@ CREATE TABLE `issue` (
 INSERT INTO `issue` (`id`, `uuid`, `last`, `type`, `text`, `user_id`, `status`, `updated`, `created`) VALUES
 (1, 0x31373562353531342d653239392d313165652d61, 1, 1, 'ทดสอบนำเข้าข้อมูล\r\nทดสอบนำเข้าข้อมูล', 1, 2, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
 (2, 0x30303436616336322d653263372d313165652d38, 2, 1, 'สั่งผลิตตาม เลขที่ใบ PR20240001', 1, 2, NULL, '2024-03-15 12:24:42'),
-(3, 0x65323165396465362d653263642d313165652d38, 3, 2, 'ทดสอบระบบเบิกออก\r\nทดสอบระบบเบิกออก', 1, 2, '2024-03-15 13:47:35', '2024-03-15 13:47:13');
+(3, 0x65323165396465362d653263642d313165652d38, 3, 2, 'ทดสอบระบบเบิกออก\r\nทดสอบระบบเบิกออก', 1, 2, '2024-03-15 13:47:35', '2024-03-15 13:47:13'),
+(4, 0x37326433653363632d653465302d313165652d39, 4, 1, 'สั่งผลิตตาม เลขที่ใบ PR20240002', 1, 2, NULL, '2024-03-18 04:31:54');
 
 -- --------------------------------------------------------
 
@@ -1171,6 +1172,7 @@ CREATE TABLE `issue_item` (
   `purchase_id` int(11) DEFAULT NULL,
   `sale_id` int(11) DEFAULT NULL,
   `product_id` int(11) NOT NULL,
+  `price` decimal(20,4) DEFAULT NULL,
   `quantity` decimal(20,4) NOT NULL,
   `confirm` decimal(20,4) DEFAULT NULL,
   `status` int(1) NOT NULL DEFAULT 1,
@@ -1182,30 +1184,33 @@ CREATE TABLE `issue_item` (
 -- Dumping data for table `issue_item`
 --
 
-INSERT INTO `issue_item` (`id`, `issue_id`, `purchase_id`, `sale_id`, `product_id`, `quantity`, `confirm`, `status`, `updated`, `created`) VALUES
-(1, 1, NULL, NULL, 81, 500.0000, 500.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
-(2, 1, NULL, NULL, 95, 300.0000, 300.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
-(3, 1, NULL, NULL, 94, 300.0000, 300.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
-(4, 1, NULL, NULL, 97, 300.0000, 300.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
-(5, 1, NULL, NULL, 98, 300.0000, 300.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
-(6, 1, NULL, NULL, 113, 2000.0000, 2000.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
-(7, NULL, 1, NULL, 94, 2.0000, 2.0000, 1, NULL, '2024-03-15 15:43:10'),
-(8, NULL, 1, NULL, 95, 2.0000, 2.0000, 1, NULL, '2024-03-15 15:43:10'),
-(9, NULL, 1, NULL, 97, 2.0000, 2.0000, 1, NULL, '2024-03-15 15:43:10'),
-(10, NULL, 1, NULL, 98, 2.0000, 2.0000, 1, NULL, '2024-03-15 15:43:10'),
-(11, NULL, 1, NULL, 113, 100.0000, 100.0000, 1, NULL, '2024-03-15 15:43:10'),
-(12, NULL, 1, NULL, 81, 12.0000, 12.0000, 1, NULL, '2024-03-15 15:43:10'),
-(13, 2, NULL, NULL, 166, 98.0000, 98.0000, 1, NULL, '2024-03-15 12:24:42'),
-(14, 3, NULL, NULL, 94, 13.0000, 13.0000, 1, '2024-03-15 13:47:35', '2024-03-15 13:47:13'),
-(15, 3, NULL, NULL, 95, 13.0000, 13.0000, 1, '2024-03-15 13:47:35', '2024-03-15 13:47:13'),
-(16, 3, NULL, NULL, 97, 13.0000, 13.0000, 1, '2024-03-15 13:47:35', '2024-03-15 13:47:13'),
-(17, 3, NULL, NULL, 98, 13.0000, 13.0000, 1, '2024-03-15 13:47:35', '2024-03-15 13:47:13'),
-(18, 3, NULL, NULL, 81, 13.0000, 13.0000, 1, '2024-03-15 13:47:35', '2024-03-15 13:47:13'),
-(19, NULL, 2, NULL, 94, 4.0000, 4.0000, 1, NULL, '2024-03-15 14:13:36'),
-(20, NULL, 2, NULL, 95, 4.0000, 4.0000, 1, NULL, '2024-03-15 14:13:36'),
-(21, NULL, 2, NULL, 97, 4.0000, 4.0000, 1, NULL, '2024-03-15 14:13:36'),
-(22, NULL, 2, NULL, 113, 200.0000, 200.0000, 1, NULL, '2024-03-15 14:13:36'),
-(23, NULL, 2, NULL, 81, 24.0000, 24.0000, 1, NULL, '2024-03-15 14:13:36');
+INSERT INTO `issue_item` (`id`, `issue_id`, `purchase_id`, `sale_id`, `product_id`, `price`, `quantity`, `confirm`, `status`, `updated`, `created`) VALUES
+(1, 1, NULL, NULL, 81, NULL, 500.0000, 500.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
+(2, 1, NULL, NULL, 95, NULL, 300.0000, 300.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
+(3, 1, NULL, NULL, 94, NULL, 300.0000, 300.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
+(4, 1, NULL, NULL, 97, NULL, 300.0000, 300.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
+(5, 1, NULL, NULL, 98, NULL, 300.0000, 300.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
+(6, 1, NULL, NULL, 113, NULL, 2000.0000, 2000.0000, 1, '2024-03-15 13:56:13', '2024-03-15 13:56:05'),
+(7, NULL, 1, NULL, 94, NULL, 2.0000, 2.0000, 1, NULL, '2024-03-15 15:43:10'),
+(8, NULL, 1, NULL, 95, NULL, 2.0000, 2.0000, 1, NULL, '2024-03-15 15:43:10'),
+(9, NULL, 1, NULL, 97, NULL, 2.0000, 2.0000, 1, NULL, '2024-03-15 15:43:10'),
+(10, NULL, 1, NULL, 98, NULL, 2.0000, 2.0000, 1, NULL, '2024-03-15 15:43:10'),
+(11, NULL, 1, NULL, 113, NULL, 100.0000, 100.0000, 1, NULL, '2024-03-15 15:43:10'),
+(12, NULL, 1, NULL, 81, NULL, 12.0000, 12.0000, 1, NULL, '2024-03-15 15:43:10'),
+(13, 2, NULL, NULL, 166, NULL, 98.0000, 98.0000, 1, NULL, '2024-03-15 12:24:42'),
+(14, 3, NULL, NULL, 94, NULL, 13.0000, 13.0000, 1, '2024-03-15 13:47:35', '2024-03-15 13:47:13'),
+(15, 3, NULL, NULL, 95, NULL, 13.0000, 13.0000, 1, '2024-03-15 13:47:35', '2024-03-15 13:47:13'),
+(16, 3, NULL, NULL, 97, NULL, 13.0000, 13.0000, 1, '2024-03-15 13:47:35', '2024-03-15 13:47:13'),
+(17, 3, NULL, NULL, 98, NULL, 13.0000, 13.0000, 1, '2024-03-15 13:47:35', '2024-03-15 13:47:13'),
+(18, 3, NULL, NULL, 81, NULL, 13.0000, 13.0000, 1, '2024-03-15 13:47:35', '2024-03-15 13:47:13'),
+(19, NULL, 2, NULL, 94, NULL, 4.0000, 4.0000, 1, NULL, '2024-03-15 14:13:36'),
+(20, NULL, 2, NULL, 95, NULL, 4.0000, 4.0000, 1, NULL, '2024-03-15 14:13:36'),
+(21, NULL, 2, NULL, 97, NULL, 4.0000, 4.0000, 1, NULL, '2024-03-15 14:13:36'),
+(22, NULL, 2, NULL, 113, NULL, 200.0000, 200.0000, 1, NULL, '2024-03-15 14:13:36'),
+(23, NULL, 2, NULL, 81, NULL, 24.0000, 24.0000, 1, NULL, '2024-03-15 14:13:36'),
+(24, 4, NULL, NULL, 165, NULL, 200.0000, 200.0000, 1, NULL, '2024-03-18 04:31:54'),
+(25, NULL, NULL, 1, 165, 30.0000, 20.0000, 20.0000, 1, NULL, '2024-03-18 06:49:08'),
+(26, NULL, NULL, 1, 166, 30.0000, 20.0000, 20.0000, 1, NULL, '2024-03-18 06:49:08');
 
 -- --------------------------------------------------------
 
@@ -1229,7 +1234,8 @@ CREATE TABLE `issue_text` (
 INSERT INTO `issue_text` (`id`, `issue_id`, `user_id`, `text`, `status`, `created`) VALUES
 (1, 1, 1, '', 2, '2024-03-15 13:56:13'),
 (2, 2, 1, '', 2, '2024-03-15 12:24:42'),
-(3, 3, 1, '', 2, '2024-03-15 13:47:35');
+(3, 3, 1, '', 2, '2024-03-15 13:47:35'),
+(4, 4, 1, '', 2, '2024-03-18 04:31:54');
 
 -- --------------------------------------------------------
 
@@ -1690,7 +1696,7 @@ CREATE TABLE `purchase` (
 
 INSERT INTO `purchase` (`id`, `uuid`, `last`, `user_id`, `bom`, `machine`, `amount`, `confirm`, `date`, `text`, `status`, `updated`, `created`) VALUES
 (1, 0x30636331313630382d653261382d313165652d61, 1, 1, 2, 1, 100, 98, '2024-03-15', 'ทดสอบระบบ\r\nทดสอบระบบ', 5, '2024-03-15 12:24:42', '2024-03-15 15:43:10'),
-(2, 0x39316332643030332d653264312d313165652d38, 2, 1, 1, 2, 200, 0, '2024-03-15', 'ทดสอบผลิต', 1, NULL, '2024-03-15 14:13:36');
+(2, 0x39316332643030332d653264312d313165652d38, 2, 1, 1, 2, 200, 200, '2024-03-15', 'ทดสอบผลิต', 5, '2024-03-18 04:31:54', '2024-03-15 14:13:36');
 
 -- --------------------------------------------------------
 
@@ -1718,21 +1724,6 @@ INSERT INTO `purchase_auth` (`id`, `user_id`, `type`, `status`, `updated`, `crea
 -- --------------------------------------------------------
 
 --
--- Table structure for table `purchase_item`
---
-
-CREATE TABLE `purchase_item` (
-  `id` int(11) NOT NULL,
-  `purchase_id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `quantity` decimal(20,4) NOT NULL,
-  `updated` datetime DEFAULT NULL,
-  `created` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `purchase_text`
 --
 
@@ -1753,7 +1744,38 @@ INSERT INTO `purchase_text` (`id`, `purchase_id`, `user_id`, `text`, `status`, `
 (1, 1, 1, '', 2, '2024-03-15 12:20:34'),
 (2, 1, 1, '', 3, '2024-03-15 12:21:35'),
 (3, 1, 1, '', 4, '2024-03-15 12:23:25'),
-(4, 1, 1, '', 5, '2024-03-15 12:24:42');
+(4, 1, 1, '', 5, '2024-03-15 12:24:42'),
+(5, 2, 1, '', 2, '2024-03-18 04:22:56'),
+(6, 2, 1, '', 3, '2024-03-18 04:25:45'),
+(7, 2, 1, '', 4, '2024-03-18 04:30:40'),
+(8, 2, 1, '', 5, '2024-03-18 04:31:54');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sale`
+--
+
+CREATE TABLE `sale` (
+  `id` int(11) NOT NULL,
+  `uuid` binary(20) NOT NULL,
+  `last` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `text` text NOT NULL,
+  `promotion` int(11) NOT NULL,
+  `vat` int(11) NOT NULL,
+  `amount` decimal(20,4) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 1,
+  `updated` datetime DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `sale`
+--
+
+INSERT INTO `sale` (`id`, `uuid`, `last`, `user_id`, `text`, `promotion`, `vat`, `amount`, `status`, `updated`, `created`) VALUES
+(1, 0x31306635653264632d653465662d313165652d39, 1, 1, 'ทดสอบสั่งขาย\r\nทดสอบสั่งขาย', 1, 7, 1200.0000, 1, NULL, '2024-03-18 06:49:08');
 
 -- --------------------------------------------------------
 
@@ -9430,15 +9452,15 @@ ALTER TABLE `purchase_auth`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `purchase_item`
---
-ALTER TABLE `purchase_item`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `purchase_text`
 --
 ALTER TABLE `purchase_text`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `sale`
+--
+ALTER TABLE `sale`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -9510,7 +9532,7 @@ ALTER TABLE `district`
 -- AUTO_INCREMENT for table `issue`
 --
 ALTER TABLE `issue`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `issue_auth`
@@ -9522,13 +9544,13 @@ ALTER TABLE `issue_auth`
 -- AUTO_INCREMENT for table `issue_item`
 --
 ALTER TABLE `issue_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `issue_text`
 --
 ALTER TABLE `issue_text`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `location`
@@ -9585,16 +9607,16 @@ ALTER TABLE `purchase_auth`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT for table `purchase_item`
---
-ALTER TABLE `purchase_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `purchase_text`
 --
 ALTER TABLE `purchase_text`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `sale`
+--
+ALTER TABLE `sale`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `subdistrict`

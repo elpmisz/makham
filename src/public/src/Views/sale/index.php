@@ -2,12 +2,6 @@
 $menu = "service";
 $page = "service-sale";
 include_once(__DIR__ . "/../layout/header.php");
-
-// use App\Classes\sale;
-
-// $sale = new sale();
-// $approver = $sale->auth_approve([$user['id']]);
-// $approver_count = $sale->approver_count();
 ?>
 
 <div class="row">
@@ -37,33 +31,6 @@ include_once(__DIR__ . "/../layout/header.php");
           </div>
         </div>
 
-        <?php if (intval($approver) > 0 && intval($approver_count) > 0) : ?>
-          <div class="row mb-2">
-            <div class="col-xl-12">
-              <div class="card">
-                <div class="card-header">
-                  <h5 class="text-center">รายการรอดำเนินการ</h5>
-                </div>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table table-bordered table-hover approve-data">
-                      <thead>
-                        <tr>
-                          <th width="10%">สถานะ</th>
-                          <th width="10%">ประเภท</th>
-                          <th width="10%">ผู้ทำรายการ</th>
-                          <th width="60">รายละเอียด</th>
-                          <th width="10%">วันที่</th>
-                        </tr>
-                      </thead>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        <?php endif; ?>
-
         <div class="row mb-2">
           <div class="col-xl-12">
             <div class="card">
@@ -72,13 +39,15 @@ include_once(__DIR__ . "/../layout/header.php");
               </div>
               <div class="card-body">
                 <div class="table-responsive">
-                  <table class="table table-bordered table-hover request-data">
+                  <table class="table table-bordered table-hover sale-data">
                     <thead>
                       <tr>
                         <th width="10%">สถานะ</th>
-                        <th width="10%">ประเภท</th>
                         <th width="10%">ผู้ทำรายการ</th>
-                        <th width="60">รายละเอียด</th>
+                        <th width="30%">รายละเอียด</th>
+                        <th width="10%">ส่งเสริมการขาย</th>
+                        <th width="10%">ภาษีมูลค่าเพิ่ม</th>
+                        <th width="10%">จำนวนเงิน</th>
                         <th width="10%">วันที่</th>
                       </tr>
                     </thead>
@@ -131,47 +100,21 @@ include_once(__DIR__ . "/../layout/header.php");
   filter_datatable();
 
   function filter_datatable() {
-    $(".request-data").DataTable({
+    $(".sale-data").DataTable({
       serverSide: true,
       searching: true,
       scrollX: true,
       order: [],
       ajax: {
-        url: "/sale/request-data",
+        url: "/sale/sale-data",
         type: "POST",
       },
       columnDefs: [{
-        targets: [0, 1],
+        targets: [0, 1, 4],
         className: "text-center",
-      }],
-      "oLanguage": {
-        "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
-        "sZeroRecords": "ไม่พบข้อมูลที่ค้นหา",
-        "sInfo": "แสดง _START_ ถึง _END_ ของ _TOTAL_ ลำดับ",
-        "sInfoEmpty": "แสดง 0 ถึง 0 ของ 0 ลำดับ",
-        "sInfoFiltered": "",
-        "sSearch": "ค้นหา :",
-        "oPaginate": {
-          "sFirst": "หน้าแรก",
-          "sLast": "หน้าสุดท้าย",
-          "sNext": "ถัดไป",
-          "sPrevious": "ก่อนหน้า"
-        }
-      },
-    });
-
-    $(".approve-data").DataTable({
-      serverSide: true,
-      searching: true,
-      scrollX: true,
-      order: [],
-      ajax: {
-        url: "/sale/approve-data",
-        type: "POST",
-      },
-      columnDefs: [{
-        targets: [0, 1],
-        className: "text-center",
+      }, {
+        targets: [5],
+        className: "text-right",
       }],
       "oLanguage": {
         "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",

@@ -19,27 +19,27 @@ $param2 = (isset($param[2]) ? $param[2] : "");
 if ($action === "create") {
   try {
     $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
-    $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
+    $promotion = (isset($_POST['promotion']) ? $VALIDATION->input($_POST['promotion']) : "");
+    $vat = (isset($_POST['vat']) ? $VALIDATION->input($_POST['vat']) : "");
+    $last = $SALE->sale_last();
 
-    $count = $SALE->sale_count([$type, $text]);
-    if (intval($count) > 0) {
-      $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/sale");
-    }
-    $SALE->sale_insert([$type, $text, $user_id]);
-    $SALE_id = $SALE->last_insert_id();
+    $SALE->sale_insert([$last, $user_id, $text, $promotion, $vat]);
+    $sale_id = $SALE->last_insert_id();
 
+    $total = 0;
     foreach ($_POST['product_id'] as $key => $value) {
       $product = (isset($_POST['product_id'][$key]) ? $VALIDATION->input($_POST['product_id'][$key]) : "");
+      $price = (isset($_POST['product_price'][$key]) ? $VALIDATION->input($_POST['product_price'][$key]) : "");
       $quantity = (isset($_POST['product_quantity'][$key]) ? $VALIDATION->input($_POST['product_quantity'][$key]) : "");
 
+      $total += ($price * $quantity);
+
       if (!empty($product)) {
-        $count = $SALE->item_count([$SALE_id, $product]);
-        if (intval($count) === 0) {
-          $SALE->item_insert([$SALE_id, $product, $quantity]);
-        }
+        $SALE->item_insert([$sale_id, $product, $price, $quantity, $quantity]);
       }
     }
+    $SALE->amount_update([$total, $sale_id]);
 
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/sale");
   } catch (PDOException $e) {
@@ -207,9 +207,9 @@ if ($action === "upload") {
   }
 }
 
-if ($action === "request-data") {
+if ($action === "sale-data") {
   try {
-    $result = $SALE->request_data();
+    $result = $SALE->sale_data();
     echo json_encode($result);
   } catch (PDOException $e) {
     die($e->getMessage());

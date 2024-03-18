@@ -312,14 +312,13 @@ class Product
     $total = $stmt->fetchColumn();
 
     $column = [
-      "a.status", "a.code", "a.name", "e.name", "f.name", "a.cost", "a.price", "a.min",
-      "(
-        SUM(IF(h.type = 1 AND h.status = 2,g.confirm,0)) - 
-        (
-          SUM(IF(h.type = 2 AND h.status = 2,g.confirm,0)) +
-          SUM(IF(i.status IN (3,4,5) AND g.purchase_id IS NOT NULL,g.confirm,0))
-        )
-      )", "a.updated"
+      "e.status", "e.code", "e.name", "i.name", "j.name", "e.cost", "e.price", "e.min",
+      "
+      (
+        SUM(IF(b.`type` = 1 AND b.status = 2,a.confirm,0) ) -
+        SUM(IF((b.`type` = 2 AND b.status = 2) OR (c.`status` IN (3,4,5)) OR (d.`status` = 1),a.confirm,0))
+      )
+      ", "IF(MAX(a.created) IS NOT NULL,MAX(a.created),e.created)"
     ];
 
     $category = (!empty($category) ? $category : "");
@@ -332,72 +331,62 @@ class Product
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.id,a.uuid,a.code,a.name product_name,a.cost,a.price,a.min,a.max,
-    a.supplier,b.name supplier_name,
-    a.unit,c.name unit_name,
-    a.brand,d.name brand_name,
-    a.category,e.name category_name,
-    a.location,f.name location_name,
-    SUM(IF(h.type = 1 AND h.status = 2,g.confirm,0)) issue_input,
-    SUM(IF(h.type = 2 AND h.status = 2,g.confirm,0)) issue_output,
-    SUM(IF(i.status IN (3,4,5) AND g.purchase_id IS NOT NULL,g.confirm,0)) purchase_output,
+    $sql = "SELECT e.id product_id,e.uuid product_uuid,e.code product_code,e.name product_name,
+    e.cost,e.price,e.`min`,e.`max`,
+    SUM(IF(b.`type` = 1 AND b.status = 2,a.confirm,0)) income,
+    SUM(IF((b.`type` = 2 AND b.status = 2) OR (c.`status` IN (3,4,5)) OR (d.`status` = 1),a.confirm,0)) outcome,
     (
-      SUM(IF(h.type = 1 AND h.status = 2,g.confirm,0)) - 
-      (
-        SUM(IF(h.type = 2 AND h.status = 2,g.confirm,0)) +
-        SUM(IF(i.status IN (3,4,5) AND g.purchase_id IS NOT NULL,g.confirm,0))
-      )
-    ) issue_remain,
-    (
-      CASE
-        WHEN a.status = 1 THEN 'ใช้งาน'
-        WHEN a.status = 2 THEN 'ระงับการใช้งาน'
-        ELSE NULL
-      END
-    ) status_name,
-    (
-      CASE
-        WHEN a.status = 1 THEN 'success'
-        WHEN a.status = 2 THEN 'danger'
-        ELSE NULL
-      END
-    ) status_color,
-    DATE_FORMAT(a.updated, '%d/%m/%Y, %H:%i น.') updated
-    FROM inventory.product a
-    LEFT JOIN inventory.customer b
-    ON a.supplier = b.id
-    LEFT JOIN inventory.unit c
-    ON a.unit = c.id
-    LEFT JOIN inventory.brand d
-    ON a.brand = d.id
-    LEFT JOIN inventory.category e
-    ON a.category = e.id
-    LEFT JOIN inventory.location f
-    ON a.location = f.id
-    LEFT JOIN inventory.issue_item g
-    ON a.id = g.product_id
-    LEFT JOIN inventory.issue h
-    ON g.issue_id = h.id
-    LEFT JOIN inventory.purchase i
-    ON g.purchase_id = i.id
-    WHERE a.id != '' ";
+    SUM(IF(b.`type` = 1 AND b.status = 2,a.confirm,0) ) -
+    SUM(IF((b.`type` = 2 AND b.status = 2) OR (c.`status` IN (3,4,5)) OR (d.`status` = 1),a.confirm,0))
+    ) remain,
+    e.supplier,f.name supplier_name,
+    e.unit,g.name unit_name,
+    e.brand,h.name brand_name,
+    e.category,i.name category_name,
+    e.location,j.name location_name,
+    IF(MAX(a.created) IS NOT NULL,
+      DATE_FORMAT(MAX(a.created),'%d/%m/%Y, %H:%i น.'),
+      DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')
+    ) created,
+    IF(e.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
+    IF(e.status = 1,'success','danger') status_color
+    FROM inventory.issue_item a
+    LEFT JOIN inventory.issue b
+    ON a.issue_id = b.id
+    LEFT JOIN inventory.purchase c
+    ON a.purchase_id = c.id
+    LEFT JOIN inventory.sale d
+    ON a.sale_id = d.id
+    RIGHT JOIN inventory.product e
+    ON a.product_id = e.id
+    LEFT JOIN inventory.customer f
+    ON e.supplier = f.id
+    LEFT JOIN inventory.unit g
+    ON e.unit = g.id
+    LEFT JOIN inventory.brand h
+    ON e.brand = h.id 
+    LEFT JOIN inventory.category i
+    ON e.category = i.id 
+    LEFT JOIN inventory.location j
+    ON e.location = j.id
+    WHERE e.status = 1 ";
 
     if (!empty($keyword)) {
-      $sql .= " AND (a.name LIKE '%{$keyword}%' OR a.code LIKE '%{$keyword}%') ";
+      $sql .= " AND (e.name LIKE '%{$keyword}%' OR e.code LIKE '%{$keyword}%') ";
     }
     if (!empty($category)) {
-      $sql .= " AND a.category = '{$category}' ";
+      $sql .= " AND e.category = '{$category}' ";
     }
     if (!empty($location)) {
-      $sql .= " AND a.location = '{$location}' ";
+      $sql .= " AND e.location = '{$location}' ";
     }
 
-    $sql .= " GROUP BY a.id ";
+    $sql .= " GROUP BY e.id ";
 
     if ($filter_order) {
       $sql .= " ORDER BY {$column[$order_column]} {$order_dir} ";
     } else {
-      $sql .= " ORDER BY a.status ASC, a.code ASC ";
+      $sql .= " ORDER BY e.status ASC, e.code ASC ";
     }
 
     $sql2 = "";
@@ -414,18 +403,18 @@ class Product
 
     $data = [];
     foreach ($result as $row) {
-      $status = "<a href='/product/edit/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a>";
+      $status = "<a href='/product/edit/{$row['product_uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a>";
       $data[] = [
         $status,
-        $row['code'],
+        $row['product_code'],
         $row['product_name'],
         $row['category_name'],
         $row['location_name'],
         $row['cost'],
         $row['price'],
         $row['min'],
-        $row['issue_remain'],
-        $row['updated'],
+        $row['remain'],
+        $row['created'],
       ];
     }
 

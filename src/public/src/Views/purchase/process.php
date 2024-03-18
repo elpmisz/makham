@@ -10,11 +10,11 @@ use App\Classes\Purchase;
 $PURCHASE = new Purchase();
 
 $row = $PURCHASE->purchase_view([$uuid]);
-$items = $PURCHASE->item_view([$uuid]);
 $texts = $PURCHASE->text_view([$uuid]);
 $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $fullname = (!empty($row['fullname']) ? $row['fullname'] : "");
+$bom = (!empty($row['bom']) ? $row['bom'] : "");
 $bom_name = (!empty($row['bom_name']) ? $row['bom_name'] : "");
 $machine_id = (!empty($row['machine']) ? $row['machine'] : "");
 $machine_name = (!empty($row['machine_name']) ? $row['machine_name'] : "");
@@ -22,6 +22,8 @@ $amount = (!empty($row['amount']) ? $row['amount'] : "");
 $date = (!empty($row['date']) ? $row['date'] : "");
 $text = (!empty($row['text']) ? str_replace("\n", "<br>", $row['text']) : "");
 $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
+
+$items = $PURCHASE->bom_item([$bom]);
 ?>
 
 <div class="row">
@@ -107,12 +109,13 @@ $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
                   <tbody>
                     <?php foreach ($items as $key => $item) :
                       $key++;
+                      $purchase_used = ($item['product_used'] * $amount);
                     ?>
-                      <tr class="table-<?php echo $color ?>">
+                      <tr>
                         <td class="text-center"><?php echo $key ?></td>
                         <td class="text-left"><?php echo $item['product_name'] ?></td>
-                        <td class="text-right item-used"><?php echo number_format($item['bom_used'], 2) ?></td>
-                        <td class="text-right item-quantity"><?php echo number_format($item['purchase_used'], 2) ?></td>
+                        <td class="text-right item-used"><?php echo number_format($item['product_used'], 2) ?></td>
+                        <td class="text-right item-quantity"><?php echo number_format($purchase_used, 2) ?></td>
                         <td class="text-center"><?php echo $item['unit_name'] ?></td>
                       </tr>
                     <?php endforeach; ?>

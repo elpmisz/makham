@@ -143,40 +143,6 @@ class Purchase
     return $stmt->fetch(PDO::FETCH_ASSOC);
   }
 
-  public function item_view($data)
-  {
-    $sql = "SELECT a.product_id,c.name product_name,a.quantity bom_used,
-    (b.amount * a.quantity) purchase_used,
-    SUM(IF(f.type = 1 AND f.status = 2,e.confirm,0)) issue_in,
-    SUM(IF(f.type = 2 AND f.status = 2,e.confirm,0)) issue_out,
-    SUM(IF(b.status IN (3,4,5) AND b.id = e.purchase_id,e.confirm,0)) purchase_out,
-    (
-    SUM(IF(f.type = 1 AND f.status = 2,e.confirm,0)) -
-      (
-      SUM(IF(f.type = 2 AND f.status = 2,e.confirm,0)) +
-      SUM(IF(b.status IN (3,4,5) AND b.id = e.purchase_id,e.confirm,0))
-      )
-    ) issue_remain,
-    d.name unit_name
-    FROM inventory.bom_item a
-    LEFT JOIN inventory.purchase b
-    ON a.bom_id = b.bom
-    LEFT JOIN inventory.product c
-    ON a.product_id = c.id
-    LEFT JOIN inventory.unit d
-    ON c.unit = d.id
-    LEFT JOIN inventory.issue_item e
-    ON a.product_id = e.product_id
-    LEFT JOIN inventory.issue f
-    ON e.issue_id = f.id
-    WHERE b.uuid = ?
-    AND a.status = 1
-    GROUP BY a.product_id";
-    $stmt = $this->dbcon->prepare($sql);
-    $stmt->execute($data);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-  }
-
   public function text_view($data)
   {
     $sql = "SELECT 
