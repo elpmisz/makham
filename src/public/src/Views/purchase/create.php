@@ -164,14 +164,14 @@ include_once(__DIR__ . "/../layout/header.php");
           table += '</tr>';
           result.forEach(function(v, k) {
             k++;
-            let quantity = parseFloat(v.product_used);
-            let remain = parseFloat(v.issue_remain);
+            let quantity = parseFloat(v.bom_use);
+            let remain = parseFloat(v.remain);
             let color = (quantity <= remain ? "success" : "danger");
             let total = (amount * quantity);
             let unit = (v.unit_name ? v.unit_name : "");
             table += '<tr class="table-' + color + '">';
             table += '<td class="text-center">' + k + '</td>';
-            table += '<td class="text-left"><input type="hidden" name="product_id[]" value="' + v.product_id + '">' + v.product_name + '</td>';
+            table += '<td class="text-left"><input type="hidden" name="product_id[]" value="' + v.product_id + '">' + "[" + v.product_code + "] " + v.product_name + '</td>';
             table += '<td class="text-right">' + quantity.toLocaleString("en-US", {
               minimumFractionDigits: 2
             }) + '</td>';

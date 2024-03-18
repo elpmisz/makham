@@ -46,7 +46,7 @@ $issue_count = $PRODUCT->issue_count([$id]);
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">เพิ่ม</h4>
+        <h4 class="text-center">รายละเอียด</h4>
       </div>
       <div class="card-body">
         <form action="/product/update" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">

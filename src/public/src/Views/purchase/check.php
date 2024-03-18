@@ -154,12 +154,12 @@ $items = $PURCHASE->bom_item([$bom]);
                   <tbody>
                     <?php foreach ($items as $key => $item) :
                       $key++;
-                      $purchase_used = ($item['product_used'] * $amount);
+                      $purchase_used = ($item['bom_use'] * $amount);
                     ?>
                       <tr>
                         <td class="text-center"><?php echo $key ?></td>
-                        <td class="text-left"><?php echo $item['product_name'] ?></td>
-                        <td class="text-right item-used"><?php echo number_format($item['product_used'], 2) ?></td>
+                        <td class="text-left"><?php echo "[{$item['product_code']}] {$item['product_name']}" ?></td>
+                        <td class="text-right item-used"><?php echo number_format($item['bom_use'], 2) ?></td>
                         <td class="text-right item-quantity"><?php echo number_format($purchase_used, 2) ?></td>
                         <td class="text-center"><?php echo $item['unit_name'] ?></td>
                       </tr>

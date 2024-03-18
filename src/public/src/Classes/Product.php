@@ -315,8 +315,8 @@ class Product
       "e.status", "e.code", "e.name", "i.name", "j.name", "e.cost", "e.price", "e.min",
       "
       (
-        SUM(IF(b.`type` = 1 AND b.status = 2,a.confirm,0) ) -
-        SUM(IF((b.`type` = 2 AND b.status = 2) OR (c.`status` IN (3,4,5)) OR (d.`status` = 1),a.confirm,0))
+        SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0) ) -
+        SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0))
       )
       ", "IF(MAX(a.created) IS NOT NULL,MAX(a.created),e.created)"
     ];
@@ -332,12 +332,12 @@ class Product
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
     $sql = "SELECT e.id product_id,e.uuid product_uuid,e.code product_code,e.name product_name,
-    e.cost,e.price,e.`min`,e.`max`,
-    SUM(IF(b.`type` = 1 AND b.status = 2,a.confirm,0)) income,
-    SUM(IF((b.`type` = 2 AND b.status = 2) OR (c.`status` IN (3,4,5)) OR (d.`status` = 1),a.confirm,0)) outcome,
+    e.cost,e.price,e.min,e.max,
+    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0)) income,
+    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0)) outcome,
     (
-    SUM(IF(b.`type` = 1 AND b.status = 2,a.confirm,0) ) -
-    SUM(IF((b.`type` = 2 AND b.status = 2) OR (c.`status` IN (3,4,5)) OR (d.`status` = 1),a.confirm,0))
+    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0) ) -
+    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0))
     ) remain,
     e.supplier,f.name supplier_name,
     e.unit,g.name unit_name,
@@ -451,6 +451,7 @@ class Product
       CASE 
         WHEN b.issue_id IS NOT NULL THEN c.uuid
         WHEN b.purchase_id IS NOT NULL THEN e.uuid
+        WHEN b.sale_id IS NOT NULL THEN g.`uuid`
         ELSE NULL
       END
     ) uuid,
@@ -458,6 +459,7 @@ class Product
       CASE 
         WHEN b.issue_id IS NOT NULL THEN 'issue'
         WHEN b.purchase_id IS NOT NULL THEN 'purchase'
+        WHEN b.sale_id IS NOT NULL THEN 'sale'
         ELSE NULL
       END
     ) page,
@@ -465,21 +467,24 @@ class Product
       CASE 
         WHEN b.issue_id IS NOT NULL THEN CONCAT(d.firstname,' ',d.lastname)
         WHEN b.purchase_id IS NOT NULL THEN CONCAT(f.firstname,' ',f.lastname)
+        WHEN b.sale_id IS NOT NULL THEN CONCAT(h.firstname,' ',h.lastname)
         ELSE NULL
       END
     ) username,a.code,a.name product_name,
-    IF(c.type = 1,'นำเข้า','เบิกออก') type_name,IF(c.type = 1,'success','danger') type_color,c.status,
+    IF(c.type = 1,'นำเข้า','เบิกออก') type_name,IF(c.type = 1,'success','danger') type_color,
     (
       CASE 
         WHEN b.issue_id IS NOT NULL THEN c.text
         WHEN b.purchase_id IS NOT NULL THEN e.text
+        WHEN b.sale_id IS NOT NULL THEN g.text
         ELSE NULL
       END
-    ) text,IF(c.status = 2 OR e.status IN (3,4,5),b.confirm,0) quantity,
+    ) text,IF(c.status = 2 OR e.status IN (3,4,5) OR g.`status` = 1,b.confirm,0) quantity,
     (
       CASE 
         WHEN b.issue_id IS NOT NULL THEN DATE_FORMAT(c.created,'%d/%m/%Y, %H:%i น.')
         WHEN b.purchase_id IS NOT NULL THEN DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')
+        WHEN b.sale_id IS NOT NULL THEN DATE_FORMAT(g.created,'%d/%m/%Y, %H:%i น.')
         ELSE NULL
       END
     ) created
@@ -494,6 +499,10 @@ class Product
     ON b.purchase_id = e.id
     LEFT JOIN inventory.user f
     ON e.user_id = f.id
+    LEFT JOIN inventory.sale g
+    ON b.sale_id = g.id
+    LEFT JOIN inventory.`user` h
+    ON g.user_id = h.id
     WHERE a.uuid = '{$uuid}'  ";
 
     if (!empty($keyword)) {

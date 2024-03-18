@@ -233,7 +233,7 @@ class Purchase
       WHEN a.status = 2 THEN 'รอเบิกวัตถุดิบ'
       WHEN a.status = 3 THEN 'กำลังผลิต'
       WHEN a.status = 4 THEN 'รอตรวจสอบ'
-      WHEN a.status = 5 THEN 'ดำเนินการเรียบร้อย'
+      WHEN a.status = 5 THEN 'ผ่านการตรวจสอบ'
       WHEN a.status = 6 THEN 'รายการถูกยกเลิก'
       ELSE NULL
     END
@@ -271,32 +271,54 @@ class Purchase
 
   public function bom_item($data)
   {
-    $sql = "SELECT a.product_id,CONCAT('[',b.code,'] ',b.name) product_name,a.quantity product_used,c.name unit_name,
-    SUM(IF(e.type = 1 AND e.status = 2,d.confirm,0)) issue_in,
-    SUM(IF(e.type = 2 AND e.status = 2,d.confirm,0)) issue_out,
-    SUM(IF(d.purchase_id IS NOT NULL AND f.status IN (3,4,5),d.confirm,0)) purchase_out,
+    $sql = "SELECT e.id product_id,e.uuid product_uuid,e.code product_code,e.name product_name,
+    e.cost,e.price,e.min,e.max,
+    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0)) income,
+    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0)) outcome,
     (
-      SUM(IF(e.type = 1 AND e.status = 2,d.confirm,0)) -
-      (
-        SUM(IF(e.type = 2 AND e.status = 2,d.confirm,0)) +
-        SUM(IF(d.purchase_id IS NOT NULL AND f.status IN (3,4,5),d.confirm,0))
-      )
-    ) issue_remain
-    FROM inventory.bom_item a
-    LEFT JOIN inventory.product b
-    ON a.product_id = b.id
-    LEFT JOIN inventory.unit c
-    ON b.unit = c.id
-    LEFT JOIN inventory.issue_item d
-    ON a.product_id = d.product_id
-    LEFT JOIN inventory.issue e
-    ON d.issue_id = e.id
-    LEFT JOIN inventory.purchase f
-    ON d.purchase_id = f.id
-    WHERE a.bom_id = ?
-    AND a.status = 1
-    GROUP BY a.product_id
-    ORDER BY b.code ASC";
+    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0) ) -
+    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0))
+    ) remain,
+    e.supplier,f.name supplier_name,
+    e.unit,g.name unit_name,
+    e.brand,h.name brand_name,
+    e.category,i.name category_name,
+    e.location,j.name location_name,
+    IF(MAX(a.created) IS NOT NULL,
+      DATE_FORMAT(MAX(a.created),'%d/%m/%Y, %H:%i น.'),
+      DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')
+    ) created,
+    IF(e.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
+    IF(e.status = 1,'success','danger') status_color,
+    m.name bom_name,k.quantity bom_use
+    FROM inventory.issue_item a
+    LEFT JOIN inventory.issue b
+    ON a.issue_id = b.id
+    LEFT JOIN inventory.purchase c
+    ON a.purchase_id = c.id
+    LEFT JOIN inventory.sale d
+    ON a.sale_id = d.id
+    RIGHT JOIN inventory.product e
+    ON a.product_id = e.id
+    LEFT JOIN inventory.customer f
+    ON e.supplier = f.id
+    LEFT JOIN inventory.unit g
+    ON e.unit = g.id
+    LEFT JOIN inventory.brand h
+    ON e.brand = h.id 
+    LEFT JOIN inventory.category i
+    ON e.category = i.id 
+    LEFT JOIN inventory.location j
+    ON e.location = j.id
+    LEFT JOIN inventory.bom_item k
+    ON e.id = k.product_id
+    LEFT JOIN inventory.bom m
+    ON k.bom_id = m.id
+    WHERE e.status = 1
+    AND k.bom_id = ?
+    AND k.status = 1
+    GROUP BY e.id
+    ORDER BY e.code ASC";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll();
@@ -351,7 +373,7 @@ class Purchase
         WHEN a.status = 2 THEN 'รอเบิกวัตถุดิบ'
         WHEN a.status = 3 THEN 'กำลังผลิต'
         WHEN a.status = 4 THEN 'รอตรวจสอบ'
-        WHEN a.status = 5 THEN 'ดำเนินการเรียบร้อย'
+        WHEN a.status = 5 THEN 'ผ่านการตรวจสอบ'
         WHEN a.status = 6 THEN 'รายการถูกยกเลิก'
         ELSE NULL
       END
@@ -452,7 +474,7 @@ class Purchase
         WHEN a.status = 2 THEN 'รอเบิกวัตถุดิบ'
         WHEN a.status = 3 THEN 'กำลังผลิต'
         WHEN a.status = 4 THEN 'รอตรวจสอบ'
-        WHEN a.status = 5 THEN 'ดำเนินการเรียบร้อย'
+        WHEN a.status = 5 THEN 'ผ่านการตรวจสอบ'
         WHEN a.status = 6 THEN 'รายการถูกยกเลิก'
         ELSE NULL
       END
@@ -553,7 +575,7 @@ class Purchase
         WHEN a.status = 2 THEN 'รอเบิกวัตถุดิบ'
         WHEN a.status = 3 THEN 'กำลังผลิต'
         WHEN a.status = 4 THEN 'รอตรวจสอบ'
-        WHEN a.status = 5 THEN 'ดำเนินการเรียบร้อย'
+        WHEN a.status = 5 THEN 'ผ่านการตรวจสอบ'
         WHEN a.status = 6 THEN 'รายการถูกยกเลิก'
         ELSE NULL
       END

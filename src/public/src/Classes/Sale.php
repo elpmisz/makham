@@ -75,7 +75,8 @@ class Sale
   {
     $sql = "SELECT a.uuid,a.text,CONCAT('SA',YEAR(a.created),LPAD(a.last,4,'0')) ticket,
     a.user_id,CONCAT(b.firstname,' ',b.lastname) fullname,
-    a.promotion,c.name promotion_name,c.type promotion_type,c.discount,a.vat,a.amount,
+    a.promotion,c.name promotion_name,c.type promotion_type,
+    IF(c.type = 1,c.discount,(c.discount / 100)) discount,a.vat,a.amount,
     ((a.amount * c.discount) / 100) discount_amount,
     (a.amount - ((a.amount * c.discount) / 100)) discount_total,
     (
@@ -96,6 +97,24 @@ class Sale
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetch(PDO::FETCH_ASSOC);
+  }
+
+  public function item_view($data)
+  {
+    $sql = "SELECT a.product_id,c.code product_code,c.name product_name,d.name unit_name,
+    c.price,a.confirm amount,(c.price * a.confirm) total
+    FROM inventory.issue_item a
+    LEFT JOIN inventory.sale b
+    ON a.sale_id = b.id
+    LEFT JOIN inventory.product c
+    ON a.product_id = c.id
+    LEFT JOIN inventory.unit d
+    ON c.unit = d.id
+    WHERE b.uuid = ?
+    AND b.status = 1";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
   public function sale_update($data)
@@ -261,7 +280,7 @@ class Sale
 
   public function product_select($keyword)
   {
-    $sql = "SELECT p.id,CONCAT('[',p.code,'] ',p.name) `text`
+    $sql = "SELECT p.id,CONCAT('[',p.code,'] ',p.name) text
     FROM inventory.product p
     LEFT JOIN inventory.issue_item a
     ON p.id = a.product_id

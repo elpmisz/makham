@@ -286,13 +286,13 @@ include_once(__DIR__ . "/../layout/header.php");
       })
       .then((res) => {
         let result = res.data;
-        row.find(".item-remain").text(parseFloat(result.issue_remain).toLocaleString("en-US", {
+        row.find(".item-remain").text(parseFloat(result.remain).toLocaleString("en-US", {
           minimumFractionDigits: 2
         }));
         row.find(".product-price").val(result.price);
         row.find(".item-price").text(result.price);
         row.find(".item-unit").text(result.unit_name);
-        row.find(".item-quantity").prop("max", result.issue_remain);
+        row.find(".item-quantity").prop("max", result.remain);
       }).catch((error) => {
         console.log(error);
       });
