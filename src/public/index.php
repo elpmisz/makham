@@ -3,6 +3,23 @@ require_once(__DIR__ . "/vendor/autoload.php");
 
 $ROUTER = new AltoRouter();
 
+##################### POS #####################
+$ROUTER->map("GET", "/pos", function () {
+  require(__DIR__ . "/src/Views/pos/index.php");
+});
+$ROUTER->map("GET", "/pos/create", function () {
+  require(__DIR__ . "/src/Views/pos/create.php");
+});
+$ROUTER->map("GET", "/pos/edit/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/pos/edit.php");
+});
+$ROUTER->map("GET", "/pos/download", function () {
+  require(__DIR__ . "/src/Views/pos/download.php");
+});
+$ROUTER->map("POST", "/pos/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/pos/action.php");
+});
+
 ##################### SALE #####################
 $ROUTER->map("GET", "/sale", function () {
   require(__DIR__ . "/src/Views/sale/index.php");

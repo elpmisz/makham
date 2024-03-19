@@ -7,6 +7,7 @@ $user_profile = ($page === "user-profile" ? 'class="active"' : "");
 $user_change = ($page === "user-change" ? 'class="active"' : "");
 
 $service_menu = (isset($menu) && ($menu === "service") ? "show" : "");
+$service_pos = ($page === "service-pos" ? 'class="active"' : "");
 $service_purchase = ($page === "service-purchase" ? 'class="active"' : "");
 $service_sale = ($page === "service-sale" ? 'class="active"' : "");
 $service_issue = ($page === "service-issue" ? 'class="active"' : "");
@@ -58,10 +59,10 @@ $auth_issue = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
       </a>
       <ul class="collapse list-unstyled <?php echo $service_menu ?>" id="service-menu">
         <?php if ($auth_perchase === 1) : ?>
-          <li <?php echo $service_purchase ?>>
-            <a href="/purchase">
+          <li <?php echo $service_pos ?>>
+            <a href="/pos">
               <i class="fa fa-bars pr-2"></i>
-              ใบสั่งผลิต
+              POS
             </a>
           </li>
         <?php endif ?>
@@ -70,6 +71,14 @@ $auth_issue = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
             <a href="/sale">
               <i class="fa fa-bars pr-2"></i>
               ใบสั่งขาย
+            </a>
+          </li>
+        <?php endif ?>
+        <?php if ($auth_perchase === 1) : ?>
+          <li <?php echo $service_purchase ?>>
+            <a href="/purchase">
+              <i class="fa fa-bars pr-2"></i>
+              ใบสั่งผลิต
             </a>
           </li>
         <?php endif ?>

@@ -33,6 +33,14 @@ td {
   font-size: 85%;
 }
 
+.font80 {
+  font-size: 80%;
+}
+
+.font90 {
+  font-size: 90%;
+}
+
 .table th, .table td {
   padding: 5px;
 }

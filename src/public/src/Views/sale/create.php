@@ -66,7 +66,7 @@ include_once(__DIR__ . "/../layout/header.php");
           </div>
 
           <div class="row justify-content-center mb-2">
-            <div class="col-sm-10">
+            <div class="col-xl-10">
               <div class="table-responsive">
                 <table class="table table-bordered table-sm item-table">
                   <thead>

@@ -254,6 +254,21 @@ class Sale
     return $this->dbcon->lastInsertId();
   }
 
+  public function customer_select($keyword)
+  {
+    $sql = "SELECT a.id,a.name text
+    FROM inventory.customer a
+    WHERE a.type = 2
+    AND a.status = 1 ";
+    if (!empty($keyword)) {
+      $sql .= " AND (a.name LIKE '%{$keyword}%' OR a.email LIKE '%{$keyword}%' OR a.contact LIKE '%{$keyword}%' OR a.address LIKE '%{$keyword}%') ";
+    }
+    $sql .= " ORDER BY a.name ASC LIMIT 50";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
   public function promotion_select($keyword)
   {
     $sql = "SELECT a.id,a.name text
@@ -280,21 +295,140 @@ class Sale
 
   public function product_select($keyword)
   {
-    $sql = "SELECT p.id,CONCAT('[',p.code,'] ',p.name) text
-    FROM inventory.product p
-    LEFT JOIN inventory.issue_item a
-    ON p.id = a.product_id
+    $sql = "SELECT e.id id,CONCAT('[',e.code,'] ',e.name) text
+    FROM inventory.issue_item a
     LEFT JOIN inventory.issue b
     ON a.issue_id = b.id
-    WHERE p.status = 1
-    AND p.location = 2
-    AND b.status = 2 ";
+    LEFT JOIN inventory.purchase c
+    ON a.purchase_id = c.id
+    LEFT JOIN inventory.sale d
+    ON a.sale_id = d.id
+    RIGHT JOIN inventory.product e
+    ON a.product_id = e.id
+    LEFT JOIN inventory.customer f
+    ON e.supplier = f.id
+    LEFT JOIN inventory.unit g
+    ON e.unit = g.id
+    LEFT JOIN inventory.brand h
+    ON e.brand = h.id 
+    LEFT JOIN inventory.category i
+    ON e.category = i.id 
+    LEFT JOIN inventory.location j
+    ON e.location = j.id
+    WHERE e.status = 1
+    AND j.id = 2 ";
     if (!empty($keyword)) {
-      $sql .= " AND (p.code LIKE '%{$keyword}%' OR p.name LIKE '%{$keyword}%') ";
+      $sql .= " AND (e.code LIKE '%{$keyword}%' OR e.name LIKE '%{$keyword}%') ";
     }
-    $sql .= " GROUP BY p.id ORDER BY p.code ASC LIMIT 50";
+    $sql .= " GROUP BY e.id
+    HAVING (
+    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0) ) -
+    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0))
+    ) > 0 ORDER BY e.code ASC LIMIT 50";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll();
+  }
+
+  public function product_show()
+  {
+    $sql = "SELECT e.id product_id,e.uuid product_uuid,e.code product_code,e.name product_name,
+    e.cost,e.price,e.min,e.max,
+    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0)) income,
+    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0)) outcome,
+    (
+    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0) ) -
+    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0))
+    ) remain,
+    e.supplier,f.name supplier_name,
+    e.unit,g.name unit_name,
+    e.brand,h.name brand_name,
+    e.category,i.name category_name,
+    e.location,j.name location_name,
+    IF(MAX(a.created) IS NOT NULL,
+      DATE_FORMAT(MAX(a.created),'%d/%m/%Y, %H:%i น.'),
+      DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')
+    ) created,
+    IF(e.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
+    IF(e.status = 1,'success','danger') status_color,
+    (SELECT `name` FROM inventory.product_image WHERE product = e.id AND status = 1 ORDER BY id ASC LIMIT 1) image
+    FROM inventory.issue_item a
+    LEFT JOIN inventory.issue b
+    ON a.issue_id = b.id
+    LEFT JOIN inventory.purchase c
+    ON a.purchase_id = c.id
+    LEFT JOIN inventory.sale d
+    ON a.sale_id = d.id
+    RIGHT JOIN inventory.product e
+    ON a.product_id = e.id
+    LEFT JOIN inventory.customer f
+    ON e.supplier = f.id
+    LEFT JOIN inventory.unit g
+    ON e.unit = g.id
+    LEFT JOIN inventory.brand h
+    ON e.brand = h.id 
+    LEFT JOIN inventory.category i
+    ON e.category = i.id 
+    LEFT JOIN inventory.location j
+    ON e.location = j.id
+    WHERE e.status = 1
+    AND j.id = 2
+    GROUP BY e.id
+    HAVING (
+    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0) ) -
+    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0))
+    ) > 0";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
+  public function product_detail($data)
+  {
+    $sql = "SELECT e.id product_id,e.uuid product_uuid,e.code product_code,e.name product_name,
+    e.cost,e.price,e.min,e.max,
+    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0)) income,
+    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0)) outcome,
+    (
+    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0) ) -
+    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0))
+    ) remain,
+    e.supplier,f.name supplier_name,
+    e.unit,g.name unit_name,
+    e.brand,h.name brand_name,
+    e.category,i.name category_name,
+    e.location,j.name location_name,
+    IF(MAX(a.created) IS NOT NULL,
+      DATE_FORMAT(MAX(a.created),'%d/%m/%Y, %H:%i น.'),
+      DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')
+    ) created,
+    IF(e.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
+    IF(e.status = 1,'success','danger') status_color,
+    (SELECT `name` FROM inventory.product_image WHERE product = e.id AND status = 1 ORDER BY id ASC LIMIT 1) image
+    FROM inventory.issue_item a
+    LEFT JOIN inventory.issue b
+    ON a.issue_id = b.id
+    LEFT JOIN inventory.purchase c
+    ON a.purchase_id = c.id
+    LEFT JOIN inventory.sale d
+    ON a.sale_id = d.id
+    RIGHT JOIN inventory.product e
+    ON a.product_id = e.id
+    LEFT JOIN inventory.customer f
+    ON e.supplier = f.id
+    LEFT JOIN inventory.unit g
+    ON e.unit = g.id
+    LEFT JOIN inventory.brand h
+    ON e.brand = h.id 
+    LEFT JOIN inventory.category i
+    ON e.category = i.id 
+    LEFT JOIN inventory.location j
+    ON e.location = j.id
+    WHERE e.id = ?
+    GROUP BY e.id
+    ORDER BY e.code ASC";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    return $stmt->fetch();
   }
 }
