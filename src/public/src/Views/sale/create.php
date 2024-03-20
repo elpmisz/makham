@@ -26,6 +26,15 @@ include_once(__DIR__ . "/../layout/header.php");
             </div>
           </div>
           <div class="row mb-2">
+            <label class="col-xl-2 offset-xl-1 col-form-label">ลูกค้า</label>
+            <div class="col-xl-4">
+              <select class="form-control form-control-sm customer-select" name="customer"></select>
+              <div class="invalid-feedback">
+                กรุณาเลือกข้อมูล!
+              </div>
+            </div>
+          </div>
+          <div class="row mb-2">
             <label class="col-xl-2 offset-xl-1 col-form-label">รายละเอียด</label>
             <div class="col-xl-6">
               <textarea class="form-control form-control-sm" name="text" rows="5" required></textarea>
@@ -71,13 +80,13 @@ include_once(__DIR__ . "/../layout/header.php");
                 <table class="table table-bordered table-sm item-table">
                   <thead>
                     <tr>
-                      <th width="10%">#</th>
+                      <th width="5%">#</th>
                       <th width="40%">สินค้า</th>
                       <th width="10%">หน่วยนับ</th>
                       <th width="10%">ราคาขาย</th>
                       <th width="10%">ปริมาณ (คงเหลือ)</th>
                       <th width="10%">ปริมาณ (ขาย)</th>
-                      <th width="10%">รวม</th>
+                      <th width="15%">รวม</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -120,8 +129,12 @@ include_once(__DIR__ . "/../layout/header.php");
                       <td class="text-right h6"><span class="total-vat"></span></td>
                     </tr>
                     <tr>
-                      <td class="text-right h6" colspan="6">จำนวนเงินรวมทั้งสิ้น</td>
+                      <td class="text-right h6" colspan="6">ราคาไม่รวมภาษีมูลค่าเพิ่ม</td>
                       <td class="text-right h6"><span class="total-all"></span></td>
+                    </tr>
+                    <tr>
+                      <td class="text-right h6" colspan="6">จำนวนเงินรวมทั้งสิ้น</td>
+                      <td class="text-right h5"><span class="total-discount"></span></td>
                     </tr>
                   </tbody>
                 </table>
@@ -230,14 +243,32 @@ include_once(__DIR__ . "/../layout/header.php");
     $(".total-discount").text(total_discount.toLocaleString("en-US", {
       minimumFractionDigits: 2
     }))
-    let total_vat = (total_discount * (vat / 100));
+    let total_vat = (total_discount * (vat / 107));
     $(".total-vat").text(total_vat.toLocaleString("en-US", {
       minimumFractionDigits: 2
     }));
-    let total_all = (total_discount + total_vat);
+    let total_all = (total_discount - total_vat);
     $(".total-all").text(total_all.toLocaleString("en-US", {
       minimumFractionDigits: 2
     }));
+  });
+
+  $(".customer-select").select2({
+    placeholder: "-- ลูกค้า --",
+    allowClear: true,
+    width: "100%",
+    ajax: {
+      url: "/pos/customer-select",
+      method: "POST",
+      dataType: "json",
+      delay: 100,
+      processResults: function(data) {
+        return {
+          results: data
+        };
+      },
+      cache: true
+    }
   });
 
   $(".promotion-select").select2({

@@ -1,6 +1,6 @@
 <?php
-$menu = "home";
-$page = "home-index";
+$menu = "dashboard";
+$page = "dashboard-sale";
 include_once(__DIR__ . "/../layout/header.php");
 
 use App\Classes\User;

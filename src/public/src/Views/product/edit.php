@@ -40,6 +40,8 @@ $inactive = (intval($row['status']) === 2 ? "checked" : "");
 
 $boms = $BOM->item_view([$bom_uuid]);
 $issue_count = $PRODUCT->issue_count([$id]);
+
+$url = "{$_SERVER['HTTP_REFERER']}/complete/{$uuid}";
 ?>
 
 <div class="row">
@@ -51,10 +53,9 @@ $issue_count = $PRODUCT->issue_count([$id]);
       <div class="card-body">
         <form action="/product/update" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
-
           <?php if (count($images) > 0) : ?>
             <div class="row mb-2 justify-content-center">
-              <div class="col-xl-4">
+              <div class="col-xl-4 offset-xl-4">
                 <div id="control" class="carousel slide" data-ride="carousel">
                   <div class="carousel-inner">
                     <?php foreach ($images as $key => $image) : ?>
@@ -69,8 +70,20 @@ $issue_count = $PRODUCT->issue_count([$id]);
                   </button>
                 </div>
               </div>
+              <div class="col-xl-4">
+                <img src="<?php echo "https://chart.googleapis.com/chart?cht=qr&chl={$url}&chs=200x200&choe=UTF-8" ?>">
+              </div>
             </div>
           <?php endif; ?>
+
+          <?php if (count($images) <= 0) : ?>
+            <div class="row mb-2 justify-content-center">
+              <div class="col-xl-4 offset-xl-8">
+                <img src="<?php echo "https://chart.googleapis.com/chart?cht=qr&chl={$url}&chs=200x200&choe=UTF-8" ?>">
+              </div>
+            </div>
+          <?php endif; ?>
+
           <div class="row mb-2">
             <label class="col-xl-2 col-form-label">รูปวัตถุดิบ / สินค้า</label>
             <div class="col-xl-6">

@@ -7,7 +7,7 @@ include_once(__DIR__ . "/../../../vendor/autoload.php");
 
 $jwt = (isset($_COOKIE['jwt']) ? $_COOKIE['jwt'] : "");
 if (!empty($jwt)) {
-  die(header("Location: /home "));
+  die(header("Location: /dashboard/sale "));
 }
 
 use App\Classes\System;

@@ -128,6 +128,7 @@ $products = $SALE->product_show();
                                   <td class="text-right"><span class="product-price"><?php echo $pd['price'] ?></span></td>
                                   <td>
                                     <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $pid ?>">
+                                    <input type="hidden" class="form-control form-control-sm text-center" name="price[]" value="<?php echo $pd['price'] ?>">
                                     <input type="number" class="form-control form-control-sm text-center product-quantity" name="quantity[]" value="<?php echo $qty ?>">
                                   </td>
                                   <td class="text-right"><span class="product-total"><?php echo $total ?></span></td>
@@ -150,8 +151,12 @@ $products = $SALE->product_show();
                                 <td class="text-right h6"><span class="total-vat"></span></td>
                               </tr>
                               <tr>
-                                <td class="text-right h6" colspan="4">จำนวนเงินรวมทั้งสิ้น</td>
+                                <td class="text-right h6" colspan="4">ราคาไม่รวมภาษีมูลค่าเพิ่ม</td>
                                 <td class="text-right h6"><span class="total-all"></span></td>
+                              </tr>
+                              <tr>
+                                <td class="text-right h6" colspan="4">จำนวนเงินรวมทั้งสิ้น</td>
+                                <td class="text-right h5"><span class="total-discount"></span></td>
                               </tr>
                             <?php endif; ?>
                           </tbody>
@@ -230,11 +235,11 @@ $products = $SALE->product_show();
     $(".total-discount").text(total_discount.toLocaleString("en-US", {
       minimumFractionDigits: 2
     }))
-    let total_vat = (total_discount * (vat / 100));
+    let total_vat = (total_discount * (vat / 107));
     $(".total-vat").text(total_vat.toLocaleString("en-US", {
       minimumFractionDigits: 2
     }));
-    let total_all = (total_discount + total_vat);
+    let total_all = (total_discount - total_vat);
     $(".total-all").text(total_all.toLocaleString("en-US", {
       minimumFractionDigits: 2
     }));

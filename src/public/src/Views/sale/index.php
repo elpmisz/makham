@@ -12,13 +12,6 @@ include_once(__DIR__ . "/../layout/header.php");
       </div>
       <div class="card-body">
         <div class="row justify-content-end mb-2">
-          <?php if (intval($user['level']) === 9) : ?>
-            <div class="col-xl-3 mb-2">
-              <a href="/sale/auth" class="btn btn-info btn-sm btn-block">
-                <i class="fas fa-users pr-2"></i>สิทธิ์ใช้งาน
-              </a>
-            </div>
-          <?php endif; ?>
           <div class="col-xl-3 mb-2">
             <a href="/sale/download" class="btn btn-danger btn-sm btn-block">
               <i class="fas fa-download pr-2"></i>นำข้อมูลออก
@@ -44,6 +37,7 @@ include_once(__DIR__ . "/../layout/header.php");
                       <tr>
                         <th width="10%">สถานะ</th>
                         <th width="10%">ผู้ทำรายการ</th>
+                        <th width="10%">ลูกค้า</th>
                         <th width="30%">รายละเอียด</th>
                         <th width="10%">ส่งเสริมการขาย</th>
                         <th width="10%">ภาษีมูลค่าเพิ่ม</th>
@@ -110,10 +104,10 @@ include_once(__DIR__ . "/../layout/header.php");
         type: "POST",
       },
       columnDefs: [{
-        targets: [0, 1, 4],
+        targets: [0, 5],
         className: "text-center",
       }, {
-        targets: [5],
+        targets: [6],
         className: "text-right",
       }],
       "oLanguage": {
@@ -130,6 +124,15 @@ include_once(__DIR__ . "/../layout/header.php");
           "sPrevious": "ก่อนหน้า"
         }
       },
+      "rowCallback": function(row, data, index) {
+        let comma = [6]
+        for (i = 0; i <= comma.length; i++) {
+          let value = (parseInt(data[comma[i]]) !== 0 ? parseFloat(data[comma[i]]).toFixed(2) : 0);
+          value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          $(row).find('td:eq(' + comma[i] + ')').html(value)
+        }
+      },
+
     });
   };
 </script>

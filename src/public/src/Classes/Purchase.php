@@ -452,7 +452,7 @@ class Purchase
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "b.firstname", "c.name", "d.name", "a.amount", "a.date", "a.text", "a.created"];
+    $column = ["a.status", "b.firstname", "c.name", "d.name", "a.amount", "a.confirm", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");

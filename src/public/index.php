@@ -7,15 +7,6 @@ $ROUTER = new AltoRouter();
 $ROUTER->map("GET", "/pos", function () {
   require(__DIR__ . "/src/Views/pos/index.php");
 });
-$ROUTER->map("GET", "/pos/create", function () {
-  require(__DIR__ . "/src/Views/pos/create.php");
-});
-$ROUTER->map("GET", "/pos/edit/[**:params]", function ($params) {
-  require(__DIR__ . "/src/Views/pos/edit.php");
-});
-$ROUTER->map("GET", "/pos/download", function () {
-  require(__DIR__ . "/src/Views/pos/download.php");
-});
 $ROUTER->map("POST", "/pos/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/pos/action.php");
 });
@@ -27,8 +18,8 @@ $ROUTER->map("GET", "/sale", function () {
 $ROUTER->map("GET", "/sale/create", function () {
   require(__DIR__ . "/src/Views/sale/create.php");
 });
-$ROUTER->map("GET", "/sale/edit/[**:params]", function ($params) {
-  require(__DIR__ . "/src/Views/sale/edit.php");
+$ROUTER->map("GET", "/sale/complete/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/sale/complete.php");
 });
 $ROUTER->map("GET", "/sale/download", function () {
   require(__DIR__ . "/src/Views/sale/download.php");
@@ -124,6 +115,9 @@ $ROUTER->map("GET", "/product/create", function () {
 });
 $ROUTER->map("GET", "/product/edit/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/product/edit.php");
+});
+$ROUTER->map("GET", "/product/complete/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/product/complete.php");
 });
 $ROUTER->map("GET", "/product/download", function () {
   require(__DIR__ . "/src/Views/product/download.php");
@@ -300,12 +294,20 @@ $ROUTER->map("POST", "/user/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/user/action.php");
 });
 
+##################### DASHBOARD #####################
+$ROUTER->map("GET", "/dashboard/sale", function () {
+  require(__DIR__ . "/src/Views/dashboard/sale.php");
+});
+$ROUTER->map("GET", "/dashboard/purchase", function () {
+  require(__DIR__ . "/src/Views/dashboard/purchase.php");
+});
+$ROUTER->map("GET", "/dashboard/issue", function () {
+  require(__DIR__ . "/src/Views/dashboard/issue.php");
+});
+
 ##################### AUTH #####################
 $ROUTER->map("GET", "/", function () {
   require(__DIR__ . "/src/Views/home/login.php");
-});
-$ROUTER->map("GET", "/home", function () {
-  require(__DIR__ . "/src/Views/home/index.php");
 });
 $ROUTER->map("GET", "/auth", function () {
   require(__DIR__ . "/src/Views/home/auth.php");
@@ -319,7 +321,6 @@ $ROUTER->map("POST", "/[**:params]", function ($params) {
 $ROUTER->map("GET", "/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/home/action.php");
 });
-
 
 $MATCH = $ROUTER->match();
 

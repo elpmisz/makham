@@ -1,6 +1,8 @@
 <?php
-$home = (isset($menu) && ($menu === "home") ? "show" : "");
-$home_index = ($page === "home-index" ? 'class="active"' : "");
+$dashboard_menu = (isset($menu) && ($menu === "dashboard") ? "show" : "");
+$dashboard_sale = ($page === "dashboard-sale" ? 'class="active"' : "");
+$dashboard_purchase = ($page === "dashboard-purchase" ? 'class="active"' : "");
+$dashboard_issue = ($page === "dashboard-issue" ? 'class="active"' : "");
 
 $user_menu = (isset($menu) && ($menu === "user") ? "show" : "");
 $user_profile = ($page === "user-profile" ? 'class="active"' : "");
@@ -32,9 +34,29 @@ $auth_sale = (isset($user_auth[1]) ? intval($user_auth[1]) : "");
 $auth_issue = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
 ?>
 <nav id="sidebar">
-  <ul class="list-unstyled <?php echo $home ?>">
-    <li <?php echo $home_index ?>>
-      <a href="/home">หน้าหลัก</a>
+  <ul class="list-unstyled">
+    <li>
+      <a href="#dashboard-menu" data-toggle="collapse" class="dropdown-toggle">รายงาน</a>
+      <ul class="collapse list-unstyled <?php echo $dashboard_menu ?>" id="dashboard-menu">
+        <li <?php echo $dashboard_sale ?>>
+          <a href="/dashboard/sale">
+            <i class="fa fa-chart-line pr-2"></i>
+            รายงานขาย
+          </a>
+        </li>
+        <li <?php echo $dashboard_purchase ?>>
+          <a href="/dashboard/purchase">
+            <i class="fa fa-chart-line pr-2"></i>
+            รายงานผลิต
+          </a>
+        </li>
+        <li <?php echo $dashboard_issue ?>>
+          <a href="/dashboard/issue">
+            <i class="fa fa-chart-line pr-2"></i>
+            รายงานนำสินค้าเข้า - ออก
+          </a>
+        </li>
+      </ul>
     </li>
     <li>
       <a href="#user-menu" data-toggle="collapse" class="dropdown-toggle">ข้อมูลส่วนตัว</a>

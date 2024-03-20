@@ -18,8 +18,32 @@ $param2 = (isset($param[2]) ? $param[2] : "");
 
 if ($action === "create") {
   try {
-    echo "<pre>";
-    print_r($_POST);
+    $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
+    $customer = (isset($_POST['customer']) ? $VALIDATION->input($_POST['customer']) : "");
+    $text = "ขายผ่าน POS";
+    $promotion = (isset($_POST['promotion']) ? $VALIDATION->input($_POST['promotion']) : "");
+    $vat = (isset($_POST['vat']) ? $VALIDATION->input($_POST['vat']) : "");
+    $last = $SALE->sale_last();
+
+    $SALE->sale_insert([$last, $user_id, $customer, $text, $promotion, $vat]);
+    $sale_id = $SALE->last_insert_id();
+
+    $total = 0;
+    foreach ($_POST['product'] as $key => $value) {
+      $product = (isset($_POST['product'][$key]) ? $VALIDATION->input($_POST['product'][$key]) : "");
+      $price = (isset($_POST['price'][$key]) ? $VALIDATION->input($_POST['price'][$key]) : "");
+      $quantity = (isset($_POST['quantity'][$key]) ? $VALIDATION->input($_POST['quantity'][$key]) : "");
+
+      $total += ($price * $quantity);
+
+      if (!empty($product)) {
+        $SALE->item_insert([$sale_id, $product, $price, $quantity, $quantity]);
+      }
+    }
+    $SALE->amount_update([$total, $sale_id]);
+    unset($_SESSION['cart']);
+
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/pos");
   } catch (PDOException $e) {
     die($e->getMessage());
   }

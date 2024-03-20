@@ -347,7 +347,7 @@ class Issue
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.name", "a.text", "a.updated"];
+    $column = ["a.status", "a.type", "b.firstname", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -446,7 +446,7 @@ class Issue
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "", "a.name", "a.text", "a.updated"];
+    $column = ["a.status", "a.type", "b.firstname", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -545,7 +545,7 @@ class Issue
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "", "a.name", "a.text", "a.updated"];
+    $column = ["a.status", "a.type", "b.firstname", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");

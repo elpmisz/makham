@@ -41,32 +41,14 @@ class Sale
 
   public function sale_insert($data)
   {
-    $sql = "INSERT INTO inventory.sale(uuid,last,user_id,text,promotion,vat) VALUES(uuid(),?,?,?,?,?)";
+    $sql = "INSERT INTO inventory.sale(uuid,last,user_id,customer_id,text,promotion,vat) VALUES(uuid(),?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
 
   public function item_insert($data)
   {
-    $sql = "SELECT a.uuid,a.text,a.user_id,CONCAT(b.firstname,' ',b.lastname) username,
-    a.promotion,c.name promotion_name,c.discount,a.vat,a.amount,
-    ((a.amount * c.discount) / 100) discount_amount,
-    (a.amount - ((a.amount * c.discount) / 100)) discount_total,
-    (
-      ((a.amount - 
-      ((a.amount * c.discount) / 100)) * 7) / 100
-    ) vat_total,
-    (
-      (a.amount - ((a.amount * c.discount) / 100)) + 
-      (((a.amount - ((a.amount * c.discount) / 100)) * 7) / 100)
-    ) sale_total,
-    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
-    FROM inventory.sale a
-    LEFT JOIN inventory.user b
-    ON a.user_id = b.id
-    LEFT JOIN inventory.promotion c
-    ON a.promotion = c.id
-    WHERE a.uuid = ?";
+    $sql = "INSERT INTO inventory.issue_item(sale_id,product_id,price,quantity,confirm) VALUES(?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -75,24 +57,26 @@ class Sale
   {
     $sql = "SELECT a.uuid,a.text,CONCAT('SA',YEAR(a.created),LPAD(a.last,4,'0')) ticket,
     a.user_id,CONCAT(b.firstname,' ',b.lastname) fullname,
+    a.customer_id,d.name customer,
     a.promotion,c.name promotion_name,c.type promotion_type,
     IF(c.type = 1,c.discount,(c.discount / 100)) discount,a.vat,a.amount,
-    ((a.amount * c.discount) / 100) discount_amount,
-    (a.amount - ((a.amount * c.discount) / 100)) discount_total,
-    (
-      ((a.amount - 
-      ((a.amount * c.discount) / 100)) * 7) / 100
-    ) vat_total,
-    (
-      (a.amount - ((a.amount * c.discount) / 100)) + 
-      (((a.amount - ((a.amount * c.discount) / 100)) * 7) / 100)
-    ) sale_total,
+    ROUND(((a.amount * c.discount) / 100),2) discount_amount,
+    ROUND((a.amount - ((a.amount * c.discount) / 100)),2) sale_total,
+    ROUND((
+      ((a.amount - ((a.amount * c.discount) / 100)) * 7) / 107
+    ),2) vat_total,
+    ROUND((
+      (a.amount - ((a.amount * c.discount) / 100)) -
+      (((a.amount - ((a.amount * c.discount) / 100)) * 7) / 107)
+    ),2) discount_total,
     DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
     FROM inventory.sale a
     LEFT JOIN inventory.user b
     ON a.user_id = b.id
     LEFT JOIN inventory.promotion c
     ON a.promotion = c.id
+    LEFT JOIN inventory.customer d
+    ON a.customer_id = d.id
     WHERE a.uuid = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
@@ -161,7 +145,7 @@ class Sale
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.name", "a.text", "a.updated"];
+    $column = ["a.status", "b.firstname", "d.name", "a.text", "c.name", "a.vat", "ROUND((a.amount - ((a.amount * c.discount) / 100)),2)", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -171,18 +155,18 @@ class Sale
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.uuid,a.text,a.user_id,CONCAT(b.firstname,' ',b.lastname) username,
+    $sql = "SELECT a.uuid,a.text,a.user_id,CONCAT(b.firstname,' ',b.lastname) fullname,
+    a.customer_id,d.name customer,
     a.promotion,c.name promotion_name,c.discount,a.vat,a.amount,
-    ((a.amount * c.discount) / 100) discount_amount,
-    (a.amount - ((a.amount * c.discount) / 100)) discount_total,
-    (
-      ((a.amount - 
-      ((a.amount * c.discount) / 100)) * 7) / 100
-    ) vat_total,
+    ROUND(((a.amount * c.discount) / 100),2) discount_amount,
+    ROUND((a.amount - ((a.amount * c.discount) / 100)),2) sale_total,
     ROUND((
-      (a.amount - ((a.amount * c.discount) / 100)) + 
-      (((a.amount - ((a.amount * c.discount) / 100)) * 7) / 100)
-    ),2) sale_total,
+      ((a.amount - ((a.amount * c.discount) / 100)) * 7) / 107
+    ),2) vat_total,
+    ROUND((
+      (a.amount - ((a.amount * c.discount) / 100)) -
+      (((a.amount - ((a.amount * c.discount) / 100)) * 7) / 107)
+    ),2) discount_total,
     (
       CASE
         WHEN a.status = 1 THEN 'ทำรายการเรียบร้อยแล้ว'
@@ -202,7 +186,9 @@ class Sale
     LEFT JOIN inventory.user b
     ON a.user_id = b.id
     LEFT JOIN inventory.promotion c
-    ON a.promotion = c.id ";
+    ON a.promotion = c.id
+    LEFT JOIN inventory.customer d
+    ON a.customer_id = d.id ";
 
     if (!empty($keyword)) {
       $sql .= " WHERE a.text LIKE '%{$keyword}%' ";
@@ -228,10 +214,11 @@ class Sale
 
     $data = [];
     foreach ($result as $row) {
-      $status = "<a href='/sale/edit/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a>";
+      $status = "<a href='/sale/complete/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a>";
       $data[] = [
         $status,
-        $row['username'],
+        $row['fullname'],
+        $row['customer'],
         str_replace("\n", "<br>", $row['text']),
         $row['promotion_name'],
         "{$row['vat']} %",
