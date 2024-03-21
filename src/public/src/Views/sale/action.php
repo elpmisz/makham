@@ -40,58 +40,13 @@ if ($action === "create") {
         $SALE->item_insert([$sale_id, $product, $price, $quantity, $quantity]);
       }
     }
-    $SALE->amount_update([$total, $sale_id]);
+    $discount = $SALE->discount_view([$promotion]);
+    $discount_type = $discount['type'];
+    $discount_value = $discount['discount'];
+    $discount = (intval($discount_type) === 1 ? $discount_value : ($total * $discount_value));
 
-    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/sale");
-  } catch (PDOException $e) {
-    die($e->getMessage());
-  }
-}
-
-if ($action === "upload") {
-  try {
-    $file_name = (isset($_FILES['file']['name']) ? $_FILES['file']['name'] : '');
-    $file_tmp = (isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '');
-    $file_allow = ["xls", "xlsx", "csv"];
-    $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
-
-    if (!in_array($file_extension, $file_allow)) :
-      $VALIDATION->alert("danger", "เฉพาะเอกสาร XLS XLSX CSV!", "/sale");
-    endif;
-
-    if ($file_extension === "xls") {
-      $READER = new \PhpOffice\PhpSpreadsheet\Reader\Xls();
-    } elseif ($file_extension === "xlsx") {
-      $READER = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
-    } else {
-      $READER = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
-    }
-
-    $READ = $READER->load($file_tmp);
-    $result = $READ->getActiveSheet()->toArray();
-
-    $data = [];
-    foreach ($result as $value) {
-      $data[] = array_map("trim", $value);
-    }
-
-    foreach ($data as $key => $value) {
-      if (!in_array($key, [0])) {
-        $uuid = (isset($value[0]) ? $value[0] : "");
-        $name = (isset($value[1]) ? $value[1] : "");
-        $text = (isset($value[2]) ? $value[2] : "");
-        $status = (isset($value[3]) ? $value[3] : "");
-        $status = ($status === "ใช้งาน" ? 1 : 2);
-
-        $count = $SALE->uuid_count([$uuid]);
-
-        if (intval($count) > 0) {
-          $SALE->sale_update([$name, $text, $status, $uuid]);
-        } else {
-          $SALE->sale_insert([$name, $text]);
-        }
-      }
-    }
+    $total = ($total - $discount);
+    $SALE->amount_update([$total, $discount, $sale_id]);
 
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/sale");
   } catch (PDOException $e) {

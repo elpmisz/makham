@@ -40,6 +40,12 @@ if ($action === "create") {
         $SALE->item_insert([$sale_id, $product, $price, $quantity, $quantity]);
       }
     }
+
+    $discount = $SALE->discount_view([$promotion]);
+    $discount_type = $discount['type'];
+    $discount_value = $discount['discount'];
+
+    $total = (intval($discount_type) === 1 ? ($total - $discount_value) : ($total - ($total * $discount_value)));
     $SALE->amount_update([$total, $sale_id]);
     unset($_SESSION['cart']);
 

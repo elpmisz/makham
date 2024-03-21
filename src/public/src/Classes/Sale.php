@@ -33,7 +33,8 @@ class Sale
   public function amount_update($data)
   {
     $sql = "UPDATE inventory.sale SET
-    amount  = ?
+    amount  = ?,
+    discount = ?
     WHERE id = ?";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
@@ -59,15 +60,15 @@ class Sale
     a.user_id,CONCAT(b.firstname,' ',b.lastname) fullname,
     a.customer_id,d.name customer,
     a.promotion,c.name promotion_name,c.type promotion_type,
-    IF(c.type = 1,c.discount,(c.discount / 100)) discount,a.vat,a.amount,
-    ROUND(((a.amount * c.discount) / 100),2) discount_amount,
-    ROUND((a.amount - ((a.amount * c.discount) / 100)),2) sale_total,
+    IF(c.type = 1,c.discount,(c.discount / 100)) discount,a.vat,a.amount,c.type,
+    IF(c.type = 1,c.discount,(a.amount * (c.discount/100))) discount_amount,
+    ROUND((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))),2) sale_total,
     ROUND((
-      ((a.amount - ((a.amount * c.discount) / 100)) * 7) / 107
+      ((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107
     ),2) vat_total,
     ROUND((
-      (a.amount - ((a.amount * c.discount) / 100)) -
-      (((a.amount - ((a.amount * c.discount) / 100)) * 7) / 107)
+      (a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) -
+      (((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107)
     ),2) discount_total,
     DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
     FROM inventory.sale a
@@ -101,24 +102,14 @@ class Sale
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
-  public function sale_update($data)
+  public function discount_view($data)
   {
-    $sql = "UPDATE inventory.sale SET
-    name = ?,
-    text = ?,
-    status = ?,
-    updated = NOW()
-    WHERE uuid = ?";
-    $stmt = $this->dbcon->prepare($sql);
-    return $stmt->execute($data);
-  }
-
-  public function uuid_count($data)
-  {
-    $sql = "SELECT COUNT(*) FROM inventory.sale WHERE uuid = ?";
+    $sql = "SELECT a.type,IF(a.type = 1,a.discount,(a.discount/100)) discount
+    FROM inventory.promotion a
+    WHERE a.id = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
-    return $stmt->fetchColumn();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
   }
 
   public function download()
@@ -158,14 +149,14 @@ class Sale
     $sql = "SELECT a.uuid,a.text,a.user_id,CONCAT(b.firstname,' ',b.lastname) fullname,
     a.customer_id,d.name customer,
     a.promotion,c.name promotion_name,c.discount,a.vat,a.amount,
-    ROUND(((a.amount * c.discount) / 100),2) discount_amount,
-    ROUND((a.amount - ((a.amount * c.discount) / 100)),2) sale_total,
+    IF(c.type = 1,c.discount,(a.amount * (c.discount/100))) discount_amount,
+    ROUND((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))),2) sale_total,
     ROUND((
-      ((a.amount - ((a.amount * c.discount) / 100)) * 7) / 107
+      ((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107
     ),2) vat_total,
     ROUND((
-      (a.amount - ((a.amount * c.discount) / 100)) -
-      (((a.amount - ((a.amount * c.discount) / 100)) * 7) / 107)
+      (a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) -
+      (((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107)
     ),2) discount_total,
     (
       CASE

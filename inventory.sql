@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: database
--- Generation Time: Mar 18, 2024 at 09:53 AM
+-- Generation Time: Mar 21, 2024 at 09:52 AM
 -- Server version: 11.3.2-MariaDB-1:11.3.2+maria~ubu2204
 -- PHP Version: 8.2.17
 
@@ -1209,8 +1209,10 @@ INSERT INTO `issue_item` (`id`, `issue_id`, `purchase_id`, `sale_id`, `product_i
 (22, NULL, 2, NULL, 113, NULL, 200.0000, 200.0000, 1, NULL, '2024-03-15 14:13:36'),
 (23, NULL, 2, NULL, 81, NULL, 24.0000, 24.0000, 1, NULL, '2024-03-15 14:13:36'),
 (24, 4, NULL, NULL, 165, NULL, 200.0000, 200.0000, 1, NULL, '2024-03-18 04:31:54'),
-(25, NULL, NULL, 1, 165, 30.0000, 20.0000, 20.0000, 1, NULL, '2024-03-18 06:49:08'),
-(26, NULL, NULL, 1, 166, 30.0000, 20.0000, 20.0000, 1, NULL, '2024-03-18 06:49:08');
+(25, NULL, NULL, 1, 165, 30.0000, 10.0000, 10.0000, 1, NULL, '2024-03-20 06:46:04'),
+(26, NULL, NULL, 1, 166, 30.0000, 10.0000, 10.0000, 1, NULL, '2024-03-20 06:46:04'),
+(27, NULL, NULL, 2, 165, 30.0000, 15.0000, 15.0000, 1, NULL, '2024-03-20 06:46:44'),
+(28, NULL, NULL, 2, 166, 30.0000, 15.0000, 15.0000, 1, NULL, '2024-03-20 06:46:44');
 
 -- --------------------------------------------------------
 
@@ -1508,7 +1510,7 @@ INSERT INTO `product` (`id`, `uuid`, `code`, `bom_id`, `name`, `cost`, `price`, 
 (162, 0x37653362316466302d646236352d313165652d38, '14-061', NULL, 'กล่องมะขามฝัก (สีเขียว)', 0.00, 0.00, 0, 0, 0, 0, 0, 3, 1, '', 1, NULL, '2024-03-06 09:59:03'),
 (163, 0x37653362363563322d646236352d313165652d38, '14-062', NULL, 'กล่องมะขามฝัก (สีม่วง)', 0.00, 0.00, 0, 0, 0, 0, 0, 3, 1, '', 1, NULL, '2024-03-06 09:59:03'),
 (164, 0x37653362653466652d646236352d313165652d38, '14-063', NULL, 'กล่องน้ำตาล', 0.00, 0.00, 0, 0, 0, 0, 0, 3, 1, '', 1, NULL, '2024-03-06 09:59:03'),
-(165, 0x36633836333037622d653162622d313165652d39, 'XXX-1234', 1, 'มะขามจี๊ดจ๊าด รสเปรี้ยว 145 กรัม', 0.00, 30.00, 0, 0, 0, 3, 0, 4, 2, '', 1, '2024-03-14 16:47:38', '2024-03-14 11:29:17'),
+(165, 0x36633836333037622d653162622d313165652d39, 'XXX-1234', 1, 'มะขามจี๊ดจ๊าด รสเปรี้ยว 145 กรัม', 0.00, 30.00, 0, 0, 0, 3, 0, 4, 2, '', 1, '2024-03-19 07:32:07', '2024-03-14 11:29:17'),
 (166, 0x61336564616332322d653165362d313165652d39, 'XXX-4567', 2, 'มะขามจี๊ดจ๊าด รสบ๊วย 145 กรัม', 0.00, 30.00, 0, 0, 0, 3, 0, 4, 2, '', 1, NULL, '2024-03-14 16:38:38');
 
 -- --------------------------------------------------------
@@ -1567,7 +1569,7 @@ CREATE TABLE `promotion` (
 --
 
 INSERT INTO `promotion` (`id`, `uuid`, `name`, `date`, `start`, `end`, `discount`, `type`, `text`, `status`, `updated`, `created`) VALUES
-(1, 0x62343632393335632d653236642d313165652d61, 'วันสงกรานต์  01/04/2024 - 30/04/2024', '01/04/2024 - 30/04/2024', '2024-04-01', '2024-04-30', 5, 2, '', 1, '2024-03-15 08:45:56', '2024-03-15 08:45:28'),
+(1, 0x62343632393335632d653236642d313165652d61, 'วันสงกรานต์  01/04/2024 - 30/04/2024', '01/04/2024 - 30/04/2024', '2024-04-01', '2024-04-30', 5, 2, '', 1, '2024-03-21 06:28:13', '2024-03-15 08:45:28'),
 (2, 0x64663837336334642d653236642d313165652d61, 'วันสิ้นปี - วันปีใหม่ 01/12/2023 - 31/01/2024', '01/12/2023 - 31/01/2024', '2023-12-01', '2024-01-31', 5, 2, '', 1, NULL, '2024-03-15 08:46:41');
 
 -- --------------------------------------------------------
@@ -1761,10 +1763,12 @@ CREATE TABLE `sale` (
   `uuid` binary(20) NOT NULL,
   `last` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `customer_id` int(11) DEFAULT NULL,
   `text` text NOT NULL,
   `promotion` int(11) NOT NULL,
   `vat` int(11) NOT NULL,
   `amount` decimal(20,4) NOT NULL,
+  `discount` decimal(20,4) NOT NULL,
   `status` int(1) NOT NULL DEFAULT 1,
   `updated` datetime DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT current_timestamp()
@@ -1774,8 +1778,9 @@ CREATE TABLE `sale` (
 -- Dumping data for table `sale`
 --
 
-INSERT INTO `sale` (`id`, `uuid`, `last`, `user_id`, `text`, `promotion`, `vat`, `amount`, `status`, `updated`, `created`) VALUES
-(1, 0x31306635653264632d653465662d313165652d39, 1, 1, 'ทดสอบสั่งขาย\r\nทดสอบสั่งขาย', 1, 7, 1200.0000, 1, NULL, '2024-03-18 06:49:08');
+INSERT INTO `sale` (`id`, `uuid`, `last`, `user_id`, `customer_id`, `text`, `promotion`, `vat`, `amount`, `discount`, `status`, `updated`, `created`) VALUES
+(1, 0x39656266626135382d653637662d313165652d39, 1, 1, 0, 'ขายผ่าน POS', 1, 7, 600.0000, 0.0000, 1, NULL, '2024-02-20 06:46:04'),
+(2, 0x62363131616239302d653637662d313165652d39, 2, 1, 2, 'ขายผ่าน POS', 1, 7, 900.0000, 0.0000, 1, NULL, '2024-03-20 06:46:44');
 
 -- --------------------------------------------------------
 
@@ -9544,7 +9549,7 @@ ALTER TABLE `issue_auth`
 -- AUTO_INCREMENT for table `issue_item`
 --
 ALTER TABLE `issue_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `issue_text`
@@ -9616,7 +9621,7 @@ ALTER TABLE `purchase_text`
 -- AUTO_INCREMENT for table `sale`
 --
 ALTER TABLE `sale`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `subdistrict`

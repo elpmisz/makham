@@ -298,8 +298,14 @@ $ROUTER->map("POST", "/user/[**:params]", function ($params) {
 $ROUTER->map("GET", "/dashboard/sale", function () {
   require(__DIR__ . "/src/Views/dashboard/sale.php");
 });
+$ROUTER->map("POST", "/dashboard/sale/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/dashboard/sale_action.php");
+});
 $ROUTER->map("GET", "/dashboard/purchase", function () {
   require(__DIR__ . "/src/Views/dashboard/purchase.php");
+});
+$ROUTER->map("POST", "/dashboard/purchase/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/dashboard/purchase_action.php");
 });
 $ROUTER->map("GET", "/dashboard/issue", function () {
   require(__DIR__ . "/src/Views/dashboard/issue.php");
