@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: database
--- Generation Time: Mar 21, 2024 at 09:52 AM
+-- Generation Time: Mar 22, 2024 at 08:55 AM
 -- Server version: 11.3.2-MariaDB-1:11.3.2+maria~ubu2204
 -- PHP Version: 8.2.17
 
@@ -1212,7 +1212,9 @@ INSERT INTO `issue_item` (`id`, `issue_id`, `purchase_id`, `sale_id`, `product_i
 (25, NULL, NULL, 1, 165, 30.0000, 10.0000, 10.0000, 1, NULL, '2024-03-20 06:46:04'),
 (26, NULL, NULL, 1, 166, 30.0000, 10.0000, 10.0000, 1, NULL, '2024-03-20 06:46:04'),
 (27, NULL, NULL, 2, 165, 30.0000, 15.0000, 15.0000, 1, NULL, '2024-03-20 06:46:44'),
-(28, NULL, NULL, 2, 166, 30.0000, 15.0000, 15.0000, 1, NULL, '2024-03-20 06:46:44');
+(28, NULL, NULL, 2, 166, 30.0000, 15.0000, 15.0000, 1, NULL, '2024-03-20 06:46:44'),
+(29, NULL, NULL, 3, 166, 30.0000, 15.0000, 15.0000, 1, NULL, '2024-03-22 08:52:37'),
+(30, NULL, NULL, 3, 165, 30.0000, 5.0000, 5.0000, 1, NULL, '2024-03-22 08:52:37');
 
 -- --------------------------------------------------------
 
@@ -1780,7 +1782,8 @@ CREATE TABLE `sale` (
 
 INSERT INTO `sale` (`id`, `uuid`, `last`, `user_id`, `customer_id`, `text`, `promotion`, `vat`, `amount`, `discount`, `status`, `updated`, `created`) VALUES
 (1, 0x39656266626135382d653637662d313165652d39, 1, 1, 0, 'ขายผ่าน POS', 1, 7, 600.0000, 0.0000, 1, NULL, '2024-02-20 06:46:04'),
-(2, 0x62363131616239302d653637662d313165652d39, 2, 1, 2, 'ขายผ่าน POS', 1, 7, 900.0000, 0.0000, 1, NULL, '2024-03-20 06:46:44');
+(2, 0x62363131616239302d653637662d313165652d39, 2, 1, 2, 'ขายผ่าน POS', 1, 7, 900.0000, 0.0000, 1, NULL, '2024-03-20 06:46:44'),
+(3, 0x33643264646566622d653832392d313165652d62, 3, 1, 2, 'ขายผ่าน POS', 1, 7, 570.0000, 0.0500, 1, NULL, '2024-03-22 08:52:37');
 
 -- --------------------------------------------------------
 
@@ -9549,7 +9552,7 @@ ALTER TABLE `issue_auth`
 -- AUTO_INCREMENT for table `issue_item`
 --
 ALTER TABLE `issue_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `issue_text`
@@ -9621,7 +9624,7 @@ ALTER TABLE `purchase_text`
 -- AUTO_INCREMENT for table `sale`
 --
 ALTER TABLE `sale`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `subdistrict`

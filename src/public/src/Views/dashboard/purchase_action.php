@@ -46,3 +46,25 @@ if ($action === "machine-year-data") {
     die($e->getMessage());
   }
 }
+
+if ($action === "bom-month-data") {
+  try {
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    $result = $DASHBOARD->bom_purchase();
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "bom-year-data") {
+  try {
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    $result = $DASHBOARD->bom_purchase();
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}

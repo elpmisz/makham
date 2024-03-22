@@ -310,6 +310,16 @@ $ROUTER->map("POST", "/dashboard/purchase/[**:params]", function ($params) {
 $ROUTER->map("GET", "/dashboard/issue", function () {
   require(__DIR__ . "/src/Views/dashboard/issue.php");
 });
+$ROUTER->map("POST", "/dashboard/issue/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/dashboard/issue_action.php");
+});
+$ROUTER->map("GET", "/dashboard/product", function () {
+  require(__DIR__ . "/src/Views/dashboard/product.php");
+});
+$ROUTER->map("POST", "/dashboard/product/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/dashboard/product_action.php");
+});
+
 
 ##################### AUTH #####################
 $ROUTER->map("GET", "/", function () {

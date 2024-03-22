@@ -3,6 +3,7 @@ $dashboard_menu = (isset($menu) && ($menu === "dashboard") ? "show" : "");
 $dashboard_sale = ($page === "dashboard-sale" ? 'class="active"' : "");
 $dashboard_purchase = ($page === "dashboard-purchase" ? 'class="active"' : "");
 $dashboard_issue = ($page === "dashboard-issue" ? 'class="active"' : "");
+$dashboard_product = ($page === "dashboard-product" ? 'class="active"' : "");
 
 $user_menu = (isset($menu) && ($menu === "user") ? "show" : "");
 $user_profile = ($page === "user-profile" ? 'class="active"' : "");
@@ -38,22 +39,34 @@ $auth_issue = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
     <li>
       <a href="#dashboard-menu" data-toggle="collapse" class="dropdown-toggle">รายงาน</a>
       <ul class="collapse list-unstyled <?php echo $dashboard_menu ?>" id="dashboard-menu">
-        <li <?php echo $dashboard_sale ?>>
-          <a href="/dashboard/sale">
+        <?php if ($auth_sale === 1) : ?>
+          <li <?php echo $dashboard_sale ?>>
+            <a href="/dashboard/sale">
+              <i class="fa fa-chart-line pr-2"></i>
+              รายงานขาย
+            </a>
+          </li>
+        <?php endif; ?>
+        <?php if ($auth_perchase === 1) : ?>
+          <li <?php echo $dashboard_purchase ?>>
+            <a href="/dashboard/purchase">
+              <i class="fa fa-chart-line pr-2"></i>
+              รายงานผลิต
+            </a>
+          </li>
+        <?php endif; ?>
+        <?php if ($auth_issue === 1) : ?>
+          <li <?php echo $dashboard_issue ?>>
+            <a href="/dashboard/issue">
+              <i class="fa fa-chart-line pr-2"></i>
+              รายงานนำสินค้าเข้า - ออก
+            </a>
+          </li>
+        <?php endif; ?>
+        <li <?php echo $dashboard_product ?>>
+          <a href="/dashboard/product">
             <i class="fa fa-chart-line pr-2"></i>
-            รายงานขาย
-          </a>
-        </li>
-        <li <?php echo $dashboard_purchase ?>>
-          <a href="/dashboard/purchase">
-            <i class="fa fa-chart-line pr-2"></i>
-            รายงานผลิต
-          </a>
-        </li>
-        <li <?php echo $dashboard_issue ?>>
-          <a href="/dashboard/issue">
-            <i class="fa fa-chart-line pr-2"></i>
-            รายงานนำสินค้าเข้า - ออก
+            รายงานวัตถุดิบ / สินค้า
           </a>
         </li>
       </ul>

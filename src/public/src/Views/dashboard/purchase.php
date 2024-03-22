@@ -87,7 +87,9 @@ $card = $DASHBOARD->purchase_card();
                 <div class="col-xl-12 mb-2">
                   <canvas id="machine-month-chart"></canvas>
                 </div>
-                <table class="table table-sm table-hover machine-month-table"></table>
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover machine-month-table"></table>
+                </div>
               </div>
             </div>
           </div>
@@ -101,7 +103,43 @@ $card = $DASHBOARD->purchase_card();
                 <div class="col-xl-12 mb-2">
                   <canvas id="machine-year-chart"></canvas>
                 </div>
-                <table class="table table-sm table-hover machine-year-table"></table>
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover machine-year-table"></table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-xl-5">
+            <div class="card shadow">
+              <div class="card-header">
+                <h5>ยอดผลิตแยกตามสูตรการผลิต ประจำเดือน</h5>
+              </div>
+              <div class="card-body">
+                <div class="col-xl-12 mb-2">
+                  <canvas id="bom-month-chart"></canvas>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover bom-month-table"></table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-7">
+            <div class="card shadow">
+              <div class="card-header">
+                <h5>ยอดผลิตแยกตามสูตรการผลิต ประจำปี</h5>
+              </div>
+              <div class="card-body">
+                <div class="col-xl-12 mb-2">
+                  <canvas id="bom-year-chart"></canvas>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover bom-year-table"></table>
+                </div>
               </div>
             </div>
           </div>
@@ -202,11 +240,7 @@ $card = $DASHBOARD->purchase_card();
       console.log(error);
     });
 
-  var machineMonthChart = new Chart(
-    document.getElementById("machine-month-chart"), {
-      type: "doughnut",
-    }
-  );
+  var machineMonthChart = new Chart(document.getElementById("machine-month-chart"));
 
   function machineMonthRender(name, subjects, datas) {
     machineMonthChart.destroy();
@@ -237,11 +271,7 @@ $card = $DASHBOARD->purchase_card();
     );
   }
 
-  var machineYearChart = new Chart(
-    document.getElementById("machine-year-chart"), {
-      type: "bar",
-    }
-  );
+  var machineYearChart = new Chart(document.getElementById("machine-year-chart"));
 
   function machineYearRender(name, subjects, datas) {
     machineYearChart.destroy();
@@ -259,7 +289,127 @@ $card = $DASHBOARD->purchase_card();
           }]
         },
         options: {
+          indexAxis: 'y',
           responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        },
+      }
+    );
+  }
+
+  axios.post("/dashboard/purchase/bom-month-data")
+    .then((res) => {
+      let result = res.data;
+      let subjects = result.map(item => item.bom_name);
+      let datas = result.map(item => item.mm);
+
+      if (result.length > 0) {
+        let div = '<tr>';
+        div += '<th width="50%">เครื่องจักร</th>';
+        div += '<th width="50%">จำนวน</th>';
+        div += '</tr>';
+        result.forEach((v, k) => {
+          div += '<tr>';
+          div += '<td>' + v.bom_name + '</td>';
+          div += '<td class="text-right">' + Number(v.mm).toLocaleString() + '</td>';
+          div += '</tr>';
+        });
+
+        $(".bom-month-table").empty().html(div);
+        bomMonthRender("bom-month-chart", subjects, datas);
+      } else {
+        $(".bom-month-table").empty().html();
+      }
+    }).catch((error) => {
+      console.log(error);
+    });
+
+  axios.post("/dashboard/purchase/bom-year-data")
+    .then((res) => {
+      let result = res.data;
+      let subjects = result.map(item => item.bom_name);
+      let datas = result.map(item => item.yy);
+
+      if (result.length > 0) {
+        let div = '<tr>';
+        div += '<th width="50%">เครื่องจักร</th>';
+        div += '<th width="50%">จำนวน</th>';
+        div += '</tr>';
+        result.forEach((v, k) => {
+          div += '<tr>';
+          div += '<td>' + v.bom_name + '</td>';
+          div += '<td class="text-right">' + Number(v.yy).toLocaleString() + '</td>';
+          div += '</tr>';
+        });
+
+        $(".bom-year-table").empty().html(div);
+        bomYearRender("bom-year-chart", subjects, datas);
+      } else {
+        $(".bom-year-table").empty().html();
+      }
+    }).catch((error) => {
+      console.log(error);
+    });
+
+  var bomMonthChart = new Chart(document.getElementById("bom-month-chart"));
+
+  function bomMonthRender(name, subjects, datas) {
+    bomMonthChart.destroy();
+    bomMonthChart = new Chart(
+      document.getElementById(name),
+      config = {
+        type: "pie",
+        data: {
+          labels: subjects,
+          datasets: [{
+            label: "ประจำเดือน",
+            data: datas,
+            borderWidth: 1,
+            fill: true,
+            backgroundColor: getRandomColor(subjects.length),
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      }
+    );
+  }
+
+  var bomYearChart = new Chart(document.getElementById("bom-year-chart"));
+
+  function bomYearRender(name, subjects, datas) {
+    bomYearChart.destroy();
+    bomYearChart = new Chart(
+      document.getElementById(name),
+      config = {
+        type: "bar",
+        data: {
+          labels: subjects,
+          datasets: [{
+            label: "ประจำปี",
+            data: datas,
+            fill: false,
+            backgroundColor: getRandomColor(subjects.length),
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
         },
       }
     );

@@ -22,21 +22,9 @@ class DashboardPurchase
   public function purchase_card()
   {
     $sql = "SELECT 
-    FORMAT(SUM(
-      CASE 
-        WHEN DATE(a.created) = DATE(NOW()) THEN a.confirm ELSE 0
-      END
-    ),2) dd,
-    FORMAT(SUM(
-      CASE 
-        WHEN YEAR(a.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()) THEN a.confirm ELSE 0
-      END
-    ),2) mm,
-    FORMAT(SUM(
-      CASE 
-        WHEN YEAR(a.created) = YEAR(NOW()) THEN a.confirm ELSE 0
-      END
-    ),2) yy,
+    FORMAT(SUM(IF(DATE(a.created) = DATE(NOW()),a.confirm,0)),2) dd,
+    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()),a.confirm,0)),2) mm,
+    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()),a.confirm,0)),2) yy,
     FORMAT(SUM(a.confirm ),2) total
     FROM inventory.purchase a
     WHERE a.status IN (3,4,5)";
@@ -48,21 +36,9 @@ class DashboardPurchase
   public function machine_purchase()
   {
     $sql = "SELECT a.machine,b.name machine_name,
-    FORMAT(SUM(
-    CASE 
-      WHEN DATE(a.created) = DATE(NOW()) THEN a.confirm ELSE 0
-    END
-    ),2) dd,
-    FORMAT(SUM(
-    CASE 
-      WHEN YEAR(a.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()) THEN a.confirm ELSE 0
-    END
-    ),2) mm,
-    FORMAT(SUM(
-    CASE 
-      WHEN YEAR(a.created) = YEAR(NOW()) THEN a.confirm ELSE 0
-    END
-    ),2) yy,
+    FORMAT(SUM(IF(DATE(a.created) = DATE(NOW()),a.confirm,0)),2) dd,
+    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()),a.confirm,0)),2) mm,
+    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()),a.confirm,0)),2) yy,
     FORMAT(SUM(a.confirm ),2) total
     FROM inventory.purchase a
     LEFT JOIN inventory.machine b
@@ -77,21 +53,9 @@ class DashboardPurchase
   public function bom_purchase()
   {
     $sql = "SELECT a.bom,b.name bom_name,
-    FORMAT(SUM(
-    CASE 
-      WHEN DATE(a.created) = DATE(NOW()) THEN a.confirm ELSE 0
-    END
-    ),2) dd,
-    FORMAT(SUM(
-    CASE 
-      WHEN YEAR(a.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()) THEN a.confirm ELSE 0
-    END
-    ),2) mm,
-    FORMAT(SUM(
-    CASE 
-      WHEN YEAR(a.created) = YEAR(NOW()) THEN a.confirm ELSE 0
-    END
-    ),2) yy,
+    FORMAT(SUM(IF(DATE(a.created) = DATE(NOW()),a.confirm,0)),2) dd,
+    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()),a.confirm,0)),2) mm,
+    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()),a.confirm,0)),2) yy,
     FORMAT(SUM(a.confirm ),2) total
     FROM inventory.purchase a
     LEFT JOIN inventory.bom b
@@ -106,7 +70,7 @@ class DashboardPurchase
   public function sale_month()
   {
     $sql = "SELECT CONCAT('[',c.code,'] ',c.name) product,c.name product_name,SUM(a.confirm) amount,
-    ROUND(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) total
+    FORMAT(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) total
     FROM inventory.issue_item a
     LEFT JOIN inventory.sale b
     ON a.sale_id = b.id
@@ -118,7 +82,7 @@ class DashboardPurchase
     AND YEAR(b.created) = YEAR(NOW())
     AND MONTH(b.created) = MONTH(NOW())
     GROUP BY a.product_id
-    ORDER BY ROUND(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) DESC";
+    ORDER BY FORMAT(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) DESC";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll();
@@ -127,7 +91,7 @@ class DashboardPurchase
   public function sale_year()
   {
     $sql = "SELECT CONCAT('[',c.code,'] ',c.name) product,c.name product_name,SUM(a.confirm) amount,
-    ROUND(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) total
+    FORMAT(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) total
     FROM inventory.issue_item a
     LEFT JOIN inventory.sale b
     ON a.sale_id = b.id
@@ -138,7 +102,7 @@ class DashboardPurchase
     WHERE b.status = 1
     AND YEAR(b.created) = YEAR(NOW())
     GROUP BY a.product_id
-    ORDER BY ROUND(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) DESC";
+    ORDER BY FORMAT(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) DESC";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll();

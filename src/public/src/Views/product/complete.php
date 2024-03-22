@@ -72,6 +72,19 @@ $issue_count = $PRODUCT->issue_count([$id]);
             </div>
           <?php endif; ?>
 
+          <div class="row mb-2" style="display: none;">
+            <label class="col-xl-2 offset-xl-2 col-form-label">ID</label>
+            <div class="col-xl-4">
+              <input type="text" class="form-control form-control-sm" name="id" value="<?php echo $id ?>" readonly>
+            </div>
+          </div>
+          <div class="row mb-2" style="display: none;">
+            <label class="col-xl-2 offset-xl-2 col-form-label">UUID</label>
+            <div class="col-xl-4">
+              <input type="text" class="form-control form-control-sm" name="uuid" value="<?php echo $uuid ?>" readonly>
+            </div>
+          </div>
+
           <div class="row mb-2">
             <div class="col-xl-6">
               <div class="row mb-2">

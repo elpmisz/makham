@@ -46,8 +46,10 @@ if ($action === "create") {
     $discount_value = $discount['discount'];
 
     $total = (intval($discount_type) === 1 ? ($total - $discount_value) : ($total - ($total * $discount_value)));
-    $SALE->amount_update([$total, $sale_id]);
-    unset($_SESSION['cart']);
+
+    $SALE->amount_update([$total, $discount_value, $sale_id]);
+    session_unset();
+    session_destroy();
 
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/pos");
   } catch (PDOException $e) {
@@ -70,6 +72,17 @@ if ($action === "product-add") {
   try {
     $data = json_decode(file_get_contents("php://input"), true);
     $pid = $data['product'];
+    $customer = $data['customer'];
+    $customer_name = $SALE->customer_name([$customer]);
+    $promotion = $data['promotion'];
+    $promotion_name = $SALE->promotion_name([$promotion]);
+    $vat = $data['vat'];
+
+    $_SESSION['customer'] = $customer;
+    $_SESSION['customer_name'] = $customer_name;
+    $_SESSION['promotion'] = $promotion;
+    $_SESSION['promotion_name'] = $promotion_name;
+    $_SESSION['vat'] = $vat;
 
     if (isset($_SESSION['cart'][$pid])) {
       $_SESSION['cart'][$pid]++;
@@ -100,7 +113,9 @@ if ($action === "cart-clear") {
   try {
     $data = json_decode(file_get_contents("php://input"), true);
 
-    unset($_SESSION['cart']);
+    session_unset();
+    session_destroy();
+
     echo json_encode(200);
   } catch (PDOException $e) {
     die($e->getMessage());

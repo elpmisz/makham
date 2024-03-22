@@ -8,7 +8,6 @@ use App\Classes\Sale;
 $SALE = new Sale();
 $products = $SALE->product_show();
 ?>
-
 <div class="row">
   <div class="col-xl-12">
     <div class="row">
@@ -55,7 +54,13 @@ $products = $SALE->product_show();
                   <div class="row mb-2">
                     <label class="col-xl-4 col-form-label">ลูกค้า</label>
                     <div class="col-xl-8">
-                      <select class="form-control form-control-sm customer-select" name="customer"></select>
+                      <select class="form-control form-control-sm customer-select" name="customer">
+                        <?php
+                        if (!empty($_SESSION['customer'])) {
+                          echo "<option value='{$_SESSION['customer']}'>{$_SESSION['customer_name']}</option>";
+                        }
+                        ?>
+                      </select>
                       <div class="invalid-feedback">
                         กรุณาเลือกข้อมูล!
                       </div>
@@ -64,7 +69,13 @@ $products = $SALE->product_show();
                   <div class="row mb-2">
                     <label class="col-xl-4 col-form-label">ส่งเสริมการขาย</label>
                     <div class="col-xl-8">
-                      <select class="form-control form-control-sm promotion-select" name="promotion"></select>
+                      <select class="form-control form-control-sm promotion-select" name="promotion">
+                        <?php
+                        if (!empty($_SESSION['promotion'])) {
+                          echo "<option value='{$_SESSION['promotion']}'>{$_SESSION['promotion_name']}</option>";
+                        }
+                        ?>
+                      </select>
                       <div class="invalid-feedback">
                         กรุณาเลือกข้อมูล!
                       </div>
@@ -85,7 +96,7 @@ $products = $SALE->product_show();
                   <div class="row mb-2">
                     <label class="col-xl-4 col-form-label">ภาษีมูลค่าเพิ่ม</label>
                     <div class="col-xl-4">
-                      <input type="number" class="form-control form-control-sm text-center product-vat" name="vat" value="7" min="0" max="10">
+                      <input type="number" class="form-control form-control-sm text-center product-vat" name="vat" value="<?php echo (!empty($_SESSION['vat']) ? $_SESSION['vat'] : 7) ?>" min="0" max="10">
                       <div class="invalid-feedback">
                         กรุณากรอกข้อมูล!
                       </div>
@@ -301,10 +312,16 @@ $products = $SALE->product_show();
 
   $(document).on("click", ".product-add", function() {
     let product = $(this).prop("id");
+    let customer = $(".customer-select").val();
+    let promotion = $(".promotion-select").val();
+    let vat = $(".product-vat").val();
 
     if (product) {
       axios.post("/pos/product-add", {
-          product: product
+          product: product,
+          customer: customer,
+          promotion: promotion,
+          vat: vat
         })
         .then((res) => {
           let result = res.data;
@@ -349,10 +366,16 @@ $products = $SALE->product_show();
 
   $(document).on("change", ".product-select", function() {
     let product = $(this).val();
+    let customer = $(".customer-select").val();
+    let promotion = $(".promotion-select").val();
+    let vat = $(".product-vat").val();
 
     if (product) {
       axios.post("/pos/product-add", {
-          product: product
+          product: product,
+          customer: customer,
+          promotion: promotion,
+          vat: vat
         })
         .then((res) => {
           let result = res.data;

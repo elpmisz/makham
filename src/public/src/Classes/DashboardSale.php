@@ -22,21 +22,9 @@ class DashboardSale
   public function sale_card()
   {
     $sql = "SELECT  
-    FORMAT(SUM(
-      CASE 
-        WHEN DATE(a.created) = DATE(NOW()) THEN (a.amount - ((a.amount * c.discount) / 100)) ELSE 0
-      END
-    ),2) dd,
-    FORMAT(SUM(
-      CASE 
-        WHEN YEAR(a.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()) THEN (a.amount - ((a.amount * c.discount) / 100)) ELSE 0
-      END
-    ),2) mm,
-    FORMAT(SUM(
-      CASE 
-        WHEN YEAR(a.created) = YEAR(NOW()) THEN (a.amount - ((a.amount * c.discount) / 100)) ELSE 0
-      END
-    ),2) yy,
+    FORMAT(SUM(IF(DATE(a.created) = DATE(NOW()),(a.amount - ((a.amount * c.discount) / 100)),0)),2) dd,
+    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()),(a.amount - ((a.amount * c.discount) / 100)),0)),2) mm,
+    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()),(a.amount - ((a.amount * c.discount) / 100)),0)),2) yy,
     FORMAT(SUM((a.amount - ((a.amount * c.discount) / 100))),2) total
     FROM inventory.sale a
     LEFT JOIN inventory.user b

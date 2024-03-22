@@ -112,6 +112,28 @@ class Sale
     return $stmt->fetch(PDO::FETCH_ASSOC);
   }
 
+  public function customer_name($data)
+  {
+    $sql = "SELECT a.name
+    FROM inventory.customer a
+    WHERE a.id = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return (isset($row['name']) ? $row['name'] : "");
+  }
+
+  public function promotion_name($data)
+  {
+    $sql = "SELECT a.name
+    FROM inventory.promotion a
+    WHERE a.id = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return (isset($row['name']) ? $row['name'] : "");
+  }
+
   public function download()
   {
     $sql = "SELECT a.uuid,a.name,a.text,

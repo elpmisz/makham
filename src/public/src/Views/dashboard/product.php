@@ -1,52 +1,60 @@
 <?php
 $menu = "dashboard";
-$page = "dashboard-sale";
+$page = "dashboard-product";
 include_once(__DIR__ . "/../layout/header.php");
 
-use App\Classes\DashboardSale;
+use App\Classes\DashboardProduct;
 
-$DASHBOARD = new DashboardSale();
+$DASHBOARD = new DashboardProduct();
 
-$card = $DASHBOARD->sale_card();
+$card = $DASHBOARD->product_card();
 ?>
 <div class="row">
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">รายงานขาย</h4>
+        <h4 class="text-center">รายงานวัตถุดิบ / สินค้า</h4>
       </div>
       <div class="card-body">
 
         <div class="row mb-2">
-          <div class="col-xl-3 mb-2">
+          <div class="col-xl mb-2">
             <div class="card bg-primary text-white shadow">
               <div class="card-body">
                 <h3 class="text-right"><?php echo (isset($card['total']) ? $card['total'] : 0) ?></h3>
-                <h5 class="text-right">ยอดขายทั้งหมด</h5>
+                <h5 class="text-right">รายการทั้งหมด</h5>
               </div>
             </div>
           </div>
-          <div class="col-xl-3 mb-2">
+          <div class="col-xl mb-2">
             <div class="card bg-info text-white shadow">
               <div class="card-body">
-                <h3 class="text-right"><?php echo (isset($card['dd']) ? $card['dd'] : 0) ?></h3>
-                <h5 class="text-right">ยอดขายรายวัน</h5>
+                <h3 class="text-right"><?php echo (isset($card['rm']) ? $card['rm'] : 0) ?></h3>
+                <h5 class="text-right">วัตถุดิบ</h5>
               </div>
             </div>
           </div>
-          <div class="col-xl-3 mb-2">
+          <div class="col-xl mb-2">
             <div class="card bg-success text-white shadow">
               <div class="card-body">
-                <h3 class="text-right"><?php echo (isset($card['mm']) ? $card['mm'] : 0) ?></h3>
-                <h5 class="text-right">ยอดขายรายเดือน</h5>
+                <h3 class="text-right"><?php echo (isset($card['fg']) ? $card['fg'] : 0) ?></h3>
+                <h5 class="text-right">สินค้าสำเร็จรูป</h5>
               </div>
             </div>
           </div>
-          <div class="col-xl-3 mb-2">
+          <div class="col-xl mb-2">
             <div class="card bg-danger text-white shadow">
               <div class="card-body">
-                <h3 class="text-right"><?php echo (isset($card['yy']) ? $card['yy'] : 0) ?></h3>
-                <h5 class="text-right">ยอดขายรายปี</h5>
+                <h3 class="text-right"><?php echo (isset($card['mx']) ? $card['mx'] : 0) ?></h3>
+                <h5 class="text-right">ส่วนผสม</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl mb-2">
+            <div class="card bg-warning shadow">
+              <div class="card-body">
+                <h3 class="text-right"><?php echo (isset($card['pk']) ? $card['pk'] : 0) ?></h3>
+                <h5 class="text-right">บรรจุภัณฑ์</h5>
               </div>
             </div>
           </div>
@@ -57,17 +65,18 @@ $card = $DASHBOARD->sale_card();
             <div class="card shadow">
               <div class="card-body">
                 <div class="table-responsive">
-                  <table class="table table-bordered table-hover sale-data">
+                  <table class="table table-bordered table-hover product-data">
                     <thead>
                       <tr>
                         <th width="10%">สถานะ</th>
-                        <th width="10%">ผู้ทำรายการ</th>
-                        <th width="10%">ลูกค้า</th>
-                        <th width="30%">รายละเอียด</th>
-                        <th width="10%">ส่งเสริมการขาย</th>
-                        <th width="10%">ภาษีมูลค่าเพิ่ม</th>
-                        <th width="10%">จำนวนเงิน</th>
-                        <th width="10%">วันที่</th>
+                        <th width="10%">รหัส</th>
+                        <th width="20%">วัตถุดิบ / สินค้า</th>
+                        <th width="10%">นำเข้า (รวม)</th>
+                        <th width="10%">เบิกออก (รวม)</th>
+                        <th width="10%">คงเหลือ</th>
+                        <th width="10%">เบิกออก</th>
+                        <th width="10%">เบิกผลิต</th>
+                        <th width="10%">เบิกขาย</th>
                       </tr>
                     </thead>
                   </table>
@@ -78,43 +87,43 @@ $card = $DASHBOARD->sale_card();
         </div>
 
         <div class="row mb-2">
-          <div class="col-xl-7">
+          <div class="col-xl-6">
             <div class="card shadow">
               <div class="card-header">
-                <h5>สินค้าขายดี ประจำเดือน</h5>
+                <h5>จำนวนสินค้าแยกตามหมวดหมู่</h5>
               </div>
               <div class="card-body">
                 <div class="col-xl-12 mb-2">
-                  <canvas id="month-chart"></canvas>
+                  <canvas id="category-chart"></canvas>
                 </div>
                 <div class="table-responsive">
-                  <table class="table table-sm table-hover month-table"></table>
+                  <table class="table table-sm table-hover category-table"></table>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="col-xl-5">
+          <div class="col-xl-6">
             <div class="card shadow">
               <div class="card-header">
-                <h5>สินค้าขายดี ประจำปี</h5>
+                <h5>จำนวนสินค้าแยกตามสถานที่</h5>
               </div>
               <div class="card-body">
                 <div class="col-xl-12 mb-2">
-                  <canvas id="year-chart"></canvas>
+                  <canvas id="location-chart"></canvas>
                 </div>
                 <div class="table-responsive">
-                  <table class="table table-sm table-hover year-table"></table>
+                  <table class="table table-sm table-hover location-table"></table>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
+
       </div>
     </div>
   </div>
-</div>
 </div>
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
@@ -122,20 +131,20 @@ $card = $DASHBOARD->sale_card();
   filter_datatable();
 
   function filter_datatable() {
-    $(".sale-data").DataTable({
+    $(".product-data").DataTable({
       serverSide: true,
       searching: true,
       scrollX: true,
       order: [],
       ajax: {
-        url: "/dashboard/sale/sale-data",
+        url: "/dashboard/product/product-data",
         type: "POST",
       },
       columnDefs: [{
-        targets: [0, 5],
+        targets: [0, 1],
         className: "text-center",
       }, {
-        targets: [6],
+        targets: [3, 4, 5, 6, 7, 8],
         className: "text-right",
       }],
       "oLanguage": {
@@ -153,88 +162,82 @@ $card = $DASHBOARD->sale_card();
         }
       },
       "rowCallback": function(row, data, index) {
-        let comma = [6]
+        let comma = [3, 4, 5, 6, 7, 8]
         for (i = 0; i <= comma.length; i++) {
           let value = (parseInt(data[comma[i]]) !== 0 ? parseFloat(data[comma[i]]).toFixed(2) : 0);
           value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
           $(row).find('td:eq(' + comma[i] + ')').html(value)
         }
       },
-
     });
   };
 
-  axios.post("/dashboard/sale/month-data")
+  axios.post("/dashboard/product/category")
     .then((res) => {
       let result = res.data;
-      let subjects = result.map(item => item.product_name);
+      let subjects = result.map(item => item.category);
       let datas = result.map(item => item.total);
 
       if (result.length > 0) {
         let div = '<tr>';
-        div += '<th width="50%">สินค้า</th>';
-        div += '<th width="20%">จำนวน</th>';
-        div += '<th width="30%">ยอดรวม</th>';
+        div += '<th width="50%">ชื่อ</th>';
+        div += '<th width="50%">จำนวน</th>';
         div += '</tr>';
         result.forEach((v, k) => {
           div += '<tr>';
-          div += '<td>' + v.product + '</td>';
-          div += '<td class="text-center">' + Number(v.amount).toLocaleString() + '</td>';
+          div += '<td>' + v.category + '</td>';
           div += '<td class="text-right">' + Number(v.total).toLocaleString() + '</td>';
           div += '</tr>';
         });
 
-        $(".month-table").empty().html(div);
-        monthRender("month-chart", subjects, datas);
+        $(".category-table").empty().html(div);
+        categoryRender("category-chart", subjects, datas);
       } else {
-        $(".month-table").empty().html();
+        $(".category-table").empty().html();
       }
     }).catch((error) => {
       console.log(error);
     });
 
-
-  axios.post("/dashboard/sale/year-data")
+  axios.post("/dashboard/product/location")
     .then((res) => {
       let result = res.data;
-      let subjects = result.map(item => item.product_name);
+      let subjects = result.map(item => item.location);
       let datas = result.map(item => item.total);
 
       if (result.length > 0) {
         let div = '<tr>';
-        div += '<th width="50%">สินค้า</th>';
-        div += '<th width="20%">จำนวน</th>';
-        div += '<th width="30%">ยอดรวม</th>';
+        div += '<th width="50%">วัตถุดิบ / สินค้า</th>';
+        div += '<th width="50%">จำนวน</th>';
         div += '</tr>';
         result.forEach((v, k) => {
           div += '<tr>';
-          div += '<td>' + v.product + '</td>';
-          div += '<td class="text-center">' + Number(v.amount).toLocaleString() + '</td>';
+          div += '<td>' + v.location + '</td>';
           div += '<td class="text-right">' + Number(v.total).toLocaleString() + '</td>';
           div += '</tr>';
         });
 
-        $(".year-table").empty().html(div);
-        yearRender("year-chart", subjects, datas);
+        $(".location-table").empty().html(div);
+        locationRender("location-chart", subjects, datas);
       } else {
-        $(".year-table").empty().html();
+        $(".location-table").empty().html();
       }
     }).catch((error) => {
       console.log(error);
     });
 
-  var yearChart = new Chart(document.getElementById("year-chart"));
+  var categoryChart = new Chart(document.getElementById("category-chart"));
 
-  function yearRender(name, subjects, datas) {
-    yearChart.destroy();
-    yearChart = new Chart(
+  function categoryRender(name, subjects, datas) {
+    categoryChart.destroy();
+    categoryChart = new Chart(
       document.getElementById(name),
       config = {
-        type: "doughnut",
+        type: "bar",
         data: {
           labels: subjects,
           datasets: [{
-            label: "ประจำปี",
+            label: "หมวดหมู่",
             data: datas,
             borderWidth: 1,
             fill: true,
@@ -254,20 +257,21 @@ $card = $DASHBOARD->sale_card();
     );
   }
 
-  var monthChart = new Chart(document.getElementById("month-chart"));
+  var locationChart = new Chart(document.getElementById("location-chart"));
 
-  function monthRender(name, subjects, datas) {
-    monthChart.destroy();
-    monthChart = new Chart(
+  function locationRender(name, subjects, datas) {
+    locationChart.destroy();
+    locationChart = new Chart(
       document.getElementById(name),
       config = {
         type: "bar",
         data: {
           labels: subjects,
           datasets: [{
-            label: "ประจำเดือน",
+            label: "สถานที่",
             data: datas,
-            fill: false,
+            borderWidth: 1,
+            fill: true,
             backgroundColor: getRandomColor(subjects.length),
           }]
         },
@@ -278,7 +282,7 @@ $card = $DASHBOARD->sale_card();
               display: false
             }
           }
-        },
+        }
       }
     );
   }
