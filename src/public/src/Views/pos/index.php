@@ -20,7 +20,7 @@ $products = $SALE->product_show();
                   <?php foreach ($products as $product) : ?>
                     <div class="col-xl-4">
                       <div class="card shadow">
-                        <img src="/../src/Publics/product/<?php echo $product['image'] ?>" class="card-img-top" alt="product-image">
+                        <img src="/../src/Publics/product/<?php echo (!empty($product['image']) ? $product['image'] : "noimage.jpg") ?>" class="card-img-top" alt="product-image">
                         <div class="card-body">
                           <span class="font90"><?php echo $product['product_name'] ?></span>
                           <span><?php echo "{$product['price']} บาท" ?></span>
@@ -96,7 +96,7 @@ $products = $SALE->product_show();
                   <div class="row mb-2">
                     <label class="col-xl-4 col-form-label">ภาษีมูลค่าเพิ่ม</label>
                     <div class="col-xl-4">
-                      <input type="number" class="form-control form-control-sm text-center product-vat" name="vat" value="<?php echo (!empty($_SESSION['vat']) ? $_SESSION['vat'] : 7) ?>" min="0" max="10">
+                      <input type="number" class="form-control form-control-sm text-center product-vat" name="vat" value="<?php echo (!empty($_SESSION['vat']) ? $_SESSION['vat'] : 0) ?>" min="0" max="10">
                       <div class="invalid-feedback">
                         กรุณากรอกข้อมูล!
                       </div>

@@ -25,7 +25,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">รายละเอียด</h4>
+        <h4 class="text-center">ใบสั่ง</h4>
       </div>
       <div class="card-body">
         <form action="/issue/update" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">

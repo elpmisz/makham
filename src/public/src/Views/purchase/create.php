@@ -14,19 +14,19 @@ include_once(__DIR__ . "/../layout/header.php");
         <form action="/purchase/create" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
           <div class="row mb-2" style="display: none;">
-            <label class="col-xl-2 offset-xl-2 col-form-label">USER ID</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">USER ID</label>
             <div class="col-xl-4">
               <input type="text" class="form-control form-control-sm" name="user_id" value="<?php echo $user['id'] ?>" readonly>
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">ผู้ทำรายการ</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ทำรายการ</label>
             <div class="col-xl-4">
               <input type="text" class="form-control form-control-sm" value="<?php echo $user['fullname'] ?>" readonly>
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form label">สูตรการผลิต</label>
+            <label class="col-xl-3 offset-xl-1 col-form label">สูตรการผลิต</label>
             <div class="col-xl-4">
               <select class="form-control form-control-sm bom-select" name="bom" required></select>
               <div class="invalid-feedback">
@@ -35,7 +35,7 @@ include_once(__DIR__ . "/../layout/header.php");
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">จำนวนที่ผลิต (เป้าหมาย)</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">จำนวนที่ผลิต (เป้าหมาย)</label>
             <div class="col-xl-2">
               <input type="number" class="form-control form-control-sm text-center item-amount" name="amount" min="0" required>
               <div class="invalid-feedback">
@@ -44,7 +44,7 @@ include_once(__DIR__ . "/../layout/header.php");
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">เครื่องจักร</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">เครื่องจักร</label>
             <div class="col-xl-4">
               <select class="form-control form-control-sm machine-select" name="machine" required></select>
               <div class="invalid-feedback">
@@ -53,7 +53,7 @@ include_once(__DIR__ . "/../layout/header.php");
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">วันที่ผลิต</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">วันที่ผลิต</label>
             <div class="col-xl-3">
               <input type="text" class="form-control form-control-sm date-select" name="date" required>
               <div class="invalid-feedback">
@@ -62,19 +62,11 @@ include_once(__DIR__ . "/../layout/header.php");
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">วัตถุประสงค์</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">วัตถุประสงค์</label>
             <div class="col-xl-6">
               <textarea class="form-control form-control-sm" name="text" rows="5" required></textarea>
               <div class="invalid-feedback">
                 กรุณากรอกข้อมูล!
-              </div>
-            </div>
-          </div>
-
-          <div class="row mb-2 justify-content-center item-div">
-            <div class="col-xl-10">
-              <div class="table-responsive">
-                <table class="table table-bordered item-table"></table>
               </div>
             </div>
           </div>
@@ -135,62 +127,6 @@ include_once(__DIR__ . "/../layout/header.php");
       },
       cache: true
     }
-  });
-
-  $(document).on("change", ".bom-select", function() {
-    $(".item-amount").val("");
-    $(".item-div").hide();
-  });
-
-  $(document).on("blur", ".item-amount", function() {
-    let bom = $(".bom-select").val();
-    let amount = $(this).val();
-
-    axios.post("/purchase/bom-item", {
-        bom: bom
-      })
-      .then((res) => {
-        let result = res.data;
-        if (amount) {
-          $(".item-div").show();
-          let table = '';
-          table += '<tr class="table-primary">';
-          table += '<th width="10%">#</th>';
-          table += '<th width="40%">วัตถุดิบ</th>';
-          table += '<th width="10%">ปริมาณ/หน่วย</th>';
-          table += '<th width="10%">ปริมาณ (ที่ใช้)</th>';
-          table += '<th width="10%">ปริมาณ (คงเหลือ)</th>';
-          table += '<th width="10%">หน่วยนับ</th>';
-          table += '</tr>';
-          result.forEach(function(v, k) {
-            k++;
-            let quantity = parseFloat(v.bom_use);
-            let remain = parseFloat(v.remain);
-            let color = (quantity <= remain ? "success" : "danger");
-            let total = (amount * quantity);
-            let unit = (v.unit_name ? v.unit_name : "");
-            table += '<tr class="table-' + color + '">';
-            table += '<td class="text-center">' + k + '</td>';
-            table += '<td class="text-left"><input type="hidden" name="product_id[]" value="' + v.product_id + '">' + "[" + v.product_code + "] " + v.product_name + '</td>';
-            table += '<td class="text-right">' + quantity.toLocaleString("en-US", {
-              minimumFractionDigits: 2
-            }) + '</td>';
-            table += '<td class="text-right"><input type="hidden" name="product_quantity[]" value="' + total + '">' + total.toLocaleString("en-US", {
-              minimumFractionDigits: 2
-            }) + '</td>';
-            table += '<td class="text-right">' + remain.toLocaleString("en-US", {
-              minimumFractionDigits: 2
-            }) + '</td>';
-            table += '<td class="text-center">' + unit + '</td>';
-            table += '</tr>';
-          });
-          $(".item-table").empty().html(table);
-        } else {
-          $(".item-div").hide();
-        }
-      }).catch((error) => {
-        console.log(error);
-      });
   });
 
   $(".date-select").daterangepicker({

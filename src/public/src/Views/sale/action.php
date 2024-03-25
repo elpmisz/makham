@@ -40,12 +40,16 @@ if ($action === "create") {
         $SALE->item_insert([$sale_id, $product, $price, $quantity, $quantity]);
       }
     }
-    $discount = $SALE->discount_view([$promotion]);
-    $discount_type = $discount['type'];
-    $discount_value = $discount['discount'];
-    $discount = (intval($discount_type) === 1 ? $discount_value : ($total * $discount_value));
 
-    $total = ($total - $discount);
+    if (!empty($promotion)) {
+      $discount = $SALE->discount_view([$promotion]);
+      $discount_type = $discount['type'];
+      $discount_value = $discount['discount'];
+      $discount = (intval($discount_type) === 1 ? $discount_value : ($total * $discount_value));
+    }
+    $discount = (!empty($discount) ? $discount : 0);
+
+    $total = (!empty($promotion) ? ($total - $discount) : $total);
     $SALE->amount_update([$total, $discount, $sale_id]);
 
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/sale");

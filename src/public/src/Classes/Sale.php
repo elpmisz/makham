@@ -62,13 +62,15 @@ class Sale
     a.promotion,c.name promotion_name,c.type promotion_type,
     IF(c.type = 1,c.discount,(c.discount / 100)) discount,a.vat,a.amount,c.type,
     IF(c.type = 1,c.discount,(a.amount * (c.discount/100))) discount_amount,
-    ROUND((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))),2) sale_total,
-    ROUND((
-      ((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107
-    ),2) vat_total,
+    ROUND((a.amount - IF(c.discount IS NOT NULL,IF(c.type = 1,c.discount,(a.amount * (c.discount/100))),0)),2) sale_total,
+    IF(a.vat = 0,0,
+      ROUND((
+        ((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107
+      ),2)
+    ) vat_total,
     ROUND((
       (a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) -
-      (((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107)
+      IF(a.vat = 0,0,(((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107))
     ),2) discount_total,
     DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
     FROM inventory.sale a
@@ -172,13 +174,15 @@ class Sale
     a.customer_id,d.name customer,
     a.promotion,c.name promotion_name,c.discount,a.vat,a.amount,
     IF(c.type = 1,c.discount,(a.amount * (c.discount/100))) discount_amount,
-    ROUND((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))),2) sale_total,
-    ROUND((
-      ((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107
-    ),2) vat_total,
+    ROUND((a.amount - IF(c.discount IS NOT NULL,IF(c.type = 1,c.discount,(a.amount * (c.discount/100))),0)),2) sale_total,
+    IF(a.vat = 0,0,
+      ROUND((
+        ((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107
+      ),2)
+    ) vat_total,
     ROUND((
       (a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) -
-      (((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107)
+      IF(a.vat = 0,0,(((a.amount - IF(c.type = 1,c.discount,(a.amount * (c.discount/100)))) * 7) / 107))
     ),2) discount_total,
     (
       CASE

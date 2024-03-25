@@ -35,17 +35,6 @@ if ($action === "create") {
     }
 
     $PURCHASE->purchase_insert([$last, $user_id, $bom, $machine, $amount, $date, $text]);
-    $purchase_id = $PURCHASE->last_insert_id();
-
-    foreach ($_POST['product_id'] as $key => $value) {
-      $product_id = (isset($_POST['product_id'][$key]) ? $VALIDATION->input($_POST['product_id'][$key]) : "");
-      $product_quantity = (isset($_POST['product_quantity'][$key]) ? $VALIDATION->input($_POST['product_quantity'][$key]) : "");
-
-      if (!empty($product_id)) {
-        $PURCHASE->item_insert([$purchase_id, $product_id, $product_quantity, $product_quantity]);
-      }
-    }
-
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/purchase");
   } catch (PDOException $e) {
     die($e->getMessage());
