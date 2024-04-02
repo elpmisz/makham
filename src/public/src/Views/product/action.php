@@ -284,10 +284,10 @@ if ($action === "category-select") {
   }
 }
 
-if ($action === "location-select") {
+if ($action === "store-select") {
   try {
     $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
-    $result = $PRODUCT->location_select($keyword);
+    $result = $PRODUCT->store_select($keyword);
 
     echo json_encode($result);
   } catch (PDOException $e) {

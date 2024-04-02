@@ -135,9 +135,9 @@ include_once(__DIR__ . "/../layout/header.php");
                 </div>
               </div>
               <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">สถานที่</label>
+                <label class="col-xl-3 offset-xl-1 col-form-label">สถานที่จัดเก็บ</label>
                 <div class="col-xl-6">
-                  <select class="form-control form-control-sm location-select" name="location" required></select>
+                  <select class="form-control form-control-sm store-select" name="store" required></select>
                   <div class="invalid-feedback">
                     กรุณาเลือกข้อมูล!
                   </div>
@@ -264,12 +264,12 @@ include_once(__DIR__ . "/../layout/header.php");
     }
   });
 
-  $(".location-select").select2({
-    placeholder: "-- สถานที่ --",
+  $(".store-select").select2({
+    placeholder: "-- สถานที่จัดเก็บ --",
     allowClear: true,
     width: "100%",
     ajax: {
-      url: "/product/location-select",
+      url: "/product/store-select",
       method: "POST",
       dataType: "json",
       delay: 100,

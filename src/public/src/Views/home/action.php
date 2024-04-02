@@ -74,7 +74,7 @@ if ($action === "login") {
     $encode = JWT::encode($payload, JWT_SECRET, JWT_ALGO);
     setcookie("jwt", $encode);
 
-    $VALIDATION->alert("success", "เข้าสู่ระบบเรียบร้อยแล้ว!", "/dashboard/sale");
+    $VALIDATION->alert("success", "เข้าสู่ระบบเรียบร้อยแล้ว!", "/dashboard/purchase");
   } catch (PDOException $e) {
     die($e->getMessage());
   }

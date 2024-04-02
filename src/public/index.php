@@ -89,6 +89,32 @@ $ROUTER->map("POST", "/issue/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/issue/action.php");
 });
 
+##################### ISSUE #####################
+$ROUTER->map("GET", "/waste", function () {
+  require(__DIR__ . "/src/Views/waste/index.php");
+});
+$ROUTER->map("GET", "/waste/create", function () {
+  require(__DIR__ . "/src/Views/waste/create.php");
+});
+$ROUTER->map("GET", "/waste/auth", function () {
+  require(__DIR__ . "/src/Views/waste/auth.php");
+});
+$ROUTER->map("GET", "/waste/edit/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/waste/edit.php");
+});
+$ROUTER->map("GET", "/waste/approve/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/waste/approve.php");
+});
+$ROUTER->map("GET", "/waste/complete/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/waste/complete.php");
+});
+$ROUTER->map("GET", "/waste/download", function () {
+  require(__DIR__ . "/src/Views/waste/download.php");
+});
+$ROUTER->map("POST", "/waste/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/waste/action.php");
+});
+
 ##################### BOM #####################
 $ROUTER->map("GET", "/bom", function () {
   require(__DIR__ . "/src/Views/bom/index.php");
@@ -226,6 +252,23 @@ $ROUTER->map("GET", "/location/download", function () {
 });
 $ROUTER->map("POST", "/location/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/location/action.php");
+});
+
+##################### STORE #####################
+$ROUTER->map("GET", "/store", function () {
+  require(__DIR__ . "/src/Views/store/index.php");
+});
+$ROUTER->map("GET", "/store/create", function () {
+  require(__DIR__ . "/src/Views/store/create.php");
+});
+$ROUTER->map("GET", "/store/edit/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/store/edit.php");
+});
+$ROUTER->map("GET", "/store/download", function () {
+  require(__DIR__ . "/src/Views/store/download.php");
+});
+$ROUTER->map("POST", "/store/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/store/action.php");
 });
 
 ##################### UNIT #####################

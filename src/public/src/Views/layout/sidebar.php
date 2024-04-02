@@ -14,6 +14,7 @@ $service_pos = ($page === "service-pos" ? 'class="active"' : "");
 $service_purchase = ($page === "service-purchase" ? 'class="active"' : "");
 $service_sale = ($page === "service-sale" ? 'class="active"' : "");
 $service_issue = ($page === "service-issue" ? 'class="active"' : "");
+$service_waste = ($page === "service-waste" ? 'class="active"' : "");
 
 $setting_menu = (isset($menu) && ($menu === "setting") ? "show" : "");
 $setting_system = ($page === "setting-system" ? 'class="active"' : "");
@@ -27,12 +28,14 @@ $setting_customer = ($page === "setting-customer" ? 'class="active"' : "");
 $setting_supplier = ($page === "setting-supplier" ? 'class="active"' : "");
 $setting_category = ($page === "setting-category" ? 'class="active"' : "");
 $setting_location = ($page === "setting-location" ? 'class="active"' : "");
+$setting_store = ($page === "setting-store" ? 'class="active"' : "");
 $setting_unit = ($page === "setting-unit" ? 'class="active"' : "");
 $setting_brand = ($page === "setting-brand" ? 'class="active"' : "");
 
 $auth_perchase = (isset($user_auth[0]) ? intval($user_auth[0]) : "");
 $auth_sale = (isset($user_auth[1]) ? intval($user_auth[1]) : "");
 $auth_issue = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
+$auth_waste = (isset($user_auth[3]) ? intval($user_auth[3]) : "");
 ?>
 <nav id="sidebar">
   <ul class="list-unstyled">
@@ -93,7 +96,7 @@ $auth_issue = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
         บริการ
       </a>
       <ul class="collapse list-unstyled <?php echo $service_menu ?>" id="service-menu">
-        <?php if ($auth_perchase === 1) : ?>
+        <?php if ($auth_sale === 1) : ?>
           <li <?php echo $service_pos ?>>
             <a href="/pos">
               <i class="fa fa-bars pr-2"></i>
@@ -122,6 +125,14 @@ $auth_issue = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
             <a href="/issue">
               <i class="fa fa-bars pr-2"></i>
               ใบนำสินค้าเข้า - ออก
+            </a>
+          </li>
+        <?php endif ?>
+        <?php if ($auth_waste === 1) : ?>
+          <li <?php echo $service_waste ?>>
+            <a href="/waste">
+              <i class="fa fa-bars pr-2"></i>
+              ใบสรุปของเสีย
             </a>
           </li>
         <?php endif ?>
@@ -195,6 +206,12 @@ $auth_issue = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
             <a href="/location">
               <i class="fa fa-gear pr-2"></i>
               สถานที่
+            </a>
+          </li>
+          <li <?php echo $setting_store ?>>
+            <a href="/store">
+              <i class="fa fa-gear pr-2"></i>
+              สถานที่จัดเก็บ
             </a>
           </li>
           <li <?php echo $setting_unit ?>>

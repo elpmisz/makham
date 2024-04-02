@@ -258,15 +258,15 @@ class Product
     return $stmt->fetchAll();
   }
 
-  public function location_select($keyword)
+  public function store_select($keyword)
   {
-    $sql = "SELECT a.id,a.name text
-    FROM inventory.location a
+    $sql = "SELECT a.id,CONCAT(a.room,a.floor,a.zone) text
+    FROM inventory.store a
     WHERE a.status = 1 ";
     if (!empty($keyword)) {
-      $sql .= " AND (a.name LIKE '%{$keyword}%' OR a.text LIKE '%{$keyword}%') ";
+      $sql .= " AND (a.room LIKE '%{$keyword}%' OR a.floor LIKE '%{$keyword}%' OR a.zone LIKE '%{$keyword}%' OR a.text LIKE '%{$keyword}%') ";
     }
-    $sql .= " ORDER BY a.name ASC LIMIT 50";
+    $sql .= " ORDER BY CONCAT(a.room,a.floor,a.zone) ASC LIMIT 50";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll();
@@ -332,7 +332,7 @@ class Product
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
     $sql = "SELECT e.id product_id,e.uuid product_uuid,e.code product_code,e.name product_name,
-    e.cost,e.price,e.min,e.max,
+    IFNULL(e.cost,0) cost,IFNULL(e.price,0) price,IFNULL(e.min,0) min,IFNULL(e.max,0) max,
     SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0)) income,
     SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0)) outcome,
     (
@@ -343,7 +343,7 @@ class Product
     e.unit,g.name unit_name,
     e.brand,h.name brand_name,
     e.category,i.name category_name,
-    e.location,j.name location_name,
+    e.store,CONCAT(j.room,j.floor,j.zone) store_name,
     IF(MAX(a.created) IS NOT NULL,
       DATE_FORMAT(MAX(a.created),'%d/%m/%Y, %H:%i น.'),
       DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')
@@ -367,8 +367,8 @@ class Product
     ON e.brand = h.id 
     LEFT JOIN inventory.category i
     ON e.category = i.id 
-    LEFT JOIN inventory.location j
-    ON e.location = j.id
+    LEFT JOIN inventory.store j
+    ON e.store = j.id
     WHERE e.status = 1 ";
 
     if (!empty($keyword)) {
@@ -409,7 +409,7 @@ class Product
         $row['product_code'],
         $row['product_name'],
         $row['category_name'],
-        $row['location_name'],
+        $row['store_name'],
         $row['cost'],
         $row['price'],
         $row['min'],
