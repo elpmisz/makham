@@ -29,7 +29,7 @@ class Product
 
   public function product_insert($data)
   {
-    $sql = "INSERT INTO inventory.product(uuid,code,name,cost,price,min,max,bom_id,supplier,unit,brand,category,location,text) VALUES(uuid(),?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    $sql = "INSERT INTO inventory.product(uuid,code,name,cost,price,min,max,bom_id,supplier,unit,brand,category,store,text) VALUES(uuid(),?,?,?,?,?,?,?,?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -42,7 +42,7 @@ class Product
     a.unit,c.name unit_name,
     a.brand,d.name brand_name,
     a.category,e.name category_name,
-    a.location,f.name location_name,
+    a.store,CONCAT(f.room,f.floor,f.zone) store_name,
     DATE_FORMAT(a.updated, '%d/%m/%Y, %H:%i น.') updated
     FROM inventory.product a
     LEFT JOIN inventory.customer b
@@ -53,8 +53,8 @@ class Product
     ON a.brand = d.id
     LEFT JOIN inventory.category e
     ON a.category = e.id
-    LEFT JOIN inventory.location f
-    ON a.location = f.id
+    LEFT JOIN inventory.store f
+    ON a.store = f.id
     LEFT JOIN inventory.bom g
     ON a.bom_id = g.id
     WHERE a.uuid = ?";
@@ -85,7 +85,7 @@ class Product
     unit = ?,
     brand = ?,
     category = ?,
-    location = ?,
+    store = ?,
     text = ?,
     status = ?,
     updated = NOW()
@@ -176,11 +176,11 @@ class Product
     return (isset($row['id']) ? $row['id'] : "");
   }
 
-  public function location_id($data)
+  public function store_id($data)
   {
     $sql = "SELECT id
-    FROM inventory.location a
-    WHERE a.name LIKE CONCAT('%',?,'%')";
+    FROM inventory.store a
+    WHERE CONCAT(a.room,a.floor,a.zone) LIKE CONCAT('%',?,'%')";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     $row = $stmt->fetch();
@@ -279,7 +279,7 @@ class Product
     c.name unit_name,
     d.name brand_name,
     e.name category_name,
-    f.name location_name,
+    CONCAT(f.room,f.floor,f.zone) store_name,
     (
       CASE
         WHEN a.status = 1 THEN 'ใช้งาน'
@@ -297,8 +297,8 @@ class Product
     ON a.brand = d.id
     LEFT JOIN inventory.category e
     ON a.category = e.id
-    LEFT JOIN inventory.location f
-    ON a.location = f.id ";
+    LEFT JOIN inventory.store f
+    ON a.store = f.id ";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_NUM);

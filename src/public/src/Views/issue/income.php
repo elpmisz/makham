@@ -8,7 +8,7 @@ include_once(__DIR__ . "/../layout/header.php");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">เพิ่ม</h4>
+        <h4 class="text-center">นำเข้า</h4>
       </div>
       <div class="card-body">
         <form action="/issue/create" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
@@ -26,22 +26,9 @@ include_once(__DIR__ . "/../layout/header.php");
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">ประเภท</label>
-            <div class="col-xl-8">
-              <div class="row pb-2">
-                <div class="col-xl-3">
-                  <label class="form-check-label px-3 py-2">
-                    <input class="form-check-input" type="radio" name="type" value="1" required>
-                    <span class="text-success">นำเข้า</span>
-                  </label>
-                </div>
-                <div class="col-xl-3">
-                  <label class="form-check-label px-3 py-2">
-                    <input class="form-check-input" type="radio" name="type" value="2" required>
-                    <span class="text-danger">เบิกออก</span>
-                  </label>
-                </div>
-              </div>
+            <label class="col-xl-2 offset-xl-2 col-form-label">TYPE</label>
+            <div class="col-xl-4">
+              <input type="text" class="form-control form-control-sm" name="type" value="1" readonly>
             </div>
           </div>
           <div class="row mb-2">
@@ -55,14 +42,15 @@ include_once(__DIR__ . "/../layout/header.php");
           </div>
 
           <div class="row justify-content-center mb-2">
-            <div class="col-sm-10">
+            <div class="col-sm-11">
               <div class="table-responsive">
                 <table class="table table-bordered table-sm item-table">
                   <thead>
                     <tr>
                       <th width="10%">#</th>
-                      <th width="50%">วัตถุดิบ</th>
-                      <th width="20%">ปริมาณ (คงเหลือ)</th>
+                      <th width="30%">วัตถุดิบ</th>
+                      <th width="20%">สถานที่</th>
+                      <th width="10%">ปริมาณ (คงเหลือ)</th>
                       <th width="20%">ปริมาณ</th>
                       <th width="10%">หน่วยนับ</th>
                     </tr>
@@ -74,14 +62,20 @@ include_once(__DIR__ . "/../layout/header.php");
                         <button type="button" class="btn btn-sm btn-danger item-decrease">-</button>
                       </td>
                       <td class="text-left">
-                        <select class="form-control form-control-sm item-select" name="product_id[]" required></select>
+                        <select class="form-control form-control-sm item-select" name="item_product[]" required></select>
+                        <div class="invalid-feedback">
+                          กรุณาเลือกข้อมูล!
+                        </div>
+                      </td>
+                      <td class="text-left">
+                        <select class="form-control form-control-sm location-select" name="item_location[]" required></select>
                         <div class="invalid-feedback">
                           กรุณาเลือกข้อมูล!
                         </div>
                       </td>
                       <td class="text-center"><span class="item-remain"></span></td>
                       <td>
-                        <input type="number" class="form-control form-control-sm text-center item-quantity" name="product_quantity[]" min="0" step="0.01" required>
+                        <input type="number" class="form-control form-control-sm text-center item-quantity" name="item_quantity[]" min="0" step="0.01" required>
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
@@ -118,10 +112,11 @@ include_once(__DIR__ . "/../layout/header.php");
 <script>
   $(".item-decrease").hide();
   $(document).on("click", ".item-increase", function() {
-    $(".item-select").select2('destroy');
+    $(".item-select, .location-select").select2('destroy');
     let row = $(".item-tr:last");
     let clone = row.clone();
-    clone.find("input, select, span").val("").empty();
+    clone.find("input, select").val("").empty();
+    clone.find("span").text("");
     clone.find(".item-increase").hide();
     clone.find(".item-decrease").show();
     clone.find(".item-decrease").on("click", function() {
@@ -130,109 +125,100 @@ include_once(__DIR__ . "/../layout/header.php");
     row.after(clone);
     clone.show();
 
-    let type = parseInt($("input[name='type']:checked").val());
+    $(".item-select").select2({
+      placeholder: "-- วัตถุดิบ --",
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: "/issue/item-all-select",
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
 
-    if (type === 1) {
-      $(".item-select").select2({
-        placeholder: "-- วัตถุดิบ --",
-        allowClear: true,
-        width: "100%",
-        ajax: {
-          url: "/issue/item-all-select",
-          method: "POST",
-          dataType: "json",
-          delay: 100,
-          processResults: function(data) {
-            return {
-              results: data
-            };
-          },
-          cache: true
-        }
-      });
-    } else {
-      $(".item-select").select2({
-        placeholder: "-- วัตถุดิบ --",
-        allowClear: true,
-        width: "100%",
-        ajax: {
-          url: "/issue/item-remain-select",
-          method: "POST",
-          dataType: "json",
-          delay: 100,
-          processResults: function(data) {
-            return {
-              results: data
-            };
-          },
-          cache: true
-        }
-      });
+    $(".location-select").select2({
+      placeholder: "-- สถานที่ --",
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: "/issue/location-select",
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
+  });
+
+  $(document).on("change", ".item-select, .location-select", function() {
+    $(".item-select").each(function() {
+      let row = $(this).closest("tr");
+      let item = row.find(".item-select").val();
+      let location = row.find(".location-select").val();
+
+      if (item && location) {
+        axios.post("/issue/item-detail", {
+            item: item,
+            location: location,
+          })
+          .then((res) => {
+            let result = res.data;
+            row.find(".item-remain").text(parseFloat(result.remain).toLocaleString("en-US", {
+              minimumFractionDigits: 2
+            }));
+            row.find(".item-unit").text(result.unit_name);
+          }).catch((error) => {
+            console.log(error);
+          });
+      }
+    });
+  });
+
+  $(".item-select").select2({
+    placeholder: "-- วัตถุดิบ --",
+    allowClear: true,
+    width: "100%",
+    ajax: {
+      url: "/issue/item-all-select",
+      method: "POST",
+      dataType: "json",
+      delay: 100,
+      processResults: function(data) {
+        return {
+          results: data
+        };
+      },
+      cache: true
     }
   });
 
-  $(document).on("click", "input[name='type']", function() {
-    let type = parseInt($(this).val());
-    $(".item-quantity").val("");
-
-    if (type === 1) {
-      $(".item-select").select2({
-        placeholder: "-- วัตถุดิบ --",
-        allowClear: true,
-        width: "100%",
-        ajax: {
-          url: "/issue/item-all-select",
-          method: "POST",
-          dataType: "json",
-          delay: 100,
-          processResults: function(data) {
-            return {
-              results: data
-            };
-          },
-          cache: true
-        }
-      });
-    } else {
-      $(".item-select").select2({
-        placeholder: "-- วัตถุดิบ --",
-        allowClear: true,
-        width: "100%",
-        ajax: {
-          url: "/issue/item-remain-select",
-          method: "POST",
-          dataType: "json",
-          delay: 100,
-          processResults: function(data) {
-            return {
-              results: data
-            };
-          },
-          cache: true
-        }
-      });
+  $(".location-select").select2({
+    placeholder: "-- สถานที่ --",
+    allowClear: true,
+    width: "100%",
+    ajax: {
+      url: "/issue/location-select",
+      method: "POST",
+      dataType: "json",
+      delay: 100,
+      processResults: function(data) {
+        return {
+          results: data
+        };
+      },
+      cache: true
     }
-  });
-
-  $(document).on("change", ".item-select", function() {
-    let item = $(this).val();
-    let type = parseInt($("input[name='type']:checked").val());
-    let row = $(this).closest("tr");
-
-    axios.post("/issue/item-detail", {
-        item: item
-      })
-      .then((res) => {
-        let result = res.data;
-        row.find(".item-remain").text(parseFloat(result.remain).toLocaleString("en-US", {
-          minimumFractionDigits: 2
-        }));
-        row.find(".item-unit").text(result.unit_name);
-        if (type === 2) {
-          row.find(".item-quantity").prop("max", result.remain);
-        }
-      }).catch((error) => {
-        console.log(error);
-      });
   });
 </script>

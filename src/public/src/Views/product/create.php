@@ -53,7 +53,7 @@ include_once(__DIR__ . "/../layout/header.php");
               <div class="row mb-2">
                 <label class="col-xl-4 col-form-label">ราคาซื้อ</label>
                 <div class="col-xl-4">
-                  <input type="number" class="form-control form-control-sm text-right" name="cost" step="0.01" min="0" required>
+                  <input type="number" class="form-control form-control-sm text-right" name="cost" step="0.01" min="0">
                   <div class="invalid-feedback">
                     กรุณากรอกข้อมูล!
                   </div>
@@ -62,7 +62,7 @@ include_once(__DIR__ . "/../layout/header.php");
               <div class="row mb-2">
                 <label class="col-xl-4 col-form-label">ราคาขาย</label>
                 <div class="col-xl-4">
-                  <input type="number" class="form-control form-control-sm text-right" name="price" step="0.01" min="0" required>
+                  <input type="number" class="form-control form-control-sm text-right" name="price" step="0.01" min="0">
                   <div class="invalid-feedback">
                     กรุณากรอกข้อมูล!
                   </div>
@@ -137,7 +137,7 @@ include_once(__DIR__ . "/../layout/header.php");
               <div class="row mb-2">
                 <label class="col-xl-3 offset-xl-1 col-form-label">สถานที่จัดเก็บ</label>
                 <div class="col-xl-6">
-                  <select class="form-control form-control-sm store-select" name="store" required></select>
+                  <select class="form-control form-control-sm store-select" name="store"></select>
                   <div class="invalid-feedback">
                     กรุณาเลือกข้อมูล!
                   </div>

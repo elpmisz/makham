@@ -16,6 +16,7 @@ $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
 $fullname = (!empty($row['fullname']) ? $row['fullname'] : "");
 $text = (!empty($row['text']) ? $row['text'] : "");
+$type = (!empty($row['type']) ? $row['type'] : "");
 $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
 $type_color = (!empty($row['type_color']) ? $row['type_color'] : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
@@ -40,6 +41,12 @@ $created = (!empty($row['created']) ? $row['created'] : "");
             <label class="col-xl-2 offset-xl-2 col-form-label">UUID</label>
             <div class="col-xl-4">
               <input type="text" class="form-control form-control-sm" name="uuid" value="<?php echo $uuid ?>" readonly>
+            </div>
+          </div>
+          <div class="row mb-2" style="display: none;">
+            <label class="col-xl-2 offset-xl-2 col-form-label">TYPE</label>
+            <div class="col-xl-4">
+              <input type="text" class="form-control form-control-sm" name="type" value="<?php echo $type ?>" readonly>
             </div>
           </div>
           <div class="row mb-2">
@@ -77,7 +84,8 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                   <thead>
                     <tr>
                       <th width="10%">#</th>
-                      <th width="50%">วัตถุดิบ</th>
+                      <th width="30%">วัตถุดิบ</th>
+                      <th width="20%">สถานที่</th>
                       <th width="20%">ปริมาณ</th>
                       <th width="10%">หน่วยนับ</th>
                     </tr>
@@ -87,13 +95,12 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                       <tr>
                         <td class="text-center">
                           <a href="javascript:void(0)" class="badge badge-danger font-weight-light item-delete" id="<?php echo $item['id'] ?>">ลบ</a>
-                          <input type="hidden" class="form-control form-control-sm text-center" name="product__id[]" value="<?php echo $item['id'] ?>" readonly>
+                          <input type="hidden" class="form-control form-control-sm text-center" name="item__id[]" value="<?php echo $item['id'] ?>" readonly>
                         </td>
+                        <td><?php echo $item['product_name'] ?></td>
+                        <td><?php echo $item['location_name'] ?></td>
                         <td>
-                          <?php echo $item['product_name'] ?>
-                        </td>
-                        <td>
-                          <input type="number" class="form-control form-control-sm text-center" name="product__quantity[]" value="<?php echo $item['quantity'] ?>" min="0" step="0.01" required>
+                          <input type="number" class="form-control form-control-sm text-center" name="item__quantity[]" value="<?php echo $item['quantity'] ?>" min="0" step="0.01" required>
                           <div class="invalid-feedback">
                             กรุณากรอกข้อมูล!
                           </div>
@@ -107,13 +114,19 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                         <button type="button" class="btn btn-sm btn-danger item-decrease">-</button>
                       </td>
                       <td class="text-left">
-                        <select class="form-control form-control-sm item-select" name="product_id[]"></select>
+                        <select class="form-control form-control-sm item-select" name="item_product[]" required></select>
+                        <div class="invalid-feedback">
+                          กรุณาเลือกข้อมูล!
+                        </div>
+                      </td>
+                      <td class="text-left">
+                        <select class="form-control form-control-sm location-select" name="item_location[]" required></select>
                         <div class="invalid-feedback">
                           กรุณาเลือกข้อมูล!
                         </div>
                       </td>
                       <td>
-                        <input type="number" class="form-control form-control-sm text-center" name="product_quantity[]" min="0" step="0.01">
+                        <input type="number" class="form-control form-control-sm text-center item-quantity" name="item_quantity[]" min="0" step="0.01" required>
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
@@ -148,6 +161,8 @@ $created = (!empty($row['created']) ? $row['created'] : "");
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
 <script>
+  let type = ($("input[name='type']").val() ? parseInt($("input[name='type']").val()) : "");
+
   $(".item-decrease").hide();
   $(document).on("click", ".item-increase", function() {
     $(".item-select").select2('destroy');
@@ -162,12 +177,52 @@ $created = (!empty($row['created']) ? $row['created'] : "");
     row.after(clone);
     clone.show();
 
+    if (type === 1) {
+      $(".item-select").select2({
+        placeholder: "-- วัตถุดิบ --",
+        allowClear: true,
+        width: "100%",
+        ajax: {
+          url: "/issue/item-all-select",
+          method: "POST",
+          dataType: "json",
+          delay: 100,
+          processResults: function(data) {
+            return {
+              results: data
+            };
+          },
+          cache: true
+        }
+      });
+    } else {
+      $(".item-select").select2({
+        placeholder: "-- วัตถุดิบ --",
+        allowClear: true,
+        width: "100%",
+        ajax: {
+          url: "/issue/item-remain-select",
+          method: "POST",
+          dataType: "json",
+          delay: 100,
+          processResults: function(data) {
+            return {
+              results: data
+            };
+          },
+          cache: true
+        }
+      });
+    }
+  });
+
+  if (type === 1) {
     $(".item-select").select2({
       placeholder: "-- วัตถุดิบ --",
       allowClear: true,
       width: "100%",
       ajax: {
-        url: "/bom/item-select",
+        url: "/issue/item-all-select",
         method: "POST",
         dataType: "json",
         delay: 100,
@@ -179,14 +234,32 @@ $created = (!empty($row['created']) ? $row['created'] : "");
         cache: true
       }
     });
-  });
+  } else {
+    $(".item-select").select2({
+      placeholder: "-- วัตถุดิบ --",
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: "/issue/item-remain-select",
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
+  }
 
-  $(".item-select").select2({
-    placeholder: "-- วัตถุดิบ --",
+  $(".location-select").select2({
+    placeholder: "-- สถานที่ --",
     allowClear: true,
     width: "100%",
     ajax: {
-      url: "/bom/item-select",
+      url: "/issue/location-select",
       method: "POST",
       dataType: "json",
       delay: 100,

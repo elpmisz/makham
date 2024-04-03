@@ -32,8 +32,8 @@ $brand = (!empty($row['brand']) ? $row['brand'] : "");
 $brand_name = (!empty($row['brand_name']) ? $row['brand_name'] : "");
 $category = (!empty($row['category']) ? $row['category'] : "");
 $category_name = (!empty($row['category_name']) ? $row['category_name'] : "");
-$location = (!empty($row['location']) ? $row['location'] : "");
-$location_name = (!empty($row['location_name']) ? $row['location_name'] : "");
+$store = (!empty($row['store']) ? $row['store'] : "");
+$store_name = (!empty($row['store_name']) ? $row['store_name'] : "");
 $text = (!empty($row['text']) ? $row['text'] : "");
 $active = (intval($row['status']) === 1 ? "checked" : "");
 $inactive = (intval($row['status']) === 2 ? "checked" : "");
@@ -148,7 +148,7 @@ $url = "{$_SERVER['HTTP_REFERER']}/complete/{$uuid}";
               <div class="row mb-2">
                 <label class="col-xl-4 col-form-label">ราคาซื้อ</label>
                 <div class="col-xl-4">
-                  <input type="number" class="form-control form-control-sm text-right" name="cost" value="<?php echo $cost ?>" step="0.01" min="0" required>
+                  <input type="number" class="form-control form-control-sm text-right" name="cost" value="<?php echo $cost ?>" step="0.01" min="0">
                   <div class="invalid-feedback">
                     กรุณากรอกข้อมูล!
                   </div>
@@ -157,7 +157,7 @@ $url = "{$_SERVER['HTTP_REFERER']}/complete/{$uuid}";
               <div class="row mb-2">
                 <label class="col-xl-4 col-form-label">ราคาขาย</label>
                 <div class="col-xl-4">
-                  <input type="number" class="form-control form-control-sm text-right" name="price" value="<?php echo $price ?>" step="0.01" min="0" required>
+                  <input type="number" class="form-control form-control-sm text-right" name="price" value="<?php echo $price ?>" step="0.01" min="0">
                   <div class="invalid-feedback">
                     กรุณากรอกข้อมูล!
                   </div>
@@ -260,12 +260,12 @@ $url = "{$_SERVER['HTTP_REFERER']}/complete/{$uuid}";
                 </div>
               </div>
               <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">สถานที่</label>
+                <label class="col-xl-3 offset-xl-1 col-form-label">สถานที่จัดเก็บ</label>
                 <div class="col-xl-6">
-                  <select class="form-control form-control-sm location-select" name="location" required>
+                  <select class="form-control form-control-sm store-select" name="store">
                     <?php
-                    if ($location > 0) {
-                      echo "<option value='{$location}'>{$location_name}</option>";
+                    if ($store > 0) {
+                      echo "<option value='{$store}'>{$store_name}</option>";
                     }
                     ?>
                   </select>
@@ -485,12 +485,12 @@ $url = "{$_SERVER['HTTP_REFERER']}/complete/{$uuid}";
     }
   });
 
-  $(".location-select").select2({
-    placeholder: "-- สถานที่ --",
+  $(".store-select").select2({
+    placeholder: "-- สถานที่จัดเก็บ --",
     allowClear: true,
     width: "100%",
     ajax: {
-      url: "/product/location-select",
+      url: "/product/store-select",
       method: "POST",
       dataType: "json",
       delay: 100,

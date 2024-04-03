@@ -31,8 +31,18 @@ $approver_count = $ISSUE->approver_count();
             </a>
           </div>
           <div class="col-xl-3 mb-2">
-            <a href="/issue/create" class="btn btn-primary btn-sm btn-block">
-              <i class="fas fa-plus pr-2"></i>เพิ่ม
+            <a href="/issue/income" class="btn btn-success btn-sm btn-block">
+              <i class="fas fa-plus pr-2"></i>นำเข้า
+            </a>
+          </div>
+          <div class="col-xl-3 mb-2">
+            <a href="/issue/outcome" class="btn btn-primary btn-sm btn-block">
+              <i class="fas fa-minus pr-2"></i>เบิกออก
+            </a>
+          </div>
+          <div class="col-xl-3 mb-2">
+            <a href="/issue/exchange" class="btn btn-warning btn-sm btn-block">
+              <i class="fas fa-exchange-alt pr-2"></i>โอนย้าย
             </a>
           </div>
         </div>

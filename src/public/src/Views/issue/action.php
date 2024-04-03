@@ -30,14 +30,15 @@ if ($action === "create") {
     $ISSUE->issue_insert([$last, $type, $text, $user_id]);
     $issue_id = $ISSUE->last_insert_id();
 
-    foreach ($_POST['product_id'] as $key => $value) {
-      $product = (isset($_POST['product_id'][$key]) ? $VALIDATION->input($_POST['product_id'][$key]) : "");
-      $quantity = (isset($_POST['product_quantity'][$key]) ? $VALIDATION->input($_POST['product_quantity'][$key]) : "");
+    foreach ($_POST['item_product'] as $key => $value) {
+      $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
+      $location = (isset($_POST['item_location'][$key]) ? $VALIDATION->input($_POST['item_location'][$key]) : "");
+      $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
 
       if (!empty($product)) {
         $count = $ISSUE->item_count([$issue_id, $product]);
         if (intval($count) === 0) {
-          $ISSUE->item_insert([$issue_id, $product, $quantity]);
+          $ISSUE->item_insert([$issue_id, $product, $type, $location, $quantity]);
         }
       }
     }
@@ -52,25 +53,27 @@ if ($action === "update") {
   try {
     $id = (isset($_POST['id']) ? $VALIDATION->input($_POST['id']) : "");
     $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
+    $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
 
-    foreach ($_POST['product__id'] as $key => $value) {
-      $product = (isset($_POST['product__id'][$key]) ? $VALIDATION->input($_POST['product__id'][$key]) : "");
-      $quantity = (isset($_POST['product__quantity'][$key]) ? $VALIDATION->input($_POST['product__quantity'][$key]) : "");
+    foreach ($_POST['item__id'] as $key => $value) {
+      $product = (isset($_POST['item__id'][$key]) ? $VALIDATION->input($_POST['item__id'][$key]) : "");
+      $quantity = (isset($_POST['item__quantity'][$key]) ? $VALIDATION->input($_POST['item__quantity'][$key]) : "");
 
       if (!empty($product)) {
         $ISSUE->item_update([$quantity, $product]);
       }
     }
 
-    foreach ($_POST['product_id'] as $key => $value) {
-      $product = (isset($_POST['product_id'][$key]) ? $VALIDATION->input($_POST['product_id'][$key]) : "");
-      $quantity = (isset($_POST['product_quantity'][$key]) ? $VALIDATION->input($_POST['product_quantity'][$key]) : "");
+    foreach ($_POST['item_product'] as $key => $value) {
+      $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
+      $location = (isset($_POST['item_location'][$key]) ? $VALIDATION->input($_POST['item_location'][$key]) : "");
+      $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
 
       if (!empty($product)) {
         $count = $ISSUE->item_count([$id, $product]);
         if (intval($count) === 0) {
-          $ISSUE->item_insert([$id, $product, $quantity]);
+          $ISSUE->item_insert([$id, $product, $type, $location, $quantity]);
         }
       }
     }
@@ -257,6 +260,17 @@ if ($action === "item-remain-select") {
   }
 }
 
+if ($action === "location-select") {
+  try {
+    $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
+    $result = $ISSUE->location_select($keyword);
+
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
 if ($action === "user-select") {
   try {
     $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
@@ -272,7 +286,8 @@ if ($action === "item-detail") {
   try {
     $data = json_decode(file_get_contents("php://input"), true);
     $item = $data['item'];
-    $result = $ISSUE->item_detail([$item]);
+    $location = $data['location'];
+    $result = $ISSUE->item_detail([$item], $location);
 
     echo json_encode($result);
   } catch (PDOException $e) {

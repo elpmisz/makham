@@ -67,8 +67,14 @@ $ROUTER->map("POST", "/purchase/[**:params]", function ($params) {
 $ROUTER->map("GET", "/issue", function () {
   require(__DIR__ . "/src/Views/issue/index.php");
 });
-$ROUTER->map("GET", "/issue/create", function () {
-  require(__DIR__ . "/src/Views/issue/create.php");
+$ROUTER->map("GET", "/issue/income", function () {
+  require(__DIR__ . "/src/Views/issue/income.php");
+});
+$ROUTER->map("GET", "/issue/outcome", function () {
+  require(__DIR__ . "/src/Views/issue/outcome.php");
+});
+$ROUTER->map("GET", "/issue/exchange", function () {
+  require(__DIR__ . "/src/Views/issue/exchange.php");
 });
 $ROUTER->map("GET", "/issue/auth", function () {
   require(__DIR__ . "/src/Views/issue/auth.php");

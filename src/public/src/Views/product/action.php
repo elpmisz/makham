@@ -29,7 +29,7 @@ if ($action === "create") {
     $unit = (isset($_POST['unit']) ? $VALIDATION->input($_POST['unit']) : "");
     $brand = (isset($_POST['brand']) ? $VALIDATION->input($_POST['brand']) : "");
     $category = (isset($_POST['category']) ? $VALIDATION->input($_POST['category']) : "");
-    $location = (isset($_POST['location']) ? $VALIDATION->input($_POST['location']) : "");
+    $store = (isset($_POST['store']) ? $VALIDATION->input($_POST['store']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
 
     $count = $PRODUCT->product_count([$code, $name]);
@@ -37,7 +37,7 @@ if ($action === "create") {
       $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/unit");
     }
 
-    $PRODUCT->product_insert([$code, $name, $cost, $price, $min, $max, $bom, $supplier, $unit, $brand, $category, $location, $text]);
+    $PRODUCT->product_insert([$code, $name, $cost, $price, $min, $max, $bom, $supplier, $unit, $brand, $category, $store, $text]);
     $product_id = $PRODUCT->last_insert_id();
 
     foreach ($_FILES['file']['name'] as $key => $row) {
@@ -87,7 +87,7 @@ if ($action === "update") {
     $unit = (isset($_POST['unit']) ? $VALIDATION->input($_POST['unit']) : "");
     $brand = (isset($_POST['brand']) ? $VALIDATION->input($_POST['brand']) : "");
     $category = (isset($_POST['category']) ? $VALIDATION->input($_POST['category']) : "");
-    $location = (isset($_POST['location']) ? $VALIDATION->input($_POST['location']) : "");
+    $store = (isset($_POST['store']) ? $VALIDATION->input($_POST['store']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
     $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
 
@@ -117,7 +117,7 @@ if ($action === "update") {
       }
     }
 
-    $PRODUCT->product_update([$code, $name, $cost, $price, $min, $max, $bom, $supplier, $unit, $brand, $category, $location, $text, $status, $uuid]);
+    $PRODUCT->product_update([$code, $name, $cost, $price, $min, $max, $bom, $supplier, $unit, $brand, $category, $store, $text, $status, $uuid]);
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/product");
   } catch (PDOException $e) {
     die($e->getMessage());
@@ -187,17 +187,18 @@ if ($action === "upload") {
         $brand = (!empty($brand) ? $PRODUCT->brand_id([$brand]) : "");
         $category = (isset($value[11]) ? $value[11] : "");
         $category = (!empty($category) ? $PRODUCT->category_id([$category]) : "");
-        $location = (isset($value[12]) ? $value[12] : "");
-        $location = (!empty($location) ? $PRODUCT->location_id([$location]) : "");
+        $store = (isset($value[12]) ? $value[12] : "");
+        $store = (!empty($store) ? $PRODUCT->store_id([$store]) : "");
         $status = (isset($value[13]) ? $value[13] : "");
         $status = ($status === "ใช้งาน" ? 1 : 2);
+        $bom = "";
 
         $count = $PRODUCT->uuid_count([$uuid]);
 
         if (intval($count) > 0) {
-          $PRODUCT->product_update([$code, $name, $cost, $price, $min, $max, $supplier, $unit, $brand, $category, $location, $text, $status, $uuid]);
+          $PRODUCT->product_update([$code, $name, $cost, $price, $min, $max, $bom, $supplier, $unit, $brand, $category, $store, $text, $status, $uuid]);
         } else {
-          $PRODUCT->product_insert([$code, $name, $cost, $price, $min, $max, $supplier, $unit, $brand, $category, $location, $text]);
+          $PRODUCT->product_insert([$code, $name, $cost, $price, $min, $max, $bom, $supplier, $unit, $brand, $category, $store, $text]);
         }
       }
     }

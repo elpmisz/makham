@@ -70,7 +70,7 @@ class Issue
 
   public function item_insert($data)
   {
-    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,quantity) VALUES(?,?,?)";
+    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,location_id,quantity) VALUES(?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -114,10 +114,10 @@ class Issue
 
   public function issue_view($data)
   {
-    $sql = "SELECT a.id,a.uuid,a.text,
+    $sql = "SELECT a.id,a.uuid,a.text,a.type,
     IF(a.type = 1,'นำเข้า','เบิกออก') type_name,
     IF(a.type = 1,'primary','danger') type_color,
-    CONCAT('RE',YEAR(a.created),LPAD(a.last,4,'0')) ticket,
+    CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     CONCAT(b.firstname,' ',b.lastname) fullname,
     (
       CASE
@@ -156,7 +156,8 @@ class Issue
     $sql = "SELECT b.id,b.product_id,CONCAT('[',c.code,'] ',c.name) product_name,
     CAST(b.quantity AS DECIMAL(20,2)) quantity,
     CAST(b.confirm AS DECIMAL(20,2)) confirm,
-    c.unit unit_id,d.name unit_name
+    c.unit unit_id,d.name unit_name,
+    b.location_id,e.name location_name
     FROM inventory.issue a
     LEFT JOIN inventory.issue_item b
     ON a.id = b.issue_id
@@ -164,9 +165,11 @@ class Issue
     ON b.product_id = c.id
     LEFT JOIN inventory.unit d
     ON c.unit = d.id
+    LEFT JOIN inventory.location e
+    ON b.location_id = e.id
     WHERE b.status = 1
     AND a.uuid = ?
-    ORDER BY c.code ASC";
+    ORDER BY b.id ASC";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -193,21 +196,21 @@ class Issue
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
-  public function item_detail($data)
+  public function item_detail($data, $location)
   {
     $sql = "SELECT e.id product_id,e.uuid product_uuid,e.code product_code,e.name product_name,
-    e.cost,e.price,e.`min`,e.`max`,
-    SUM(IF(b.`type` = 1 AND b.status = 2,a.confirm,0)) income,
-    SUM(IF((b.`type` = 2 AND b.status = 2) OR (c.`status` IN (3,4,5)) OR (d.`status` = 1),a.confirm,0)) outcome,
+    e.cost,e.price,e.min,e.max,
+    SUM(IF(b.type = 1 AND b.status = 2 AND a.location_id = {$location},a.confirm,0)) income,
+    SUM(IF(((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1)) AND a.location_id = {$location},a.confirm,0)) outcome,
     (
-    SUM(IF(b.`type` = 1 AND b.status = 2,a.confirm,0) ) -
-    SUM(IF((b.`type` = 2 AND b.status = 2) OR (c.`status` IN (3,4,5)) OR (d.`status` = 1),a.confirm,0))
+      SUM(IF(b.type = 1 AND b.status = 2 AND a.location_id = {$location},a.confirm,0)) -
+      SUM(IF(((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1)) AND a.location_id = {$location},a.confirm,0))
     ) remain,
     e.supplier,f.name supplier_name,
     e.unit,g.name unit_name,
     e.brand,h.name brand_name,
     e.category,i.name category_name,
-    e.location,j.name location_name,
+    e.store,CONCAT(j.room,j.floor,j.zone) store_name,
     IF(MAX(a.created) IS NOT NULL,
       DATE_FORMAT(MAX(a.created),'%d/%m/%Y, %H:%i น.'),
       DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')
@@ -231,8 +234,10 @@ class Issue
     ON e.brand = h.id 
     LEFT JOIN inventory.category i
     ON e.category = i.id 
-    LEFT JOIN inventory.location j
-    ON e.location = j.id
+    LEFT JOIN inventory.store j
+    ON e.store = j.id
+    LEFT JOIN inventory.location k
+    ON a.location_id = k.id 
     WHERE e.status = 1
     AND e.id = ?";
     $stmt = $this->dbcon->prepare($sql);
@@ -357,7 +362,7 @@ class Issue
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,4,'0')) ticket,
+    $sql = "SELECT a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     CONCAT(b.firstname,' ',b.lastname) fullname,a.text,
     IF(a.status = 1,'edit','complete') page,
     (
@@ -456,7 +461,7 @@ class Issue
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,4,'0')) ticket,
+    $sql = "SELECT a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     CONCAT(b.firstname,' ',b.lastname) fullname,a.text,
     (
       CASE
@@ -624,7 +629,7 @@ class Issue
 
   public function item_all_select($keyword)
   {
-    $sql = "SELECT id,CONCAT('[',p.code,'] ',p.name) `text`
+    $sql = "SELECT id,CONCAT('[',p.code,'] ',p.name) text
     FROM inventory.product p
     WHERE p.status = 1 ";
     if (!empty($keyword)) {
@@ -638,7 +643,7 @@ class Issue
 
   public function item_remain_select($keyword)
   {
-    $sql = "SELECT p.id,CONCAT('[',p.code,'] ',p.name) `text`
+    $sql = "SELECT p.id,CONCAT('[',p.code,'] ',p.name) text
     FROM inventory.product p
     LEFT JOIN inventory.issue_item a
     ON p.id = a.product_id
@@ -666,6 +671,20 @@ class Issue
       $sql .= " AND (a.firstname LIKE '%{$keyword}%' OR a.lastname LIKE '%{$keyword}%' OR a.email LIKE '%{$keyword}%' OR a.contact LIKE '%{$keyword}%') ";
     }
     $sql .= " ORDER BY a.firstname ASC LIMIT 50";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
+  public function location_select($keyword)
+  {
+    $sql = "SELECT a.id, a.name text
+    FROM inventory.location a
+    WHERE a.status = 1 ";
+    if (!empty($keyword)) {
+      $sql .= " AND (a.name LIKE '%{$keyword}%') ";
+    }
+    $sql .= " ORDER BY a.name ASC LIMIT 50";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll();

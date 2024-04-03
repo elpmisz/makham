@@ -80,7 +80,8 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                   <thead>
                     <tr>
                       <th width="10%">#</th>
-                      <th width="50%">วัตถุดิบ</th>
+                      <th width="30%">วัตถุดิบ</th>
+                      <th width="20%">สถานที่</th>
                       <th width="20%">ปริมาณ</th>
                       <th width="20%">ปริมาณ (ตรวจสอบ)</th>
                       <th width="10%">หน่วยนับ</th>
@@ -93,12 +94,9 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           <?php echo $key ?>
                           <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $item['id'] ?>" readonly>
                         </td>
-                        <td>
-                          <?php echo $item['product_name'] ?>
-                        </td>
-                        <td class="text-right">
-                          <?php echo $item['quantity'] ?>
-                        </td>
+                        <td><?php echo $item['product_name'] ?></td>
+                        <td><?php echo $item['location_name'] ?></td>
+                        <td class="text-right"><?php echo $item['quantity'] ?></td>
                         <td>
                           <input type="number" class="form-control form-control-sm text-right" name="confirm[]" value="<?php echo $item['quantity'] ?>" min="0" step="0.01" required>
                           <div class="invalid-feedback">

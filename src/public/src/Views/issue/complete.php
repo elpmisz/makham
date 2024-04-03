@@ -74,7 +74,8 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                   <thead>
                     <tr>
                       <th width="10%">#</th>
-                      <th width="50%">วัตถุดิบ</th>
+                      <th width="30%">วัตถุดิบ</th>
+                      <th width="20%">สถานที่</th>
                       <th width="20%">ปริมาณ (นำเข้า)</th>
                       <th width="20%">ปริมาณ (ตรวจสอบ)</th>
                       <th width="10%">หน่วยนับ</th>
@@ -87,15 +88,10 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           <?php echo $key ?>
                           <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $item['id'] ?>" readonly>
                         </td>
-                        <td>
-                          <?php echo $item['product_name'] ?>
-                        </td>
-                        <td class="text-right">
-                          <?php echo $item['quantity'] ?>
-                        </td>
-                        <td class="text-right">
-                          <?php echo $item['confirm'] ?>
-                        </td>
+                        <td><?php echo $item['product_name'] ?></td>
+                        <td><?php echo $item['location_name'] ?></td>
+                        <td class="text-right"><?php echo $item['quantity'] ?></td>
+                        <td class="text-right"><?php echo $item['confirm'] ?></td>
                         <td class="text-center"><?php echo $item['unit_name'] ?></td>
                       </tr>
                     <?php endforeach; ?>
