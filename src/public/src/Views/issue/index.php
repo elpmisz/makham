@@ -30,6 +30,8 @@ $approver_count = $ISSUE->approver_count();
               <i class="fas fa-download pr-2"></i>นำข้อมูลออก
             </a>
           </div>
+        </div>
+        <div class="row justify-content-end mb-2">
           <div class="col-xl-3 mb-2">
             <a href="/issue/income" class="btn btn-success btn-sm btn-block">
               <i class="fas fa-plus pr-2"></i>นำเข้า
@@ -60,9 +62,10 @@ $approver_count = $ISSUE->approver_count();
                       <thead>
                         <tr>
                           <th width="10%">สถานะ</th>
+                          <th width="10%">เลขที่เอกสาร</th>
                           <th width="10%">ประเภท</th>
                           <th width="10%">ผู้ทำรายการ</th>
-                          <th width="60">รายละเอียด</th>
+                          <th width="50%">รายละเอียด</th>
                           <th width="10%">วันที่</th>
                         </tr>
                       </thead>
@@ -86,9 +89,10 @@ $approver_count = $ISSUE->approver_count();
                     <thead>
                       <tr>
                         <th width="10%">สถานะ</th>
+                        <th width="10%">เลขที่เอกสาร</th>
                         <th width="10%">ประเภท</th>
                         <th width="10%">ผู้ทำรายการ</th>
-                        <th width="60">รายละเอียด</th>
+                        <th width="50%">รายละเอียด</th>
                         <th width="10%">วันที่</th>
                       </tr>
                     </thead>
@@ -151,7 +155,7 @@ $approver_count = $ISSUE->approver_count();
         type: "POST",
       },
       columnDefs: [{
-        targets: [0, 1],
+        targets: [0, 2],
         className: "text-center",
       }],
       "oLanguage": {
@@ -180,7 +184,7 @@ $approver_count = $ISSUE->approver_count();
         type: "POST",
       },
       columnDefs: [{
-        targets: [0, 1],
+        targets: [0, 2],
         className: "text-center",
       }],
       "oLanguage": {

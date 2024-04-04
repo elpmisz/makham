@@ -10,12 +10,13 @@ use App\Classes\Issue;
 $ISSUE = new Issue();
 
 $row = $ISSUE->issue_view([$uuid]);
-$items = $ISSUE->item_view([$uuid]);
+$items = (intval($row['type']) === 3 ? $ISSUE->exchange_view([$uuid]) : $ISSUE->item_view([$uuid]));
 $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
 $fullname = (!empty($row['fullname']) ? $row['fullname'] : "");
 $text = (!empty($row['text']) ? str_replace("\n", "<br>", $row['text']) : "");
+$type = (!empty($row['type']) ? $row['type'] : "");
 $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
 $type_color = (!empty($row['type_color']) ? $row['type_color'] : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
@@ -28,7 +29,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
         <h4 class="text-center">ใบสั่ง</h4>
       </div>
       <div class="card-body">
-        <form action="/issue/approve" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="/issue/<?php echo ($type === 3 ? "approve-ex" : "approve") ?>" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
           <div class="row mb-2" style="display: none;">
             <label class="col-xl-2 offset-xl-2 col-form-label">USER ID</label>
@@ -77,26 +78,60 @@ $created = (!empty($row['created']) ? $row['created'] : "");
             <div class="col-sm-10">
               <div class="table-responsive">
                 <table class="table table-bordered table-sm item-table">
-                  <thead>
-                    <tr>
-                      <th width="10%">#</th>
-                      <th width="30%">วัตถุดิบ</th>
-                      <th width="20%">สถานที่</th>
-                      <th width="20%">ปริมาณ</th>
-                      <th width="20%">ปริมาณ (ตรวจสอบ)</th>
-                      <th width="10%">หน่วยนับ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                  <?php if ($type !== 3) : ?>
+                    <thead>
+                      <tr>
+                        <th width="10%">#</th>
+                        <th width="30%">วัตถุดิบ</th>
+                        <th width="20%">สถานที่</th>
+                        <th width="20%">ปริมาณ <?php echo "({$row['type_name']})" ?></th>
+                        <th width="20%">ปริมาณ (ตรวจสอบ)</th>
+                        <th width="10%">หน่วยนับ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($items as $key => $item) : $key++; ?>
+                        <tr>
+                          <td class="text-center">
+                            <?php echo $key ?>
+                            <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $item['item_id'] ?>" readonly>
+                          </td>
+                          <td><?php echo $item['product_name'] ?></td>
+                          <td><?php echo $item['location_name'] ?></td>
+                          <td class="text-right"><?php echo number_format($item['quantity'], 2) ?></td>
+                          <td>
+                            <input type="number" class="form-control form-control-sm text-right" name="confirm[]" value="<?php echo $item['quantity'] ?>" min="0" step="0.01" required>
+                            <div class="invalid-feedback">
+                              กรุณากรอกข้อมูล!
+                            </div>
+                          </td>
+                          <td class="text-center"><?php echo $item['unit_name'] ?></td>
+                        </tr>
+                      <?php endforeach; ?>
+                    </tbody>
+                  <?php endif; ?>
+                  <?php if ($type === 3) : ?>
+                    <thead>
+                      <tr>
+                        <th width="10%">#</th>
+                        <th width="30%">วัตถุดิบ</th>
+                        <th width="20%">สถานที่ (ต้นทาง)</th>
+                        <th width="20%">สถานที่ (ปลายทาง)</th>
+                        <th width="10%">ปริมาณ (โอนย้าย)</th>
+                        <th width="10%">ปริมาณ (ตรวจสอบ)</th>
+                        <th width="10%">หน่วยนับ</th>
+                      </tr>
+                    </thead>
                     <?php foreach ($items as $key => $item) : $key++; ?>
                       <tr>
                         <td class="text-center">
                           <?php echo $key ?>
-                          <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $item['id'] ?>" readonly>
+                          <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $item['item_id'] ?>" readonly>
                         </td>
                         <td><?php echo $item['product_name'] ?></td>
-                        <td><?php echo $item['location_name'] ?></td>
-                        <td class="text-right"><?php echo $item['quantity'] ?></td>
+                        <td><?php echo $item['send'] ?></td>
+                        <td><?php echo $item['receive'] ?></td>
+                        <td class="text-right"><?php echo number_format($item['quantity'], 2) ?></td>
                         <td>
                           <input type="number" class="form-control form-control-sm text-right" name="confirm[]" value="<?php echo $item['quantity'] ?>" min="0" step="0.01" required>
                           <div class="invalid-feedback">
@@ -106,7 +141,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                         <td class="text-center"><?php echo $item['unit_name'] ?></td>
                       </tr>
                     <?php endforeach; ?>
-                  </tbody>
+                  <?php endif; ?>
                 </table>
               </div>
             </div>

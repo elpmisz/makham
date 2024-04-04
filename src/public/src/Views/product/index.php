@@ -55,7 +55,6 @@ include_once(__DIR__ . "/../layout/header.php");
                     <th width="10%">ราคาขาย</th>
                     <th width="10%">MIN</th>
                     <th width="10%">คงเหลือ</th>
-                    <th width="10%">วันที่ล่าสุด</th>
                   </tr>
                 </thead>
               </table>

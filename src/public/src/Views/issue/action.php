@@ -36,7 +36,7 @@ if ($action === "create") {
       $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
 
       if (!empty($product)) {
-        $count = $ISSUE->item_count([$issue_id, $product]);
+        $count = $ISSUE->item_count([$issue_id, $product, $location]);
         if (intval($count) === 0) {
           $ISSUE->item_insert([$issue_id, $product, $type, $location, $quantity]);
         }
@@ -55,31 +55,86 @@ if ($action === "update") {
     $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
     $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
+    $item_product = (!empty($_POST['item_product']) ? $_POST['item_product'] : "");
 
-    foreach ($_POST['item__id'] as $key => $value) {
-      $product = (isset($_POST['item__id'][$key]) ? $VALIDATION->input($_POST['item__id'][$key]) : "");
-      $quantity = (isset($_POST['item__quantity'][$key]) ? $VALIDATION->input($_POST['item__quantity'][$key]) : "");
+    if (!empty($item_product)) {
+      foreach ($_POST['item_product'] as $key => $value) {
+        $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
+        $location = (isset($_POST['item_location'][$key]) ? $VALIDATION->input($_POST['item_location'][$key]) : "");
+        $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
 
-      if (!empty($product)) {
-        $ISSUE->item_update([$quantity, $product]);
-      }
-    }
-
-    foreach ($_POST['item_product'] as $key => $value) {
-      $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
-      $location = (isset($_POST['item_location'][$key]) ? $VALIDATION->input($_POST['item_location'][$key]) : "");
-      $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
-
-      if (!empty($product)) {
-        $count = $ISSUE->item_count([$id, $product]);
-        if (intval($count) === 0) {
-          $ISSUE->item_insert([$id, $product, $type, $location, $quantity]);
+        if (!empty($product)) {
+          $count = $ISSUE->item_count([$id, $product, $location]);
+          if (intval($count) === 0) {
+            $ISSUE->item_insert([$id, $product, $type, $location, $quantity]);
+          }
         }
       }
     }
 
     $ISSUE->issue_update([$text, $uuid]);
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/issue/edit/{$uuid}");
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "exchange") {
+  try {
+    $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
+    $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
+    $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
+    $last = $ISSUE->issue_last();
+
+    $count = $ISSUE->issue_count([$type, $text]);
+    if (intval($count) > 0) {
+      $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/issue");
+    }
+    $ISSUE->issue_insert([$last, $type, $text, $user_id]);
+    $issue_id = $ISSUE->last_insert_id();
+
+    foreach ($_POST['item_product'] as $key => $value) {
+      $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
+      $send = (isset($_POST['item_send'][$key]) ? $VALIDATION->input($_POST['item_send'][$key]) : "");
+      $receive = (isset($_POST['item_receive'][$key]) ? $VALIDATION->input($_POST['item_receive'][$key]) : "");
+      $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
+
+      if (!empty($product)) {
+        $ISSUE->item_insert([$issue_id, $product, 2, $send, $quantity]);
+        $ISSUE->item_insert([$issue_id, $product, 1, $receive, $quantity]);
+      }
+    }
+
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/issue");
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "update-ex") {
+  try {
+    $id = (isset($_POST['id']) ? $VALIDATION->input($_POST['id']) : "");
+    $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
+    $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
+    $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
+    $item_product = (!empty($_POST['item_product']) ? $_POST['item_product'] : "");
+
+    if (!empty($item_product)) {
+      foreach ($_POST['item_product'] as $key => $value) {
+        $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
+        $send = (isset($_POST['item_send'][$key]) ? $VALIDATION->input($_POST['item_send'][$key]) : "");
+        $receive = (isset($_POST['item_receive'][$key]) ? $VALIDATION->input($_POST['item_receive'][$key]) : "");
+        $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
+
+        if (!empty($product)) {
+          $ISSUE->item_insert([$id, $product, 2, $send, $quantity]);
+          $ISSUE->item_insert([$id, $product, 1, $receive, $quantity]);
+        }
+      }
+    }
+
+    $ISSUE->issue_update([$text, $uuid]);
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/issue/edit/{$uuid}");
   } catch (PDOException $e) {
     die($e->getMessage());
   }
@@ -89,10 +144,16 @@ if ($action === "item-delete") {
   try {
     $data = json_decode(file_get_contents("php://input"), true);
     $item = $data['id'];
-
+    $exchange = (strpos($item, "-") ? 1 : 2);
+    $arr = ($exchange === 1 ? explode("-", $item) : "");
     if (!empty($item)) {
-      $ISSUE->item_delete([$item]);
-      echo json_encode(200);
+      if ($exchange === 1) {
+        $ISSUE->exchange_delete([$arr[0], $arr[1]]);
+        echo json_encode(200);
+      } else {
+        $ISSUE->item_delete([$item]);
+        echo json_encode(200);
+      }
     } else {
       echo json_encode(500);
     }
@@ -115,6 +176,33 @@ if ($action === "approve") {
 
       if (!empty($product)) {
         $ISSUE->item_confirm([$confirm, $product]);
+      }
+    }
+
+    $ISSUE->issue_approve([$status, $uuid]);
+    $ISSUE->text_insert([$id, $user_id, $remark, $status]);
+
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/issue");
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "approve-ex") {
+  try {
+    $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
+    $id = (isset($_POST['id']) ? $VALIDATION->input($_POST['id']) : "");
+    $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
+    $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
+    $remark = (isset($_POST['remark']) ? $VALIDATION->input($_POST['remark']) : "");
+
+    foreach ($_POST['product'] as $key => $value) {
+      $product = (isset($_POST['product'][$key]) ? $VALIDATION->input($_POST['product'][$key]) : "");
+      $arr = explode("-", $product);
+      $confirm = (isset($_POST['confirm'][$key]) ? $VALIDATION->input($_POST['confirm'][$key]) : "");
+
+      if (!empty($product)) {
+        $ISSUE->exchange_confirm([$confirm, $arr[0], $arr[1]]);
       }
     }
 

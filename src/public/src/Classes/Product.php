@@ -63,6 +63,49 @@ class Product
     return $stmt->fetch();
   }
 
+  public function stock_view($data)
+  {
+    $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
+    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
+    SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) income,
+    SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) outcome,
+    (
+      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) -
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0))
+    ) remain,
+    a.supplier,d.name supplier_name,
+    a.unit,e.name unit_name,
+    a.brand,f.name brand_name,
+    a.category,g.name category_name,
+    a.store,CONCAT(h.room,h.floor,h.zone) store_name,
+    b.location_id,i.name location_name,
+    IF(a.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
+    IF(a.status = 1,'success','danger') status_color,
+    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created
+    FROM inventory.product a
+    LEFT JOIN inventory.issue_item b
+    ON a.id = b.product_id
+    LEFT JOIN inventory.issue c
+    ON b.issue_id = c.id
+    LEFT JOIN inventory.customer d
+    ON a.supplier = d.id
+    LEFT JOIN inventory.unit e
+    ON a.unit = e.id
+    LEFT JOIN inventory.brand f
+    ON a.brand = f.id 
+    LEFT JOIN inventory.category g
+    ON a.category = g.id 
+    LEFT JOIN inventory.store h
+    ON a.store = h.id
+    LEFT JOIN inventory.location i
+    ON b.location_id = i.id
+    WHERE a.uuid = ?
+    GROUP BY b.location_id";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    return $stmt->fetch();
+  }
+
   public function issue_count($data)
   {
     $sql = "SELECT COUNT(*) FROM	inventory.issue_item a WHERE a.product_id = ?";
@@ -312,13 +355,13 @@ class Product
     $total = $stmt->fetchColumn();
 
     $column = [
-      "e.status", "e.code", "e.name", "i.name", "j.name", "e.cost", "e.price", "e.min",
+      "a.status", "a.code", "a.name", "g.name", "CONCAT(h.room,h.floor,h.zone)", "a.cost", "a.price", "a.min",
       "
       (
-        SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0) ) -
-        SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0))
+        SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) -
+        SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0))
       )
-      ", "IF(MAX(a.created) IS NOT NULL,MAX(a.created),e.created)"
+      "
     ];
 
     $category = (!empty($category) ? $category : "");
@@ -331,45 +374,38 @@ class Product
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT e.id product_id,e.uuid product_uuid,e.code product_code,e.name product_name,
-    IFNULL(e.cost,0) cost,IFNULL(e.price,0) price,IFNULL(e.min,0) min,IFNULL(e.max,0) max,
-    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0)) income,
-    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0)) outcome,
+    $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
+    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
+    SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) income,
+    SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) outcome,
     (
-    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0) ) -
-    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0))
+      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) -
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0))
     ) remain,
-    e.supplier,f.name supplier_name,
-    e.unit,g.name unit_name,
-    e.brand,h.name brand_name,
-    e.category,i.name category_name,
-    e.store,CONCAT(j.room,j.floor,j.zone) store_name,
-    IF(MAX(a.created) IS NOT NULL,
-      DATE_FORMAT(MAX(a.created),'%d/%m/%Y, %H:%i น.'),
-      DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')
-    ) created,
-    IF(e.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
-    IF(e.status = 1,'success','danger') status_color
-    FROM inventory.issue_item a
-    LEFT JOIN inventory.issue b
-    ON a.issue_id = b.id
-    LEFT JOIN inventory.purchase c
-    ON a.purchase_id = c.id
-    LEFT JOIN inventory.sale d
-    ON a.sale_id = d.id
-    RIGHT JOIN inventory.product e
-    ON a.product_id = e.id
-    LEFT JOIN inventory.customer f
-    ON e.supplier = f.id
-    LEFT JOIN inventory.unit g
-    ON e.unit = g.id
-    LEFT JOIN inventory.brand h
-    ON e.brand = h.id 
-    LEFT JOIN inventory.category i
-    ON e.category = i.id 
-    LEFT JOIN inventory.store j
-    ON e.store = j.id
-    WHERE e.status = 1 ";
+    a.supplier,d.name supplier_name,
+    a.unit,e.name unit_name,
+    a.brand,f.name brand_name,
+    a.category,g.name category_name,
+    a.store,CONCAT(h.room,h.floor,h.zone) store_name,
+    IF(a.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
+    IF(a.status = 1,'success','danger') status_color,
+    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created
+    FROM inventory.product a
+    LEFT JOIN inventory.issue_item b
+    ON a.id = b.product_id
+    LEFT JOIN inventory.issue c
+    ON b.issue_id = c.id
+    LEFT JOIN inventory.customer d
+    ON a.supplier = d.id
+    LEFT JOIN inventory.unit e
+    ON a.unit = e.id
+    LEFT JOIN inventory.brand f
+    ON a.brand = f.id 
+    LEFT JOIN inventory.category g
+    ON a.category = g.id 
+    LEFT JOIN inventory.store h
+    ON a.store = h.id
+    WHERE a.id != '' ";
 
     if (!empty($keyword)) {
       $sql .= " AND (e.name LIKE '%{$keyword}%' OR e.code LIKE '%{$keyword}%') ";
@@ -381,12 +417,12 @@ class Product
       $sql .= " AND e.location = '{$location}' ";
     }
 
-    $sql .= " GROUP BY e.id ";
+    $sql .= " GROUP BY a.id ";
 
     if ($filter_order) {
       $sql .= " ORDER BY {$column[$order_column]} {$order_dir} ";
     } else {
-      $sql .= " ORDER BY e.status ASC, e.code ASC ";
+      $sql .= " ORDER BY a.status ASC, a.code ASC ";
     }
 
     $sql2 = "";
@@ -410,11 +446,10 @@ class Product
         $row['product_name'],
         $row['category_name'],
         $row['store_name'],
-        $row['cost'],
-        $row['price'],
-        $row['min'],
+        $row['product_cost'],
+        $row['product_price'],
+        $row['product_min'],
         $row['remain'],
-        $row['created'],
       ];
     }
 

@@ -62,7 +62,7 @@ class Issue
 
   public function item_count($data)
   {
-    $sql = "SELECT COUNT(*) FROM inventory.issue_item WHERE issue_id = ? AND product_id = ? AND status = 1";
+    $sql = "SELECT COUNT(*) FROM inventory.issue_item WHERE issue_id = ? AND product_id = ? AND location_id = ? AND status = 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
@@ -115,10 +115,24 @@ class Issue
   public function issue_view($data)
   {
     $sql = "SELECT a.id,a.uuid,a.text,a.type,
-    IF(a.type = 1,'นำเข้า','เบิกออก') type_name,
-    IF(a.type = 1,'primary','danger') type_color,
     CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     CONCAT(b.firstname,' ',b.lastname) fullname,
+    (
+      CASE
+        WHEN a.type = 1 THEN 'นำเข้า'
+        WHEN a.type = 2 THEN 'เบิกออก'
+        WHEN a.type = 3 THEN 'โอนย้าย'
+        ELSE NULL
+      END
+    ) type_name,
+    (
+      CASE
+        WHEN a.type = 1 THEN 'success'
+        WHEN a.type = 2 THEN 'primary'
+        WHEN a.type = 3 THEN 'info'
+        ELSE NULL
+      END
+    ) type_color,
     (
       CASE
         WHEN a.status = 1 THEN 'รอตรวจสอบ'
@@ -153,26 +167,104 @@ class Issue
 
   public function item_view($data)
   {
-    $sql = "SELECT b.id,b.product_id,CONCAT('[',c.code,'] ',c.name) product_name,
-    CAST(b.quantity AS DECIMAL(20,2)) quantity,
-    CAST(b.confirm AS DECIMAL(20,2)) confirm,
-    c.unit unit_id,d.name unit_name,
-    b.location_id,e.name location_name
-    FROM inventory.issue a
+    $sql = "SELECT b.id item_id,a.id product_id,a.uuid product_uuid,
+    a.code product_code,a.name product_name,CAST(b.quantity AS DECIMAL(20,2)) quantity,b.confirm,
+    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
+    a.supplier,d.name supplier_name,
+    a.unit,e.name unit_name,
+    a.brand,f.name brand_name,
+    a.category,g.name category_name,
+    a.store,CONCAT(h.room,h.floor,h.zone) store_name,
+    b.location_id,i.name location_name,
+    IF(a.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
+    IF(a.status = 1,'success','danger') status_color,
+    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created
+    FROM inventory.product a
     LEFT JOIN inventory.issue_item b
-    ON a.id = b.issue_id
-    LEFT JOIN inventory.product c
-    ON b.product_id = c.id
-    LEFT JOIN inventory.unit d
-    ON c.unit = d.id
-    LEFT JOIN inventory.location e
-    ON b.location_id = e.id
-    WHERE b.status = 1
-    AND a.uuid = ?
+    ON a.id = b.product_id
+    LEFT JOIN inventory.issue c
+    ON b.issue_id = c.id
+    LEFT JOIN inventory.customer d
+    ON a.supplier = d.id
+    LEFT JOIN inventory.unit e
+    ON a.unit = e.id
+    LEFT JOIN inventory.brand f
+    ON a.brand = f.id 
+    LEFT JOIN inventory.category g
+    ON a.category = g.id 
+    LEFT JOIN inventory.store h
+    ON a.store = h.id
+    LEFT JOIN inventory.location i
+    ON b.location_id = i.id
+    WHERE c.uuid = ?
+    AND b.status = 1
+    GROUP BY a.id,b.location_id
     ORDER BY b.id ASC";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function exchange_view($data)
+  {
+    $sql = "SELECT IF(c.type = 3,CONCAT(b.issue_id,'-',b.product_id),b.id) item_id,
+    a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
+    CAST(b.quantity AS DECIMAL(20,2)) quantity,b.confirm,
+    MIN(i.name) send,MAX(i.name) receive,
+    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
+    a.supplier,d.name supplier_name,
+    a.unit,e.name unit_name,
+    a.brand,f.name brand_name,
+    a.category,g.name category_name,
+    a.store,CONCAT(h.room,h.floor,h.zone) store_name,
+    IF(a.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
+    IF(a.status = 1,'success','danger') status_color,
+    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created
+    FROM inventory.product a
+    LEFT JOIN inventory.issue_item b
+    ON a.id = b.product_id
+    LEFT JOIN inventory.issue c
+    ON b.issue_id = c.id
+    LEFT JOIN inventory.customer d
+    ON a.supplier = d.id
+    LEFT JOIN inventory.unit e
+    ON a.unit = e.id
+    LEFT JOIN inventory.brand f
+    ON a.brand = f.id 
+    LEFT JOIN inventory.category g
+    ON a.category = g.id 
+    LEFT JOIN inventory.store h
+    ON a.store = h.id
+    LEFT JOIN inventory.location i
+    ON b.location_id = i.id
+    WHERE c.uuid = ?
+    AND b.status = 1
+    GROUP BY a.id";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function exchange_delete($data)
+  {
+    $sql = "UPDATE inventory.issue_item SET
+    status = 2,
+    updated = NOW()
+    WHERE issue_id = ?
+    AND product_id = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    return $stmt->execute($data);
+  }
+
+  public function exchange_confirm($data)
+  {
+    $sql = "UPDATE inventory.issue_item SET
+    confirm = ?,
+    updated = NOW()
+    WHERE issue_id = ?
+    AND product_id = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    return $stmt->execute($data);
   }
 
   public function text_view($data)
@@ -198,48 +290,38 @@ class Issue
 
   public function item_detail($data, $location)
   {
-    $sql = "SELECT e.id product_id,e.uuid product_uuid,e.code product_code,e.name product_name,
-    e.cost,e.price,e.min,e.max,
-    SUM(IF(b.type = 1 AND b.status = 2 AND a.location_id = {$location},a.confirm,0)) income,
-    SUM(IF(((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1)) AND a.location_id = {$location},a.confirm,0)) outcome,
+    $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
+    SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1 AND b.location_id = {$location},IF(c.status = 1,b.quantity,b.confirm),0)) income,
+    SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1 AND b.location_id = {$location},IF(c.status = 1,b.quantity,b.confirm),0)) outcome,
     (
-      SUM(IF(b.type = 1 AND b.status = 2 AND a.location_id = {$location},a.confirm,0)) -
-      SUM(IF(((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1)) AND a.location_id = {$location},a.confirm,0))
+      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1 AND b.location_id = {$location},IF(c.status = 1,b.quantity,b.confirm),0)) -
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1 AND b.location_id = {$location},IF(c.status = 1,b.quantity,b.confirm),0))
     ) remain,
-    e.supplier,f.name supplier_name,
-    e.unit,g.name unit_name,
-    e.brand,h.name brand_name,
-    e.category,i.name category_name,
-    e.store,CONCAT(j.room,j.floor,j.zone) store_name,
-    IF(MAX(a.created) IS NOT NULL,
-      DATE_FORMAT(MAX(a.created),'%d/%m/%Y, %H:%i น.'),
-      DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')
-    ) created,
-    IF(e.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
-    IF(e.status = 1,'success','danger') status_color
-    FROM inventory.issue_item a
-    LEFT JOIN inventory.issue b
-    ON a.issue_id = b.id
-    LEFT JOIN inventory.purchase c
-    ON a.purchase_id = c.id
-    LEFT JOIN inventory.sale d
-    ON a.sale_id = d.id
-    RIGHT JOIN inventory.product e
-    ON a.product_id = e.id
-    LEFT JOIN inventory.customer f
-    ON e.supplier = f.id
-    LEFT JOIN inventory.unit g
-    ON e.unit = g.id
-    LEFT JOIN inventory.brand h
-    ON e.brand = h.id 
-    LEFT JOIN inventory.category i
-    ON e.category = i.id 
-    LEFT JOIN inventory.store j
-    ON e.store = j.id
-    LEFT JOIN inventory.location k
-    ON a.location_id = k.id 
-    WHERE e.status = 1
-    AND e.id = ?";
+    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
+    a.supplier,d.name supplier_name,
+    a.unit,e.name unit_name,
+    a.brand,f.name brand_name,
+    a.category,g.name category_name,
+    a.store,CONCAT(h.room,h.floor,h.zone) store_name,
+    IF(a.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
+    IF(a.status = 1,'success','danger') status_color,
+    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created
+    FROM inventory.product a
+    LEFT JOIN inventory.issue_item b
+    ON a.id = b.product_id
+    LEFT JOIN inventory.issue c
+    ON b.issue_id = c.id
+    LEFT JOIN inventory.customer d
+    ON a.supplier = d.id
+    LEFT JOIN inventory.unit e
+    ON a.unit = e.id
+    LEFT JOIN inventory.brand f
+    ON a.brand = f.id 
+    LEFT JOIN inventory.category g
+    ON a.category = g.id 
+    LEFT JOIN inventory.store h
+    ON a.store = h.id
+    WHERE a.id = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetch();
@@ -320,6 +402,7 @@ class Issue
     CASE
       WHEN a.type = 1 THEN 'นำเข้า'
       WHEN a.type = 2 THEN 'เบิกออก'
+      WHEN a.type = 3 THEN 'โอนย้าย'
       ELSE NULL
     END
     ) type_name,
@@ -369,13 +452,15 @@ class Issue
       CASE
         WHEN a.type = 1 THEN 'นำเข้า'
         WHEN a.type = 2 THEN 'เบิกออก'
+        WHEN a.type = 3 THEN 'โอนย้าย'
         ELSE NULL
       END
     ) type_name,
     (
       CASE
-        WHEN a.type = 1 THEN 'primary'
-        WHEN a.type = 2 THEN 'warning'
+        WHEN a.type = 1 THEN 'success'
+        WHEN a.type = 2 THEN 'primary'
+        WHEN a.type = 3 THEN 'info'
         ELSE NULL
       END
     ) type_color,
@@ -428,6 +513,7 @@ class Issue
       $type = "<span class='badge badge-{$row['type_color']}'>{$row['type_name']}</span>";
       $data[] = [
         $status,
+        $row['ticket'],
         $type,
         $row['fullname'],
         str_replace("\n", "<br>", $row['text']),
@@ -467,13 +553,15 @@ class Issue
       CASE
         WHEN a.type = 1 THEN 'นำเข้า'
         WHEN a.type = 2 THEN 'เบิกออก'
+        WHEN a.type = 3 THEN 'โอนย้าย'
         ELSE NULL
       END
     ) type_name,
     (
       CASE
-        WHEN a.type = 1 THEN 'primary'
-        WHEN a.type = 2 THEN 'warning'
+        WHEN a.type = 1 THEN 'success'
+        WHEN a.type = 2 THEN 'primary'
+        WHEN a.type = 3 THEN 'info'
         ELSE NULL
       END
     ) type_color,
@@ -527,6 +615,7 @@ class Issue
       $type = "<span class='badge badge-{$row['type_color']}'>{$row['type_name']}</span>";
       $data[] = [
         $status,
+        $row['ticket'],
         $type,
         $row['fullname'],
         str_replace("\n", "<br>", $row['text']),

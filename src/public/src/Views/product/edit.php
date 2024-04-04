@@ -41,7 +41,7 @@ $inactive = (intval($row['status']) === 2 ? "checked" : "");
 $boms = $BOM->item_view([$bom_uuid]);
 $issue_count = $PRODUCT->issue_count([$id]);
 
-$url = "{$_SERVER['HTTP_REFERER']}/complete/{$uuid}";
+$url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/{$uuid}" : "");
 ?>
 
 <div class="row">
@@ -571,38 +571,38 @@ $url = "{$_SERVER['HTTP_REFERER']}/complete/{$uuid}";
   });
 
   let uuid = $("input[name='uuid']").val();
-  $(".issue-data").DataTable({
-    serverSide: true,
-    searching: false,
-    scrollX: true,
-    order: [],
-    ajax: {
-      url: "/product/issue-data",
-      type: "POST",
-      data: {
-        uuid: uuid,
-      }
-    },
-    columnDefs: [{
-      targets: [0, 2, 5],
-      className: "text-center",
-    }, {
-      targets: [4],
-      className: "text-right",
-    }],
-    "oLanguage": {
-      "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
-      "sZeroRecords": "ไม่พบข้อมูลที่ค้นหา",
-      "sInfo": "แสดง _START_ ถึง _END_ ของ _TOTAL_ ลำดับ",
-      "sInfoEmpty": "แสดง 0 ถึง 0 ของ 0 ลำดับ",
-      "sInfoFiltered": "",
-      "sSearch": "ค้นหา :",
-      "oPaginate": {
-        "sFirst": "หน้าแรก",
-        "sLast": "หน้าสุดท้าย",
-        "sNext": "ถัดไป",
-        "sPrevious": "ก่อนหน้า"
-      }
-    },
-  });
+  // $(".issue-data").DataTable({
+  //   serverSide: true,
+  //   searching: false,
+  //   scrollX: true,
+  //   order: [],
+  //   ajax: {
+  //     url: "/product/issue-data",
+  //     type: "POST",
+  //     data: {
+  //       uuid: uuid,
+  //     }
+  //   },
+  //   columnDefs: [{
+  //     targets: [0, 2, 5],
+  //     className: "text-center",
+  //   }, {
+  //     targets: [4],
+  //     className: "text-right",
+  //   }],
+  //   "oLanguage": {
+  //     "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
+  //     "sZeroRecords": "ไม่พบข้อมูลที่ค้นหา",
+  //     "sInfo": "แสดง _START_ ถึง _END_ ของ _TOTAL_ ลำดับ",
+  //     "sInfoEmpty": "แสดง 0 ถึง 0 ของ 0 ลำดับ",
+  //     "sInfoFiltered": "",
+  //     "sSearch": "ค้นหา :",
+  //     "oPaginate": {
+  //       "sFirst": "หน้าแรก",
+  //       "sLast": "หน้าสุดท้าย",
+  //       "sNext": "ถัดไป",
+  //       "sPrevious": "ก่อนหน้า"
+  //     }
+  //   },
+  // });
 </script>

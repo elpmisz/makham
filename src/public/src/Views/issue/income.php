@@ -25,7 +25,7 @@ include_once(__DIR__ . "/../layout/header.php");
               <input type="text" class="form-control form-control-sm" value="<?php echo $user['fullname'] ?>" readonly>
             </div>
           </div>
-          <div class="row mb-2">
+          <div class="row mb-2" style="display: none;">
             <label class="col-xl-2 offset-xl-2 col-form-label">TYPE</label>
             <div class="col-xl-4">
               <input type="text" class="form-control form-control-sm" name="type" value="1" readonly>

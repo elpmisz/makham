@@ -10,7 +10,7 @@ use App\Classes\Issue;
 $ISSUE = new Issue();
 
 $row = $ISSUE->issue_view([$uuid]);
-$items = $ISSUE->item_view([$uuid]);
+$items = (intval($row['type']) === 3 ? $ISSUE->exchange_view([$uuid]) : $ISSUE->item_view([$uuid]));
 $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
@@ -29,7 +29,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
         <h4 class="text-center">ใบสั่ง</h4>
       </div>
       <div class="card-body">
-        <form action="/issue/update" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="/issue/<?php echo ($type === 3 ? "update-ex" : "update") ?>" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
           <div class="row mb-2" style="display: none;">
             <label class="col-xl-2 offset-xl-2 col-form-label">ID</label>
@@ -81,59 +81,118 @@ $created = (!empty($row['created']) ? $row['created'] : "");
             <div class="col-sm-10">
               <div class="table-responsive">
                 <table class="table table-bordered table-sm item-table">
-                  <thead>
-                    <tr>
-                      <th width="10%">#</th>
-                      <th width="30%">วัตถุดิบ</th>
-                      <th width="20%">สถานที่</th>
-                      <th width="20%">ปริมาณ</th>
-                      <th width="10%">หน่วยนับ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php foreach ($items as $item) : ?>
+                  <?php if ($type !== 3) : ?>
+                    <thead>
                       <tr>
+                        <th width="10%">#</th>
+                        <th width="30%">วัตถุดิบ</th>
+                        <th width="20%">สถานที่</th>
+                        <th width="10%">ปริมาณ (คงเหลือ)</th>
+                        <th width="20%">ปริมาณ</th>
+                        <th width="10%">หน่วยนับ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($items as $item) : ?>
+                        <tr>
+                          <td class="text-center">
+                            <a href="javascript:void(0)" class="badge badge-danger font-weight-light item-delete" id="<?php echo $item['item_id'] ?>">ลบ</a>
+                          </td>
+                          <td><?php echo $item['product_name'] ?></td>
+                          <td><?php echo $item['location_name'] ?></td>
+                          <td class="text-right"></td>
+                          <td class="text-right"><?php echo number_format($item['quantity'], 2) ?></td>
+                          <td class="text-center"><?php echo $item['unit_name'] ?></td>
+                        </tr>
+                      <?php endforeach; ?>
+                      <tr class="item-tr">
                         <td class="text-center">
-                          <a href="javascript:void(0)" class="badge badge-danger font-weight-light item-delete" id="<?php echo $item['id'] ?>">ลบ</a>
-                          <input type="hidden" class="form-control form-control-sm text-center" name="item__id[]" value="<?php echo $item['id'] ?>" readonly>
+                          <button type="button" class="btn btn-sm btn-success item-increase">+</button>
+                          <button type="button" class="btn btn-sm btn-danger item-decrease">-</button>
                         </td>
-                        <td><?php echo $item['product_name'] ?></td>
-                        <td><?php echo $item['location_name'] ?></td>
+                        <td class="text-left">
+                          <select class="form-control form-control-sm item-select" name="item_product[]"></select>
+                          <div class="invalid-feedback">
+                            กรุณาเลือกข้อมูล!
+                          </div>
+                        </td>
+                        <td class="text-left">
+                          <select class="form-control form-control-sm location-select" name="item_location[]"></select>
+                          <div class="invalid-feedback">
+                            กรุณาเลือกข้อมูล!
+                          </div>
+                        </td>
+                        <td class="text-right"><span class="item-remain"></span></td>
                         <td>
-                          <input type="number" class="form-control form-control-sm text-center" name="item__quantity[]" value="<?php echo $item['quantity'] ?>" min="0" step="0.01" required>
+                          <input type="number" class="form-control form-control-sm text-center item-quantity" name="item_quantity[]" min="0" step="0.01">
                           <div class="invalid-feedback">
                             กรุณากรอกข้อมูล!
                           </div>
                         </td>
-                        <td class="text-center"><?php echo $item['unit_name'] ?></td>
+                        <td class="text-center"><span class="item-unit"></span></td>
                       </tr>
-                    <?php endforeach; ?>
-                    <tr class="item-tr">
-                      <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-success item-increase">+</button>
-                        <button type="button" class="btn btn-sm btn-danger item-decrease">-</button>
-                      </td>
-                      <td class="text-left">
-                        <select class="form-control form-control-sm item-select" name="item_product[]" required></select>
-                        <div class="invalid-feedback">
-                          กรุณาเลือกข้อมูล!
-                        </div>
-                      </td>
-                      <td class="text-left">
-                        <select class="form-control form-control-sm location-select" name="item_location[]" required></select>
-                        <div class="invalid-feedback">
-                          กรุณาเลือกข้อมูล!
-                        </div>
-                      </td>
-                      <td>
-                        <input type="number" class="form-control form-control-sm text-center item-quantity" name="item_quantity[]" min="0" step="0.01" required>
-                        <div class="invalid-feedback">
-                          กรุณากรอกข้อมูล!
-                        </div>
-                      </td>
-                      <td class="text-center"><span class="item-unit"></span></td>
-                    </tr>
-                  </tbody>
+                    </tbody>
+                  <?php endif; ?>
+                  <?php if ($type === 3) : ?>
+                    <thead>
+                      <tr>
+                        <th width="10%">#</th>
+                        <th width="30%">วัตถุดิบ</th>
+                        <th width="20%">สถานที่ (ต้นทาง)</th>
+                        <th width="10%">ปริมาณ (คงเหลือ)</th>
+                        <th width="20%">สถานที่ (ปลายทาง)</th>
+                        <th width="10%">ปริมาณ (โอนย้าย)</th>
+                        <th width="10%">หน่วยนับ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($items as $item) : ?>
+                        <tr>
+                          <td class="text-center">
+                            <a href="javascript:void(0)" class="badge badge-danger font-weight-light item-delete" id="<?php echo $item['item_id'] ?>">ลบ</a>
+                          </td>
+                          <td><?php echo $item['product_name'] ?></td>
+                          <td><?php echo $item['send'] ?></td>
+                          <td class="text-right"></td>
+                          <td><?php echo $item['receive'] ?></td>
+                          <td class="text-right"><?php echo number_format($item['quantity'], 2) ?></td>
+                          <td class="text-center"><?php echo $item['unit_name'] ?></td>
+                        </tr>
+                      <?php endforeach; ?>
+                      <tr class="item-tr">
+                        <td class="text-center">
+                          <button type="button" class="btn btn-sm btn-success item-increase">+</button>
+                          <button type="button" class="btn btn-sm btn-danger item-decrease">-</button>
+                        </td>
+                        <td class="text-left">
+                          <select class="form-control form-control-sm item-select" name="item_product[]"></select>
+                          <div class="invalid-feedback">
+                            กรุณาเลือกข้อมูล!
+                          </div>
+                        </td>
+                        <td class="text-left">
+                          <select class="form-control form-control-sm location-select" name="item_send[]"></select>
+                          <div class="invalid-feedback">
+                            กรุณาเลือกข้อมูล!
+                          </div>
+                        </td>
+                        <td class="text-center"><span class="item-remain"></span></td>
+                        <td class="text-left">
+                          <select class="form-control form-control-sm location-select" name="item_receive[]"></select>
+                          <div class="invalid-feedback">
+                            กรุณาเลือกข้อมูล!
+                          </div>
+                        </td>
+                        <td>
+                          <input type="number" class="form-control form-control-sm text-center item-quantity" name="item_quantity[]" min="0" step="0.01">
+                          <div class="invalid-feedback">
+                            กรุณากรอกข้อมูล!
+                          </div>
+                        </td>
+                        <td class="text-center"><span class="item-unit"></span></td>
+                      </tr>
+                    </tbody>
+                  <?php endif; ?>
                 </table>
               </div>
             </div>
@@ -214,6 +273,24 @@ $created = (!empty($row['created']) ? $row['created'] : "");
         }
       });
     }
+
+    $(".location-select").select2({
+      placeholder: "-- สถานที่ --",
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: "/issue/location-select",
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
   });
 
   if (type === 1) {
@@ -272,19 +349,32 @@ $created = (!empty($row['created']) ? $row['created'] : "");
     }
   });
 
-  $(document).on("change", ".item-select", function() {
-    let item = $(this).val();
-    let row = $(this).closest("tr");
+  $(document).on("change", ".item-select, .location-select", function() {
+    let type = parseInt($("input[name='type']").val());
+    $(".item-select").each(function() {
+      let row = $(this).closest("tr");
+      let item = row.find(".item-select").val();
+      let location = row.find(".location-select").val();
 
-    axios.post("/bom/item-unit", {
-        item: item
-      })
-      .then((res) => {
-        let result = res.data;
-        row.find(".item-unit").text(result);
-      }).catch((error) => {
-        console.log(error);
-      });
+      if (item && location) {
+        axios.post("/issue/item-detail", {
+            item: item,
+            location: location,
+          })
+          .then((res) => {
+            let result = res.data;
+            row.find(".item-remain").text(parseFloat(result.remain).toLocaleString("en-US", {
+              minimumFractionDigits: 2
+            }));
+            if (type === 2) {
+              row.find(".item-quantity").prop("max", result.remain)
+            }
+            row.find(".item-unit").text(result.unit_name);
+          }).catch((error) => {
+            console.log(error);
+          });
+      }
+    });
   });
 
   $(document).on("click", ".item-delete", function(e) {

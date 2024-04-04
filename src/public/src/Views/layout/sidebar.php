@@ -33,23 +33,14 @@ $setting_unit = ($page === "setting-unit" ? 'class="active"' : "");
 $setting_brand = ($page === "setting-brand" ? 'class="active"' : "");
 
 $auth_perchase = (isset($user_auth[0]) ? intval($user_auth[0]) : "");
-$auth_sale = (isset($user_auth[1]) ? intval($user_auth[1]) : "");
-$auth_issue = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
-$auth_waste = (isset($user_auth[3]) ? intval($user_auth[3]) : "");
+$auth_issue = (isset($user_auth[1]) ? intval($user_auth[1]) : "");
+$auth_waste = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
 ?>
 <nav id="sidebar">
   <ul class="list-unstyled">
     <li>
       <a href="#dashboard-menu" data-toggle="collapse" class="dropdown-toggle">รายงาน</a>
       <ul class="collapse list-unstyled <?php echo $dashboard_menu ?>" id="dashboard-menu">
-        <?php if ($auth_sale === 1) : ?>
-          <li <?php echo $dashboard_sale ?>>
-            <a href="/dashboard/sale">
-              <i class="fa fa-chart-line pr-2"></i>
-              รายงานขาย
-            </a>
-          </li>
-        <?php endif; ?>
         <?php if ($auth_perchase === 1) : ?>
           <li <?php echo $dashboard_purchase ?>>
             <a href="/dashboard/purchase">
@@ -96,22 +87,6 @@ $auth_waste = (isset($user_auth[3]) ? intval($user_auth[3]) : "");
         บริการ
       </a>
       <ul class="collapse list-unstyled <?php echo $service_menu ?>" id="service-menu">
-        <?php if ($auth_sale === 1) : ?>
-          <li <?php echo $service_pos ?>>
-            <a href="/pos">
-              <i class="fa fa-bars pr-2"></i>
-              POS
-            </a>
-          </li>
-        <?php endif ?>
-        <?php if ($auth_sale === 1) : ?>
-          <li <?php echo $service_sale ?>>
-            <a href="/sale">
-              <i class="fa fa-bars pr-2"></i>
-              ใบสั่งขาย
-            </a>
-          </li>
-        <?php endif ?>
         <?php if ($auth_perchase === 1) : ?>
           <li <?php echo $service_purchase ?>>
             <a href="/purchase">

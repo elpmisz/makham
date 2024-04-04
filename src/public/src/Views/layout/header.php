@@ -33,7 +33,7 @@ $user = $USER->user_view_email([$email]);
 $system_name = (isset($system['name']) ? $system['name'] : "");
 $firstname = (!empty($user['firstname']) ? ucfirst($user['firstname']) : "");
 
-$lists = ["ใบสั่งผลิต", "ใบสั่งขาย", "ใบนำสินค้าเข้า - ออก", "ใบสรุปของเสีย"];
+$lists = ["ใบสั่งผลิต", "ใบนำสินค้าเข้า - ออก", "ใบสรุปของเสีย"];
 $user_auth = explode(",", $user['auth']);
 ?>
 <!DOCTYPE html>
