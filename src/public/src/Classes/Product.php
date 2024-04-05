@@ -347,6 +347,49 @@ class Product
     return $stmt->fetchAll(PDO::FETCH_NUM);
   }
 
+  public function stock_data($data)
+  {
+    $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
+    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
+    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),2) income,
+    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),2) outcome,
+    FORMAT((
+      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) -
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0))
+    ),2) remain,
+    a.supplier,d.name supplier_name,
+    a.unit,e.name unit_name,
+    a.brand,f.name brand_name,
+    a.category,g.name category_name,
+    a.store,CONCAT(h.room,h.floor,h.zone) store_name,
+    b.location_id,i.name location_name,
+    IF(a.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
+    IF(a.status = 1,'success','danger') status_color,
+    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created
+    FROM inventory.product a
+    LEFT JOIN inventory.issue_item b
+    ON a.id = b.product_id
+    LEFT JOIN inventory.issue c
+    ON b.issue_id = c.id
+    LEFT JOIN inventory.customer d
+    ON a.supplier = d.id
+    LEFT JOIN inventory.unit e
+    ON a.unit = e.id
+    LEFT JOIN inventory.brand f
+    ON a.brand = f.id 
+    LEFT JOIN inventory.category g
+    ON a.category = g.id 
+    LEFT JOIN inventory.store h
+    ON a.store = h.id
+    LEFT JOIN inventory.location i
+    ON b.location_id = i.id
+    WHERE a.uuid = ?
+    GROUP BY b.location_id";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    return $stmt->fetchAll();
+  }
+
   public function product_data($category, $location)
   {
     $sql = "SELECT COUNT(*) FROM inventory.product";
@@ -408,7 +451,7 @@ class Product
     WHERE a.id != '' ";
 
     if (!empty($keyword)) {
-      $sql .= " AND (e.name LIKE '%{$keyword}%' OR e.code LIKE '%{$keyword}%') ";
+      $sql .= " AND (a.name LIKE '%{$keyword}%' OR a.code LIKE '%{$keyword}%') ";
     }
     if (!empty($category)) {
       $sql .= " AND e.category = '{$category}' ";
@@ -481,64 +524,69 @@ class Product
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT 
+    $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
+    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
+    c.type issue_type,b.type,c.text,
+    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),2) income,
+    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),2) outcome,
+    a.supplier,d.name supplier_name,
+    a.unit,e.name unit_name,
+    a.brand,f.name brand_name,
+    a.category,g.name category_name,
+    a.store,CONCAT(h.room,h.floor,h.zone) store_name,
+    b.location_id,i.name location_name,
     (
-      CASE 
-        WHEN b.issue_id IS NOT NULL THEN c.uuid
-        WHEN b.purchase_id IS NOT NULL THEN e.uuid
-        WHEN b.sale_id IS NOT NULL THEN g.`uuid`
+      CASE
+        WHEN c.type = 1 THEN 'นำเข้า'
+        WHEN c.type = 2 THEN 'เบิกออก'
+        WHEN c.type = 3 THEN 'โอนย้าย'
         ELSE NULL
       END
-    ) uuid,
+    ) type_name,
     (
-      CASE 
-        WHEN b.issue_id IS NOT NULL THEN 'issue'
-        WHEN b.purchase_id IS NOT NULL THEN 'purchase'
-        WHEN b.sale_id IS NOT NULL THEN 'sale'
+      CASE
+        WHEN c.type = 1 THEN 'success'
+        WHEN c.type = 2 THEN 'primary'
+        WHEN c.type = 3 THEN 'info'
         ELSE NULL
       END
-    ) page,
+    ) type_color,
     (
-      CASE 
-        WHEN b.issue_id IS NOT NULL THEN CONCAT(d.firstname,' ',d.lastname)
-        WHEN b.purchase_id IS NOT NULL THEN CONCAT(f.firstname,' ',f.lastname)
-        WHEN b.sale_id IS NOT NULL THEN CONCAT(h.firstname,' ',h.lastname)
+      CASE
+        WHEN c.status = 1 THEN 'รอตรวจสอบ'
+        WHEN c.status = 2 THEN 'ผ่านการตรวจสอบ'
+        WHEN c.status = 3 THEN 'รายการถูกยกเลิก'
         ELSE NULL
       END
-    ) username,a.code,a.name product_name,
-    IF(c.type = 1,'นำเข้า','เบิกออก') type_name,IF(c.type = 1,'success','danger') type_color,
+    ) status_name,
     (
-      CASE 
-        WHEN b.issue_id IS NOT NULL THEN c.text
-        WHEN b.purchase_id IS NOT NULL THEN e.text
-        WHEN b.sale_id IS NOT NULL THEN g.text
+      CASE
+        WHEN c.status = 1 THEN 'primary'
+        WHEN c.status = 2 THEN 'success'
+        WHEN c.status = 3 THEN 'danger'
         ELSE NULL
       END
-    ) text,IF(c.status = 2 OR e.status IN (3,4,5) OR g.`status` = 1,b.confirm,0) quantity,
-    (
-      CASE 
-        WHEN b.issue_id IS NOT NULL THEN DATE_FORMAT(c.created,'%d/%m/%Y, %H:%i น.')
-        WHEN b.purchase_id IS NOT NULL THEN DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')
-        WHEN b.sale_id IS NOT NULL THEN DATE_FORMAT(g.created,'%d/%m/%Y, %H:%i น.')
-        ELSE NULL
-      END
-    ) created
+    ) status_color,
+    DATE_FORMAT(c.created, '%d/%m/%Y, %H:%i น.') created
     FROM inventory.product a
     LEFT JOIN inventory.issue_item b
     ON a.id = b.product_id
     LEFT JOIN inventory.issue c
     ON b.issue_id = c.id
-    LEFT JOIN inventory.user d
-    ON c.user_id = d.id
-    LEFT JOIN inventory.purchase e
-    ON b.purchase_id = e.id
-    LEFT JOIN inventory.user f
-    ON e.user_id = f.id
-    LEFT JOIN inventory.sale g
-    ON b.sale_id = g.id
-    LEFT JOIN inventory.`user` h
-    ON g.user_id = h.id
-    WHERE a.uuid = '{$uuid}'  ";
+    LEFT JOIN inventory.customer d
+    ON a.supplier = d.id
+    LEFT JOIN inventory.unit e
+    ON a.unit = e.id
+    LEFT JOIN inventory.brand f
+    ON a.brand = f.id 
+    LEFT JOIN inventory.category g
+    ON a.category = g.id 
+    LEFT JOIN inventory.store h
+    ON a.store = h.id
+    LEFT JOIN inventory.location i
+    ON b.location_id = i.id
+    WHERE b.status = 1 
+    AND a.uuid = '{$uuid}' ";
 
     if (!empty($keyword)) {
       $sql .= " AND a.name LIKE '%{$keyword}%' ";
@@ -549,6 +597,8 @@ class Product
     if (!empty($location)) {
       $sql .= " AND a.location = '{$location}' ";
     }
+
+    $sql .= " GROUP BY b.id ";
 
     if ($filter_order) {
       $sql .= " ORDER BY {$column[$order_column]} {$order_dir} ";
@@ -570,14 +620,16 @@ class Product
 
     $data = [];
     foreach ($result as $row) {
-      $status = "<a href='/{$row['page']}/complete/{$row['uuid']}' class='badge badge-primary font-weight-light' target='_blank'>รายละเอียด</a>";
-      $type = "<span class='badge badge-{$row['type_color']} font-weight-light'>{$row['type_name']}</span>";
+      $status = "<a href='/issue/complete/{$row['product_uuid']}' class='badge badge-primary font-weight-light' target='_blank'>รายละเอียด</a>";
+      $text = (intval($row['type']) === 1 ? "นำเข้า" : "เบิกออก");
+      $type_text = (intval($row['issue_type']) === 3 ? "{$row['type_name']} ({$text})" : "{$row['type_name']}");
+      $type = "<span class='badge badge-{$row['type_color']} font-weight-light'>{$type_text}</span>";
       $data[] = [
         $status,
-        $row['username'],
         $type,
         str_replace("\n", "<br>", $row['text']),
-        number_format($row['quantity'], 2),
+        $row['location_name'],
+        ($row['type'] === 1 ? $row['income'] : $row['outcome']),
         $row['created'],
       ];
     }

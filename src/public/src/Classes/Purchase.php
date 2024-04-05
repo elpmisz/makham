@@ -120,11 +120,10 @@ class Purchase
 
   public function purchase_view($data)
   {
-    $sql = "SELECT a.id,a.uuid,a.user_id requester,e.id product_id,
+    $sql = "SELECT a.id,a.uuid,a.user_id requester,e.id product_id,a.machine,
     CONCAT('PR',YEAR(a.created),LPAD(a.last,4,'0')) ticket,
     CONCAT(b.firstname,' ',b.lastname) fullname,
     a.bom,c.name bom_name,
-    a.machine,d.name machine_name,
     a.amount,a.confirm,a.date,a.text,
     DATE_FORMAT(a.date, '%d/%m/%Y') date,
     DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
@@ -133,8 +132,6 @@ class Purchase
     ON a.user_id = b.id
     LEFT JOIN inventory.bom c
     ON a.bom = c.id
-    LEFT JOIN inventory.machine d
-    ON a.machine = d.id
     LEFT JOIN inventory.product e
     ON a.bom = e.bom_id
     WHERE a.uuid = ?";
@@ -148,8 +145,7 @@ class Purchase
     $sql = "SELECT 
     (
       CASE
-        WHEN a.status = 2 THEN 'ผ่านการอนุมัติ'
-        WHEN a.status = 3 THEN 'ผ่านการจ่ายวัตถุดิบ'
+        WHEN a.status = 3 THEN 'ผ่านการอนุมัติ'
         WHEN a.status = 4 THEN 'ผลิตเสร็จเรียบร้อย'
         WHEN a.status = 5 THEN 'ผ่านการตรวจสอบ'
         WHEN a.status = 6 THEN 'ไม่ผ่านการอนุมัติ'
@@ -158,7 +154,6 @@ class Purchase
     ) status_name,
     (
       CASE
-        WHEN a.status = 2 THEN 'primary'
         WHEN a.status = 3 THEN 'info'
         WHEN a.status = 4 THEN 'success'
         WHEN a.status = 5 THEN 'primary'
@@ -271,54 +266,15 @@ class Purchase
 
   public function bom_item($data)
   {
-    $sql = "SELECT e.id product_id,e.uuid product_uuid,e.code product_code,e.name product_name,
-    e.cost,e.price,e.min,e.max,
-    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0)) income,
-    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0)) outcome,
-    (
-    SUM(IF(b.type = 1 AND b.status = 2,a.confirm,0) ) -
-    SUM(IF((b.type = 2 AND b.status = 2) OR (c.status IN (3,4,5)) OR (d.status = 1),a.confirm,0))
-    ) remain,
-    e.supplier,f.name supplier_name,
-    e.unit,g.name unit_name,
-    e.brand,h.name brand_name,
-    e.category,i.name category_name,
-    e.location,j.name location_name,
-    IF(MAX(a.created) IS NOT NULL,
-      DATE_FORMAT(MAX(a.created),'%d/%m/%Y, %H:%i น.'),
-      DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')
-    ) created,
-    IF(e.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
-    IF(e.status = 1,'success','danger') status_color,
-    m.name bom_name,k.quantity bom_use
-    FROM inventory.issue_item a
-    LEFT JOIN inventory.issue b
-    ON a.issue_id = b.id
-    LEFT JOIN inventory.purchase c
-    ON a.purchase_id = c.id
-    LEFT JOIN inventory.sale d
-    ON a.sale_id = d.id
-    RIGHT JOIN inventory.product e
-    ON a.product_id = e.id
-    LEFT JOIN inventory.customer f
-    ON e.supplier = f.id
-    LEFT JOIN inventory.unit g
-    ON e.unit = g.id
-    LEFT JOIN inventory.brand h
-    ON e.brand = h.id 
-    LEFT JOIN inventory.category i
-    ON e.category = i.id 
-    LEFT JOIN inventory.location j
-    ON e.location = j.id
-    LEFT JOIN inventory.bom_item k
-    ON e.id = k.product_id
-    LEFT JOIN inventory.bom m
-    ON k.bom_id = m.id
-    WHERE e.status = 1
-    AND k.bom_id = ?
-    AND k.status = 1
-    GROUP BY e.id
-    ORDER BY e.code ASC";
+    $sql = "SELECT CONCAT('[',c.code,'] ',c.name) product_name,b.quantity,d.name unit_name
+    FROM inventory.bom a
+    LEFT JOIN inventory.bom_item b
+    ON a.id = b.bom_id
+    LEFT JOIN inventory.product c
+    ON b.product_id = c.id
+    LEFT JOIN inventory.unit d
+    ON c.unit = d.id
+    WHERE a.id = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll();
@@ -355,10 +311,9 @@ class Purchase
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.id,a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,4,'0')) ticket,
+    $sql = "SELECT a.id,a.uuid,CONCAT('PR',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     CONCAT(b.firstname,' ',b.lastname) fullname,
-    a.bom,c.name bom_name,
-    a.machine,d.name machine_name,
+    a.bom,c.name bom_name,a.machine,
     a.amount,a.confirm,a.date,a.text,
     (
       CASE
@@ -395,9 +350,7 @@ class Purchase
     LEFT JOIN inventory.user b
     ON a.user_id = b.id
     LEFT JOIN inventory.bom c
-    ON a.bom = c.id
-    LEFT JOIN inventory.machine d
-    ON a.machine = d.id ";
+    ON a.bom = c.id ";
 
     if (!empty($keyword)) {
       $sql .= " WHERE a.name LIKE '%{$keyword}%' ";
@@ -426,9 +379,9 @@ class Purchase
       $status = "<a href='/purchase/{$row['page']}/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a>";
       $data[] = [
         $status,
-        $row['fullname'],
+        $row['ticket'],
         $row['bom_name'],
-        $row['machine_name'],
+        $row['machine'],
         $row['amount'],
         $row['confirm'],
         str_replace("\n", "<br>", $row['text']),
@@ -462,7 +415,7 @@ class Purchase
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.id,a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,4,'0')) ticket,
+    $sql = "SELECT a.id,a.uuid,CONCAT('PR',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     CONCAT(b.firstname,' ',b.lastname) fullname,
     a.bom,c.name bom_name,
     a.machine,d.name machine_name,
@@ -528,7 +481,7 @@ class Purchase
       $status = "<a href='/purchase/{$row['page']}/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a>";
       $data[] = [
         $status,
-        $row['fullname'],
+        $row['ticket'],
         $row['bom_name'],
         $row['machine_name'],
         $row['amount'],
@@ -564,7 +517,7 @@ class Purchase
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.id,a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,4,'0')) ticket,
+    $sql = "SELECT a.id,a.uuid,
     CONCAT(b.firstname,' ',b.lastname) fullname,
     a.bom,c.name bom_name,
     a.machine,d.name machine_name,

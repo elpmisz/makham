@@ -39,6 +39,7 @@ $active = (intval($row['status']) === 1 ? "checked" : "");
 $inactive = (intval($row['status']) === 2 ? "checked" : "");
 
 $boms = $BOM->item_view([$bom_uuid]);
+$stocks = $PRODUCT->stock_data([$uuid]);
 $issue_count = $PRODUCT->issue_count([$id]);
 
 $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/{$uuid}" : "");
@@ -283,10 +284,82 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
             </div>
           </div>
 
+          <?php if (intval($issue_count) > 0) : ?>
+            <div class="row mb-2">
+              <div class="col-xl-10">
+                <div class="card shadow">
+                  <div class="card-header">
+                    <h5>รายการสินค้าคงเหลือ</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="row mb-2">
+                      <div class="col-xl-12">
+                        <div class="table-responsive">
+                          <table class="table table-bordered table-hover">
+                            <thead>
+                              <tr class="table-success">
+                                <th width="10%">#</th>
+                                <th width="40%">สถานที่</th>
+                                <th width="10%">ปริมาณ (นำเข้า)</th>
+                                <th width="10%">ปริมาณ (เบิกออก)</th>
+                                <th width="10%">ปริมาณ (คงเหลือ)</th>
+                              </tr>
+                            </thead>
+                            <?php foreach ($stocks as $key => $stock) : $key++ ?>
+                              <tr>
+                                <td class="text-center"><?php echo $key ?></td>
+                                <td class="text-left"><?php echo $stock['location_name'] ?></td>
+                                <td class="text-right"><?php echo $stock['income'] ?></td>
+                                <td class="text-right"><?php echo $stock['outcome'] ?></td>
+                                <td class="text-right"><?php echo $stock['remain'] ?></td>
+                              </tr>
+                            <?php endforeach; ?>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <?php if (intval($issue_count) > 0) : ?>
+            <div class="row mb-2">
+              <div class="col-xl-12">
+                <div class="card shadow">
+                  <div class="card-header">
+                    <h5>ประวัติการทำรายการ</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="row mb-2">
+                      <div class="col-xl-12">
+                        <div class="table-responsive">
+                          <table class="table table-bordered table-hover issue-data">
+                            <thead>
+                              <tr class="table-info">
+                                <th width="10%">สถานะ</th>
+                                <th width="10%">ประเภท</th>
+                                <th width="20%">รายละเอียด</th>
+                                <th width="10%">สถานที่</th>
+                                <th width="10%">ปริมาณ</th>
+                                <th width="10%">วันที่ทำรายการ</th>
+                              </tr>
+                            </thead>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <?php endif; ?>
+
           <?php if (intval($bom_id) > 0) : ?>
             <div class="row mb-2">
               <div class="col-xl-12">
-                <div class="card">
+                <div class="card shadow">
                   <div class="card-header">
                     <h5>สูตรการผลิต</h5>
                   </div>
@@ -311,38 +384,6 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
                                 <td class="text-center"><?php echo $bom['unit_name'] ?></td>
                               </tr>
                             <?php endforeach; ?>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          <?php endif; ?>
-
-          <?php if (intval($issue_count) > 0) : ?>
-            <div class="row mb-2">
-              <div class="col-xl-12">
-                <div class="card">
-                  <div class="card-header">
-                    <h5>ประวัติการทำรายการ</h5>
-                  </div>
-                  <div class="card-body">
-                    <div class="row mb-2">
-                      <div class="col-xl-12">
-                        <div class="table-responsive">
-                          <table class="table table-bordered table-hover issue-data">
-                            <thead>
-                              <tr class="table-info">
-                                <th width="10%">สถานะ</th>
-                                <th width="10%">ผู้ทำรายการ</th>
-                                <th width="10%">ประเภท</th>
-                                <th width="20%">รายละเอียด</th>
-                                <th width="10%">ปริมาณ</th>
-                                <th width="10%">วันที่ล่าสุด</th>
-                              </tr>
-                            </thead>
                           </table>
                         </div>
                       </div>
@@ -571,38 +612,38 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
   });
 
   let uuid = $("input[name='uuid']").val();
-  // $(".issue-data").DataTable({
-  //   serverSide: true,
-  //   searching: false,
-  //   scrollX: true,
-  //   order: [],
-  //   ajax: {
-  //     url: "/product/issue-data",
-  //     type: "POST",
-  //     data: {
-  //       uuid: uuid,
-  //     }
-  //   },
-  //   columnDefs: [{
-  //     targets: [0, 2, 5],
-  //     className: "text-center",
-  //   }, {
-  //     targets: [4],
-  //     className: "text-right",
-  //   }],
-  //   "oLanguage": {
-  //     "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
-  //     "sZeroRecords": "ไม่พบข้อมูลที่ค้นหา",
-  //     "sInfo": "แสดง _START_ ถึง _END_ ของ _TOTAL_ ลำดับ",
-  //     "sInfoEmpty": "แสดง 0 ถึง 0 ของ 0 ลำดับ",
-  //     "sInfoFiltered": "",
-  //     "sSearch": "ค้นหา :",
-  //     "oPaginate": {
-  //       "sFirst": "หน้าแรก",
-  //       "sLast": "หน้าสุดท้าย",
-  //       "sNext": "ถัดไป",
-  //       "sPrevious": "ก่อนหน้า"
-  //     }
-  //   },
-  // });
+  $(".issue-data").DataTable({
+    serverSide: true,
+    searching: false,
+    scrollX: true,
+    order: [],
+    ajax: {
+      url: "/product/issue-data",
+      type: "POST",
+      data: {
+        uuid: uuid,
+      }
+    },
+    columnDefs: [{
+      targets: [0, 1, 3, 5],
+      className: "text-center",
+    }, {
+      targets: [4],
+      className: "text-right",
+    }],
+    "oLanguage": {
+      "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
+      "sZeroRecords": "ไม่พบข้อมูลที่ค้นหา",
+      "sInfo": "แสดง _START_ ถึง _END_ ของ _TOTAL_ ลำดับ",
+      "sInfoEmpty": "แสดง 0 ถึง 0 ของ 0 ลำดับ",
+      "sInfoFiltered": "",
+      "sSearch": "ค้นหา :",
+      "oPaginate": {
+        "sFirst": "หน้าแรก",
+        "sLast": "หน้าสุดท้าย",
+        "sNext": "ถัดไป",
+        "sPrevious": "ก่อนหน้า"
+      }
+    },
+  });
 </script>

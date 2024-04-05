@@ -147,12 +147,6 @@ $auth_waste = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
               วัตถุดิบ / สินค้า
             </a>
           </li>
-          <li <?php echo $setting_promotion ?>>
-            <a href="/promotion">
-              <i class="fa fa-gear pr-2"></i>
-              ส่งเสริมการขาย
-            </a>
-          </li>
           <li <?php echo $setting_machine ?>>
             <a href="/machine">
               <i class="fa fa-gear pr-2"></i>

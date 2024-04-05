@@ -8,31 +8,31 @@ include_once(__DIR__ . "/../layout/header.php");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">เบิกออก</h4>
+        <h4 class="text-center">ใบเบิกสินค้าออก</h4>
       </div>
       <div class="card-body">
         <form action="/issue/create" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
           <div class="row mb-2" style="display: none;">
-            <label class="col-xl-2 offset-xl-2 col-form-label">USER ID</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">USER ID</label>
             <div class="col-xl-4">
               <input type="text" class="form-control form-control-sm" name="user_id" value="<?php echo $user['id'] ?>" readonly>
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">ผู้ทำรายการ</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ทำรายการ</label>
             <div class="col-xl-4">
               <input type="text" class="form-control form-control-sm" value="<?php echo $user['fullname'] ?>" readonly>
             </div>
           </div>
           <div class="row mb-2" style="display: none;">
-            <label class="col-xl-2 offset-xl-2 col-form-label">TYPE</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">TYPE</label>
             <div class="col-xl-4">
               <input type="text" class="form-control form-control-sm" name="type" value="2" readonly>
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">รายละเอียด</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
             <div class="col-xl-6">
               <textarea class="form-control form-control-sm" name="text" rows="5" required></textarea>
               <div class="invalid-feedback">

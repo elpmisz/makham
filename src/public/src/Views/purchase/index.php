@@ -8,8 +8,6 @@ use App\Classes\Purchase;
 $PURCHASE = new Purchase();
 $approver = $PURCHASE->auth_approve([$user['id']]);
 $approver_count = $PURCHASE->approver_count();
-$productor = $PURCHASE->auth_product([$user['id']]);
-$productor_count = $PURCHASE->productor_count();
 ?>
 
 <div class="row">
@@ -53,37 +51,7 @@ $productor_count = $PURCHASE->productor_count();
                       <thead>
                         <tr>
                           <th width="10%">สถานะ</th>
-                          <th width="10%">ผู้ทำรายการ</th>
-                          <th width="10%">สูตรการผลิต</th>
-                          <th width="10%">เครื่องจักร</th>
-                          <th width="10%">เป้าหมาย</th>
-                          <th width="10%">จำนวน</th>
-                          <th width="20%">รายละเอียด</th>
-                          <th width="10%">วันที่</th>
-                        </tr>
-                      </thead>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        <?php endif; ?>
-
-        <?php if (intval($productor) > 0 && intval($productor_count) > 0) : ?>
-          <div class="row mb-2">
-            <div class="col-xl-12">
-              <div class="card">
-                <div class="card-header">
-                  <h5 class="text-center">รายการเบิกวัตถุดิบ</h5>
-                </div>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table table-bordered table-hover product-data">
-                      <thead>
-                        <tr>
-                          <th width="10%">สถานะ</th>
-                          <th width="10%">ผู้ทำรายการ</th>
+                          <th width="10%">เลขที่เอกสาร</th>
                           <th width="10%">สูตรการผลิต</th>
                           <th width="10%">เครื่องจักร</th>
                           <th width="10%">เป้าหมาย</th>
@@ -112,7 +80,7 @@ $productor_count = $PURCHASE->productor_count();
                     <thead>
                       <tr>
                         <th width="10%">สถานะ</th>
-                        <th width="10%">ผู้ทำรายการ</th>
+                        <th width="10%">เลขที่เอกสาร</th>
                         <th width="10%">สูตรการผลิต</th>
                         <th width="10%">เครื่องจักร</th>
                         <th width="10%">เป้าหมาย</th>

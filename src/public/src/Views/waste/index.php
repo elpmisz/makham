@@ -2,7 +2,6 @@
 $menu = "service";
 $page = "service-waste";
 include_once(__DIR__ . "/../layout/header.php");
-
 ?>
 
 <div class="row">
@@ -35,17 +34,48 @@ include_once(__DIR__ . "/../layout/header.php");
 
         <div class="row mb-2">
           <div class="col-xl-12">
-            <div class="table-responsive">
-              <table class="table table-bordered table-hover waste-data">
-                <thead>
-                  <tr>
-                    <th width="10%">สถานะ</th>
-                    <th width="20%">ชื่อ</th>
-                    <th width="60">รายละเอียด</th>
-                    <th width="10%">วันที่ล่าสุด</th>
-                  </tr>
-                </thead>
-              </table>
+            <div class="card">
+              <div class="card-header">
+                <h5 class="text-center">รายการรอดำเนินการ</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-bordered table-hover approve-data">
+                    <thead>
+                      <tr>
+                        <th width="10%">สถานะ</th>
+                        <th width="10%">เลขที่เอกสาร</th>
+                        <th width="40%">รายละเอียด</th>
+                        <th width="10%">วันที่ล่าสุด</th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-xl-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="text-center">รายการขอใช้บริการ</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-bordered table-hover waste-data">
+                    <thead>
+                      <tr>
+                        <th width="10%">สถานะ</th>
+                        <th width="10%">เลขที่เอกสาร</th>
+                        <th width="40%">รายละเอียด</th>
+                        <th width="10%">วันที่ล่าสุด</th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -89,36 +119,65 @@ include_once(__DIR__ . "/../layout/header.php");
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
 <script>
-  // filter_datatable();
+  filter_datatable();
 
-  // function filter_datatable() {
-  //   $(".waste-data").DataTable({
-  //     serverSide: true,
-  //     searching: true,
-  //     scrollX: true,
-  //     order: [],
-  //     ajax: {
-  //       url: "/waste/waste-data",
-  //       type: "POST",
-  //     },
-  //     columnDefs: [{
-  //       targets: [0],
-  //       className: "text-center",
-  //     }],
-  //     "oLanguage": {
-  //       "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
-  //       "sZeroRecords": "ไม่พบข้อมูลที่ค้นหา",
-  //       "sInfo": "แสดง _START_ ถึง _END_ ของ _TOTAL_ ลำดับ",
-  //       "sInfoEmpty": "แสดง 0 ถึง 0 ของ 0 ลำดับ",
-  //       "sInfoFiltered": "",
-  //       "sSearch": "ค้นหา :",
-  //       "oPaginate": {
-  //         "sFirst": "หน้าแรก",
-  //         "sLast": "หน้าสุดท้าย",
-  //         "sNext": "ถัดไป",
-  //         "sPrevious": "ก่อนหน้า"
-  //       }
-  //     },
-  //   });
-  // };
+  function filter_datatable() {
+    $(".waste-data").DataTable({
+      serverSide: true,
+      searching: true,
+      scrollX: true,
+      order: [],
+      ajax: {
+        url: "/waste/waste-data",
+        type: "POST",
+      },
+      columnDefs: [{
+        targets: [0],
+        className: "text-center",
+      }],
+      "oLanguage": {
+        "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
+        "sZeroRecords": "ไม่พบข้อมูลที่ค้นหา",
+        "sInfo": "แสดง _START_ ถึง _END_ ของ _TOTAL_ ลำดับ",
+        "sInfoEmpty": "แสดง 0 ถึง 0 ของ 0 ลำดับ",
+        "sInfoFiltered": "",
+        "sSearch": "ค้นหา :",
+        "oPaginate": {
+          "sFirst": "หน้าแรก",
+          "sLast": "หน้าสุดท้าย",
+          "sNext": "ถัดไป",
+          "sPrevious": "ก่อนหน้า"
+        }
+      },
+    });
+
+    $(".approve-data").DataTable({
+      serverSide: true,
+      searching: true,
+      scrollX: true,
+      order: [],
+      ajax: {
+        url: "/waste/approve-data",
+        type: "POST",
+      },
+      columnDefs: [{
+        targets: [0],
+        className: "text-center",
+      }],
+      "oLanguage": {
+        "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
+        "sZeroRecords": "ไม่พบข้อมูลที่ค้นหา",
+        "sInfo": "แสดง _START_ ถึง _END_ ของ _TOTAL_ ลำดับ",
+        "sInfoEmpty": "แสดง 0 ถึง 0 ของ 0 ลำดับ",
+        "sInfoFiltered": "",
+        "sSearch": "ค้นหา :",
+        "oPaginate": {
+          "sFirst": "หน้าแรก",
+          "sLast": "หน้าสุดท้าย",
+          "sNext": "ถัดไป",
+          "sPrevious": "ก่อนหน้า"
+        }
+      },
+    });
+  };
 </script>

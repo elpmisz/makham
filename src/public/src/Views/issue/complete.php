@@ -26,43 +26,43 @@ $created = (!empty($row['created']) ? $row['created'] : "");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">รายละเอียด</h4>
+        <h4 class="text-center">ใบนำสินค้าเข้า - ออก</h4>
       </div>
       <div class="card-body">
         <form action="/issue/approve" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
           <div class="row mb-2" style="display: none;">
-            <label class="col-xl-2 offset-xl-2 col-form-label">ID</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">ID</label>
             <div class="col-xl-4">
               <input type="text" class="form-control form-control-sm" name="id" value="<?php echo $id ?>" readonly>
             </div>
           </div>
           <div class="row mb-2" style="display: none;">
-            <label class="col-xl-2 offset-xl-2 col-form-label">UUID</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">UUID</label>
             <div class="col-xl-4">
               <input type="text" class="form-control form-control-sm" name="uuid" value="<?php echo $uuid ?>" readonly>
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">เลขที่ใบ</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">เลขที่ใบ</label>
             <div class="col-xl-3 text-underline">
               <?php echo $ticket ?>
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">ผู้ทำรายการ</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ทำรายการ</label>
             <div class="col-xl-3 text-underline">
               <?php echo $fullname . " - " . $created ?>
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">ประเภท</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">ประเภท</label>
             <div class="col-xl-3 text-underline text-<?php echo $type_color ?>">
               <?php echo $type_name ?>
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">รายละเอียด</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
             <div class="col-xl-6 text-underline">
               <?php echo $text ?>
             </div>
@@ -132,13 +132,13 @@ $created = (!empty($row['created']) ? $row['created'] : "");
           </div>
 
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">ผลการตรวจสอบ</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">ผลการตรวจสอบ</label>
             <div class="col-xl-4 text-underline">
               <span class="text-<?php echo $row['status_color'] ?>"><?php echo $row['status_name'] ?></span>
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-2 col-form-label">ผู้ดำเนินการ</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ดำเนินการ</label>
             <div class="col-xl-4 text-underline">
               <span class="text-primary"><?php echo $row['approver'] . " - " . $row['approved'] ?></span>
             </div>

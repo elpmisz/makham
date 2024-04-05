@@ -16,8 +16,7 @@ $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
 $fullname = (!empty($row['fullname']) ? $row['fullname'] : "");
 $bom = (!empty($row['bom']) ? $row['bom'] : "");
 $bom_name = (!empty($row['bom_name']) ? $row['bom_name'] : "");
-$machine_id = (!empty($row['machine']) ? $row['machine'] : "");
-$machine_name = (!empty($row['machine_name']) ? $row['machine_name'] : "");
+$machine = (!empty($row['machine']) ? $row['machine'] : "");
 $amount = (!empty($row['amount']) ? $row['amount'] : "");
 $date = (!empty($row['date']) ? $row['date'] : "");
 $text = (!empty($row['text']) ? str_replace("\n", "<br>", $row['text']) : "");
@@ -29,7 +28,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">รายละเอียด</h4>
+        <h4 class="text-center">ใบสั่งผลิต</h4>
       </div>
       <div class="card-body">
         <form action="/purchase/approve" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
@@ -72,14 +71,14 @@ $created = (!empty($row['created']) ? $row['created'] : "");
           </div>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">จำนวนที่ผลิต (เป้าหมาย)</label>
-            <div class="col-xl-2 text-underline text-primary">
+            <div class="col-xl-2 text-underline">
               <?php echo $amount ?>
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-3 offset-xl-1 col-form-label">เครื่องจักร</label>
-            <div class="col-xl-3 text-underline">
-              <?php echo $machine_name ?>
+            <label class="col-xl-3 offset-xl-1 col-form-label">จำนวนเครื่องจักร</label>
+            <div class="col-xl-2 text-underline">
+              <?php echo $machine ?>
             </div>
           </div>
           <div class="row mb-2">
@@ -102,7 +101,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
               <div class="row pb-2">
                 <div class="col-xl-3">
                   <label class="form-check-label px-3 py-2">
-                    <input class="form-check-input" type="radio" name="status" value="2" required>
+                    <input class="form-check-input" type="radio" name="status" value="3" required>
                     <span class="text-success">ผ่านการอนุมัติ</span>
                   </label>
                 </div>

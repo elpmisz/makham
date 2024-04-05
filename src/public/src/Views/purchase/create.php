@@ -8,7 +8,7 @@ include_once(__DIR__ . "/../layout/header.php");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">เพิ่ม</h4>
+        <h4 class="text-center">ใบสั่งผลิต</h4>
       </div>
       <div class="card-body">
         <form action="/purchase/create" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
@@ -44,11 +44,11 @@ include_once(__DIR__ . "/../layout/header.php");
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-3 offset-xl-1 col-form-label">เครื่องจักร</label>
-            <div class="col-xl-4">
-              <select class="form-control form-control-sm machine-select" name="machine" required></select>
+            <label class="col-xl-3 offset-xl-1 col-form-label">จำนวนเครื่องจักร</label>
+            <div class="col-xl-2">
+              <input type="number" class="form-control form-control-sm text-center" name="machine" min="0" required>
               <div class="invalid-feedback">
-                กรุณาเลือกข้อมูล!
+                กรุณากรอกข้อมูล!
               </div>
             </div>
           </div>
@@ -99,24 +99,6 @@ include_once(__DIR__ . "/../layout/header.php");
     width: "100%",
     ajax: {
       url: "/purchase/bom-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".machine-select").select2({
-    placeholder: "-- เครื่องจักร --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/purchase/machine-select",
       method: "POST",
       dataType: "json",
       delay: 100,

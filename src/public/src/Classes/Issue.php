@@ -77,7 +77,7 @@ class Issue
 
   public function item_purchase($data)
   {
-    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,quantity,confirm) VALUES(?,?,?,?)";
+    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,location_id,quantity,confirm) VALUES(?,?,1,4,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }

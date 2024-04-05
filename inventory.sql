@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: database
--- Generation Time: Apr 04, 2024 at 10:01 AM
+-- Generation Time: Apr 05, 2024 at 09:58 AM
 -- Server version: 11.3.2-MariaDB-1:11.3.2+maria~ubu2204
 -- PHP Version: 8.2.17
 
@@ -37,6 +37,13 @@ CREATE TABLE `bom` (
   `created` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
+--
+-- Dumping data for table `bom`
+--
+
+INSERT INTO `bom` (`id`, `uuid`, `name`, `text`, `status`, `updated`, `created`) VALUES
+(1, 0x61306564643938322d663266382d313165652d62, 'คลุกข้อขันตี', '', 1, NULL, '2024-04-05 03:00:14');
+
 -- --------------------------------------------------------
 
 --
@@ -52,6 +59,16 @@ CREATE TABLE `bom_item` (
   `updated` datetime DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+--
+-- Dumping data for table `bom_item`
+--
+
+INSERT INTO `bom_item` (`id`, `bom_id`, `product_id`, `quantity`, `status`, `updated`, `created`) VALUES
+(1, 1, 34, 1.0000, 1, NULL, '2024-04-05 03:00:14'),
+(2, 1, 94, 0.2000, 1, NULL, '2024-04-05 03:00:14'),
+(3, 1, 97, 0.2000, 1, NULL, '2024-04-05 03:00:14'),
+(4, 1, 95, 0.1000, 1, NULL, '2024-04-05 03:00:14');
 
 -- --------------------------------------------------------
 
@@ -1110,7 +1127,8 @@ INSERT INTO `issue` (`id`, `uuid`, `last`, `type`, `text`, `user_id`, `status`, 
 (1, 0x34346463326639332d663233362d313165652d61, 1, 1, 'ทดสอบระบบ', 1, 2, '2024-04-04 04:14:17', '2024-04-04 03:48:59'),
 (2, 0x35623162633565392d663233612d313165652d61, 2, 1, 'นำเข้าส่วนผสม\r\nนำเข้าส่วนผสม', 1, 2, '2024-04-04 04:40:14', '2024-04-04 04:18:14'),
 (3, 0x39353333393565382d663233642d313165652d61, 3, 2, 'ทดสอบเบิกออก\r\nทดสอบเบิกออก', 1, 2, '2024-04-04 06:07:54', '2024-04-04 04:41:20'),
-(4, 0x31343436323261382d663234622d313165652d61, 4, 3, 'ทดสอบโอนย้าย\r\nทดสอบโอนย้าย', 1, 2, '2024-04-04 08:13:08', '2024-04-04 06:23:28');
+(4, 0x31343436323261382d663234622d313165652d61, 4, 3, 'ทดสอบโอนย้าย\r\nทดสอบโอนย้าย', 1, 2, '2024-04-04 08:13:08', '2024-04-04 06:23:28'),
+(5, 0x36333633623062362d663266652d313165652d62, 5, 1, 'สั่งผลิตตาม เลขที่ใบ PR20240001', 1, 2, NULL, '2024-04-05 03:41:28');
 
 -- --------------------------------------------------------
 
@@ -1174,7 +1192,8 @@ INSERT INTO `issue_item` (`id`, `issue_id`, `product_id`, `type`, `location_id`,
 (13, 4, 94, 2, 2, NULL, 40.0000, 40.0000, 2, '2024-04-04 08:13:08', '2024-04-04 06:23:28'),
 (14, 4, 94, 1, 4, NULL, 40.0000, 40.0000, 2, '2024-04-04 08:13:08', '2024-04-04 06:23:28'),
 (15, 4, 94, 2, 2, NULL, 40.0000, 40.0000, 1, '2024-04-04 08:13:08', '2024-04-04 07:20:00'),
-(16, 4, 94, 1, 4, NULL, 40.0000, 40.0000, 1, '2024-04-04 08:13:08', '2024-04-04 07:20:00');
+(16, 4, 94, 1, 4, NULL, 40.0000, 40.0000, 1, '2024-04-04 08:13:08', '2024-04-04 07:20:00'),
+(17, 5, 223, 1, 4, NULL, 215.0000, 215.0000, 1, NULL, '2024-04-05 03:41:28');
 
 -- --------------------------------------------------------
 
@@ -1202,7 +1221,8 @@ INSERT INTO `issue_text` (`id`, `issue_id`, `user_id`, `text`, `status`, `create
 (4, 1, 1, '', 2, '2024-04-04 04:14:17'),
 (5, 2, 1, '', 2, '2024-04-04 04:40:14'),
 (6, 3, 1, '', 2, '2024-04-04 06:07:54'),
-(7, 4, 1, '', 2, '2024-04-04 08:13:08');
+(7, 4, 1, '', 2, '2024-04-04 08:13:08'),
+(8, 5, 1, '', 2, '2024-04-05 03:41:28');
 
 -- --------------------------------------------------------
 
@@ -1534,7 +1554,7 @@ INSERT INTO `product` (`id`, `uuid`, `code`, `bom_id`, `name`, `cost`, `price`, 
 (220, 0x32613165373163652d663136332d313165652d62, '50-017', 0, 'คลุกน้ำตาลรสแซ่บ', 0.00, 0.00, 0, 0, 0, 0, 0, 0, 0, '', 1, NULL, '2024-04-03 02:37:49'),
 (221, 0x32613165616537322d663136332d313165652d62, '50-018', 0, 'จี๊ดเปรี้ยว/ถุง', 0.00, 0.00, 0, 0, 0, 0, 0, 0, 0, '', 1, NULL, '2024-04-03 02:37:49'),
 (222, 0x32613166313334342d663136332d313165652d62, '50-019', 0, 'จี๊ดหวาน/ถุง', 0.00, 0.00, 0, 0, 0, 0, 0, 0, 0, '', 1, NULL, '2024-04-03 02:37:49'),
-(223, 0x32613166346631622d663136332d313165652d62, '50-020', 0, 'คลุกฝักขันตีคัด', 0.00, 0.00, 0, 0, 0, 0, 0, 0, 0, '', 1, NULL, '2024-04-03 02:37:49'),
+(223, 0x32613166346631622d663136332d313165652d62, '50-020', 1, 'คลุกฝักขันตีคัด', 0.00, 0.00, 0, 0, 0, 3, 0, 4, 0, '', 1, '2024-04-05 03:13:04', '2024-04-03 02:37:49'),
 (224, 0x32613166386366312d663136332d313165652d62, '50-021', 0, 'มะขามแก้วบ๊วย', 0.00, 0.00, 0, 0, 0, 0, 0, 0, 0, '', 1, NULL, '2024-04-03 02:37:49'),
 (225, 0x32613166636662352d663136332d313165652d62, '50-025', 0, 'เผือกสอดไส้มะขาม', 0.00, 0.00, 0, 0, 0, 0, 0, 0, 0, '', 1, NULL, '2024-04-03 02:37:49'),
 (226, 0x32613230346135362d663136332d313165652d62, '50-026', 0, 'กวนตัด', 0.00, 0.00, 0, 0, 0, 0, 0, 0, 0, '', 1, NULL, '2024-04-03 02:37:49'),
@@ -1741,6 +1761,13 @@ CREATE TABLE `purchase` (
   `created` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
+--
+-- Dumping data for table `purchase`
+--
+
+INSERT INTO `purchase` (`id`, `uuid`, `last`, `user_id`, `bom`, `machine`, `amount`, `confirm`, `date`, `text`, `status`, `updated`, `created`) VALUES
+(1, 0x64366531343631302d663266612d313165652d62, 1, 1, 1, 6, 200, 215, '2024-04-05', 'ทดสอบระบบ', 5, '2024-04-05 03:41:28', '2024-04-05 03:16:04');
+
 -- --------------------------------------------------------
 
 --
@@ -1778,6 +1805,15 @@ CREATE TABLE `purchase_text` (
   `status` int(1) NOT NULL,
   `created` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+--
+-- Dumping data for table `purchase_text`
+--
+
+INSERT INTO `purchase_text` (`id`, `purchase_id`, `user_id`, `text`, `status`, `created`) VALUES
+(1, 1, 1, '', 3, '2024-04-05 03:36:17'),
+(2, 1, 1, '', 4, '2024-04-05 03:40:10'),
+(3, 1, 1, '', 5, '2024-04-05 03:41:28');
 
 -- --------------------------------------------------------
 
@@ -9402,6 +9438,98 @@ INSERT INTO `user` (`id`, `login`, `firstname`, `lastname`, `contact`) VALUES
 (1, 1, 'john', 'doe', '123456'),
 (2, 2, 'jane', 'doe', '789456');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `waste`
+--
+
+CREATE TABLE `waste` (
+  `id` int(11) NOT NULL,
+  `uuid` binary(20) NOT NULL,
+  `last` int(11) NOT NULL,
+  `text` text NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 1,
+  `updated` datetime DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+--
+-- Dumping data for table `waste`
+--
+
+INSERT INTO `waste` (`id`, `uuid`, `last`, `text`, `user_id`, `status`, `updated`, `created`) VALUES
+(1, 0x63646566396435362d663330372d313165652d62, 1, 'ทดสอบระบบใบสรุปของเสีย\r\nทดสอบระบบใบสรุปของเสีย', 1, 2, '2024-04-05 09:58:19', '2024-04-05 04:48:52');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `waste_auth`
+--
+
+CREATE TABLE `waste_auth` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `type` int(1) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 1,
+  `updated` datetime DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `waste_item`
+--
+
+CREATE TABLE `waste_item` (
+  `id` int(11) NOT NULL,
+  `waste_id` int(11) DEFAULT NULL,
+  `type` int(11) NOT NULL,
+  `item` varchar(100) NOT NULL,
+  `quantity` varchar(10) NOT NULL,
+  `remark` varchar(200) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 1,
+  `updated` datetime DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+--
+-- Dumping data for table `waste_item`
+--
+
+INSERT INTO `waste_item` (`id`, `waste_id`, `type`, `item`, `quantity`, `remark`, `status`, `updated`, `created`) VALUES
+(1, 1, 1, '34', '15', 'กิโลกรัม', 1, NULL, '2024-04-05 04:48:52'),
+(2, 1, 2, 'เส้นผม', '35', 'เส้น', 1, NULL, '2024-04-05 04:48:52'),
+(3, 1, 2, 'ก้อนหิน', '5', 'ก้อน', 1, NULL, '2024-04-05 04:48:52'),
+(4, 1, 2, 'เศษพลาสติก', '7', 'ชิ้น', 1, '2024-04-05 08:58:42', '2024-04-05 04:48:52'),
+(5, NULL, 1, '19', '10', 'กิโลกรัม', 1, NULL, '2024-04-05 09:02:37'),
+(6, NULL, 1, '19', '10', 'กิโลกรัม', 1, NULL, '2024-04-05 09:03:43'),
+(7, 1, 1, '19', '10', 'กิโลกรัม', 1, NULL, '2024-04-05 09:04:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `waste_text`
+--
+
+CREATE TABLE `waste_text` (
+  `id` int(11) NOT NULL,
+  `waste_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `text` text NOT NULL,
+  `status` int(1) NOT NULL,
+  `created` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+--
+-- Dumping data for table `waste_text`
+--
+
+INSERT INTO `waste_text` (`id`, `waste_id`, `user_id`, `text`, `status`, `created`) VALUES
+(1, 1, 1, '', 2, '2024-04-05 09:56:37');
+
 --
 -- Indexes for dumped tables
 --
@@ -9567,6 +9695,30 @@ ALTER TABLE `user`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `waste`
+--
+ALTER TABLE `waste`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `waste_auth`
+--
+ALTER TABLE `waste_auth`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `waste_item`
+--
+ALTER TABLE `waste_item`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `waste_text`
+--
+ALTER TABLE `waste_text`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -9574,13 +9726,13 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `bom`
 --
 ALTER TABLE `bom`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `bom_item`
 --
 ALTER TABLE `bom_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `brand`
@@ -9610,7 +9762,7 @@ ALTER TABLE `district`
 -- AUTO_INCREMENT for table `issue`
 --
 ALTER TABLE `issue`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `issue_auth`
@@ -9622,13 +9774,13 @@ ALTER TABLE `issue_auth`
 -- AUTO_INCREMENT for table `issue_item`
 --
 ALTER TABLE `issue_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `issue_text`
 --
 ALTER TABLE `issue_text`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `location`
@@ -9676,7 +9828,7 @@ ALTER TABLE `province`
 -- AUTO_INCREMENT for table `purchase`
 --
 ALTER TABLE `purchase`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `purchase_auth`
@@ -9688,7 +9840,7 @@ ALTER TABLE `purchase_auth`
 -- AUTO_INCREMENT for table `purchase_text`
 --
 ALTER TABLE `purchase_text`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `sale`
@@ -9725,6 +9877,30 @@ ALTER TABLE `unit`
 --
 ALTER TABLE `user`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `waste`
+--
+ALTER TABLE `waste`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `waste_auth`
+--
+ALTER TABLE `waste_auth`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `waste_item`
+--
+ALTER TABLE `waste_item`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `waste_text`
+--
+ALTER TABLE `waste_text`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

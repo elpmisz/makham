@@ -17,8 +17,7 @@ $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
 $fullname = (!empty($row['fullname']) ? $row['fullname'] : "");
 $bom = (!empty($row['bom']) ? $row['bom'] : "");
 $bom_name = (!empty($row['bom_name']) ? $row['bom_name'] : "");
-$machine_id = (!empty($row['machine']) ? $row['machine'] : "");
-$machine_name = (!empty($row['machine_name']) ? $row['machine_name'] : "");
+$machine = (!empty($row['machine']) ? $row['machine'] : "");
 $amount = (!empty($row['amount']) ? $row['amount'] : "");
 $confirm = (!empty($row['confirm']) ? $row['confirm'] : "");
 $date = (!empty($row['date']) ? $row['date'] : "");
@@ -31,7 +30,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">รายละเอียด</h4>
+        <h4 class="text-center">ใบสั่งผลิต</h4>
       </div>
       <div class="card-body">
         <form action="javascript:void(0)" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
@@ -85,9 +84,9 @@ $created = (!empty($row['created']) ? $row['created'] : "");
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-3 offset-xl-1 col-form-label">เครื่องจักร</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">จำนวนเครื่องจักร</label>
             <div class="col-xl-3 text-underline">
-              <?php echo $machine_name ?>
+              <?php echo $machine ?>
             </div>
           </div>
           <div class="row mb-2">
