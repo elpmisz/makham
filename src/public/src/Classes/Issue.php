@@ -397,7 +397,8 @@ class Issue
 
   public function download()
   {
-    $sql = "SELECT a.uuid,CONCAT(d.firstname,' ',d.lastname) username,
+    $sql = "SELECT a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    CONCAT(d.firstname,' ',d.lastname) username,
     (
     CASE
       WHEN a.type = 1 THEN 'นำเข้า'
@@ -422,7 +423,9 @@ class Issue
     LEFT JOIN inventory.product c
     ON b.product_id = c.id
     LEFT JOIN inventory.user d
-    ON a.user_id = d.id";
+    ON a.user_id = d.id
+    WHERE b.status = 1
+    ORDER BY a.created DESC";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_NUM);
@@ -435,7 +438,7 @@ class Issue
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.type", "b.firstname", "a.text", "a.created"];
+    $column = ["a.status", "a.last", "a.type", "b.firstname", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -537,7 +540,7 @@ class Issue
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.type", "b.firstname", "a.text", "a.created"];
+    $column = ["a.status", "a.last", "a.type", "b.firstname", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");

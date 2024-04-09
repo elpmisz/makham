@@ -212,8 +212,8 @@ if ($action === "upload") {
 if ($action === "product-data") {
   try {
     $category = (isset($_POST['category']) ? $VALIDATION->input($_POST['category']) : "");
-    $location = (isset($_POST['location']) ? $VALIDATION->input($_POST['location']) : "");
-    $result = $PRODUCT->product_data($category, $location);
+    $store = (isset($_POST['store']) ? $VALIDATION->input($_POST['store']) : "");
+    $result = $PRODUCT->product_data($category, $store);
     echo json_encode($result);
   } catch (PDOException $e) {
     die($e->getMessage());

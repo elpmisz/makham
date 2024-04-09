@@ -13,7 +13,7 @@ $card = $DASHBOARD->purchase_card();
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">รายงานผลิต</h4>
+        <h4 class="text-center">รายงานสั่งผลิต</h4>
       </div>
       <div class="card-body">
 
@@ -30,7 +30,7 @@ $card = $DASHBOARD->purchase_card();
             <div class="card bg-info text-white shadow">
               <div class="card-body">
                 <h3 class="text-right"><?php echo (isset($card['dd']) ? $card['dd'] : 0) ?></h3>
-                <h5 class="text-right">ยอดผลิตรายวัน</h5>
+                <h5 class="text-right">ยอดผลิตประจำวัน</h5>
               </div>
             </div>
           </div>
@@ -52,6 +52,25 @@ $card = $DASHBOARD->purchase_card();
           </div>
         </div>
 
+        <div class="row justify-content-end mb-2">
+          <div class="col-xl-3 mb-2">
+            <a href="javascript:void(0)" class="btn btn-danger btn-sm btn-block download-btn">
+              <i class="fas fa-download pr-2"></i>นำข้อมูลออก
+            </a>
+          </div>
+          <div class="col-xl-3 mb-2">
+            <input type="text" class="form-control form-control-sm date-select" placeholder="-- วันที่ --">
+          </div>
+          <div class="col-xl-3 mb-2">
+            <select class="form-control form-control-sm bom-select"></select>
+          </div>
+          <div class="col-xl-3 mb-2">
+            <button class="btn btn-sm btn-block btn-primary search-btn">
+              <i class="fa fa-search pr-2"></i>ค้นหา
+            </button>
+          </div>
+        </div>
+
         <div class="row mb-2">
           <div class="col-xl-12">
             <div class="card shadow">
@@ -61,7 +80,7 @@ $card = $DASHBOARD->purchase_card();
                     <thead>
                       <tr>
                         <th width="10%">สถานะ</th>
-                        <th width="10%">ผู้ทำรายการ</th>
+                        <th width="10%">เลขที่เอกสาร</th>
                         <th width="10%">สูตรการผลิต</th>
                         <th width="10%">เครื่องจักร</th>
                         <th width="10%">เป้าหมาย</th>
@@ -71,40 +90,6 @@ $card = $DASHBOARD->purchase_card();
                       </tr>
                     </thead>
                   </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row mb-2">
-          <div class="col-xl-5">
-            <div class="card shadow">
-              <div class="card-header">
-                <h5>ยอดผลิตแยกตามเครื่องจักร ประจำเดือน</h5>
-              </div>
-              <div class="card-body">
-                <div class="col-xl-12 mb-2">
-                  <canvas id="machine-month-chart"></canvas>
-                </div>
-                <div class="table-responsive">
-                  <table class="table table-sm table-hover machine-month-table"></table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-xl-7">
-            <div class="card shadow">
-              <div class="card-header">
-                <h5>ยอดผลิตแยกตามเครื่องจักร ประจำปี</h5>
-              </div>
-              <div class="card-body">
-                <div class="col-xl-12 mb-2">
-                  <canvas id="machine-year-chart"></canvas>
-                </div>
-                <div class="table-responsive">
-                  <table class="table table-sm table-hover machine-year-table"></table>
                 </div>
               </div>
             </div>
@@ -155,7 +140,27 @@ $card = $DASHBOARD->purchase_card();
 <script>
   filter_datatable();
 
-  function filter_datatable() {
+  $(document).on("click", ".download-btn", function() {
+    let date = ($(".date-select").val() ? $(".date-select").val() : "");
+    date = date.replaceAll("/", "+", date);
+    let bom = ($(".bom-select").val() ? $(".bom-select").val() : "");
+    let path = "/dashboard/purchase/download/" + date + "/" + bom;
+    window.open(path);
+  });
+
+  $(document).on("click", ".search-btn", function() {
+    let date = ($(".date-select").val() ? $(".date-select").val() : "");
+    let bom = ($(".bom-select").val() ? $(".bom-select").val() : "");
+    if (date || bom) {
+      $(".purchase-data").DataTable().destroy();
+      filter_datatable(date, bom);
+    } else {
+      $(".purchase-data").DataTable().destroy();
+      filter_datatable();
+    }
+  });
+
+  function filter_datatable(date, bom) {
     $(".purchase-data").DataTable({
       serverSide: true,
       searching: true,
@@ -164,6 +169,10 @@ $card = $DASHBOARD->purchase_card();
       ajax: {
         url: "/dashboard/purchase/purchase-data",
         type: "POST",
+        data: {
+          date: date,
+          bom: bom,
+        }
       },
       columnDefs: [{
         targets: [0, 3, 4, 5],
@@ -186,122 +195,7 @@ $card = $DASHBOARD->purchase_card();
     });
   };
 
-  axios.post("/dashboard/purchase/machine-month-data")
-    .then((res) => {
-      let result = res.data;
-      let subjects = result.map(item => item.machine_name);
-      let datas = result.map(item => item.mm);
-
-      if (result.length > 0) {
-        let div = '<tr>';
-        div += '<th width="50%">เครื่องจักร</th>';
-        div += '<th width="50%">จำนวน</th>';
-        div += '</tr>';
-        result.forEach((v, k) => {
-          div += '<tr>';
-          div += '<td>' + v.machine_name + '</td>';
-          div += '<td class="text-right">' + Number(v.mm).toLocaleString() + '</td>';
-          div += '</tr>';
-        });
-
-        $(".machine-month-table").empty().html(div);
-        machineMonthRender("machine-month-chart", subjects, datas);
-      } else {
-        $(".machine-month-table").empty().html();
-      }
-    }).catch((error) => {
-      console.log(error);
-    });
-
-  axios.post("/dashboard/purchase/machine-year-data")
-    .then((res) => {
-      let result = res.data;
-      let subjects = result.map(item => item.machine_name);
-      let datas = result.map(item => item.yy);
-
-      if (result.length > 0) {
-        let div = '<tr>';
-        div += '<th width="50%">เครื่องจักร</th>';
-        div += '<th width="50%">จำนวน</th>';
-        div += '</tr>';
-        result.forEach((v, k) => {
-          div += '<tr>';
-          div += '<td>' + v.machine_name + '</td>';
-          div += '<td class="text-right">' + Number(v.yy).toLocaleString() + '</td>';
-          div += '</tr>';
-        });
-
-        $(".machine-year-table").empty().html(div);
-        machineYearRender("machine-year-chart", subjects, datas);
-      } else {
-        $(".machine-year-table").empty().html();
-      }
-    }).catch((error) => {
-      console.log(error);
-    });
-
-  var machineMonthChart = new Chart(document.getElementById("machine-month-chart"));
-
-  function machineMonthRender(name, subjects, datas) {
-    machineMonthChart.destroy();
-    machineMonthChart = new Chart(
-      document.getElementById(name),
-      config = {
-        type: "doughnut",
-        data: {
-          labels: subjects,
-          datasets: [{
-            label: "ประจำเดือน",
-            data: datas,
-            borderWidth: 1,
-            fill: true,
-            backgroundColor: getRandomColor(subjects.length),
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          plugins: {
-            legend: {
-              display: false
-            }
-          }
-        }
-      }
-    );
-  }
-
-  var machineYearChart = new Chart(document.getElementById("machine-year-chart"));
-
-  function machineYearRender(name, subjects, datas) {
-    machineYearChart.destroy();
-    machineYearChart = new Chart(
-      document.getElementById(name),
-      config = {
-        type: "bar",
-        data: {
-          labels: subjects,
-          datasets: [{
-            label: "ประจำปี",
-            data: datas,
-            fill: false,
-            backgroundColor: getRandomColor(subjects.length),
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          plugins: {
-            legend: {
-              display: false
-            }
-          }
-        },
-      }
-    );
-  }
-
-  axios.post("/dashboard/purchase/bom-month-data")
+  axios.post("/dashboard/purchase/bom-data")
     .then((res) => {
       let result = res.data;
       let subjects = result.map(item => item.bom_name);
@@ -309,7 +203,7 @@ $card = $DASHBOARD->purchase_card();
 
       if (result.length > 0) {
         let div = '<tr>';
-        div += '<th width="50%">เครื่องจักร</th>';
+        div += '<th width="50%">สูตร</th>';
         div += '<th width="50%">จำนวน</th>';
         div += '</tr>';
         result.forEach((v, k) => {
@@ -328,7 +222,7 @@ $card = $DASHBOARD->purchase_card();
       console.log(error);
     });
 
-  axios.post("/dashboard/purchase/bom-year-data")
+  axios.post("/dashboard/purchase/bom-data")
     .then((res) => {
       let result = res.data;
       let subjects = result.map(item => item.bom_name);
@@ -336,7 +230,7 @@ $card = $DASHBOARD->purchase_card();
 
       if (result.length > 0) {
         let div = '<tr>';
-        div += '<th width="50%">เครื่องจักร</th>';
+        div += '<th width="50%">สูตร</th>';
         div += '<th width="50%">จำนวน</th>';
         div += '</tr>';
         result.forEach((v, k) => {
@@ -362,7 +256,7 @@ $card = $DASHBOARD->purchase_card();
     bomMonthChart = new Chart(
       document.getElementById(name),
       config = {
-        type: "pie",
+        type: "doughnut",
         data: {
           labels: subjects,
           datasets: [{
@@ -427,4 +321,56 @@ $card = $DASHBOARD->purchase_card();
     }
     return colors;
   }
+
+  $(".bom-select").select2({
+    placeholder: "-- สูตรการผลิต --",
+    allowClear: true,
+    width: "100%",
+    ajax: {
+      url: "/purchase/bom-select",
+      method: "POST",
+      dataType: "json",
+      delay: 100,
+      processResults: function(data) {
+        return {
+          results: data
+        };
+      },
+      cache: true
+    }
+  });
+
+  $(".date-select").on('keydown paste', function(e) {
+    e.preventDefault();
+  });
+
+  $(".date-select").daterangepicker({
+    autoUpdateInput: false,
+    // minDate: moment(),
+    showDropdowns: true,
+    startDate: moment(),
+    endDate: moment().startOf('day').add(1, 'day'),
+    locale: {
+      "format": "DD/MM/YYYY",
+      "applyLabel": "ยืนยัน",
+      "cancelLabel": "ยกเลิก",
+      "daysOfWeek": [
+        "อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"
+      ],
+      "monthNames": [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ]
+    },
+    "applyButtonClasses": "btn-success",
+    "cancelClass": "btn-danger"
+  });
+
+  $(".date-select").on('apply.daterangepicker', function(ev, picker) {
+    $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+  });
+
+  $(".date-select").on('cancel.daterangepicker', function(ev, picker) {
+    $(this).val('');
+  });
 </script>

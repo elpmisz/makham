@@ -18,47 +18,19 @@ $param2 = (isset($param[2]) ? $param[2] : "");
 
 if ($action === "purchase-data") {
   try {
-    $result = $DASHBOARD->purchase_data();
+    $date = (isset($_POST['date']) ? explode("-", $VALIDATION->input($_POST['date'])) : "");
+    $start = (!empty($date[0]) ? trim($date[0]) : "");
+    $end = (!empty($date[1]) ? trim($date[1]) : "");
+    $bom = (isset($_POST['bom']) ? $VALIDATION->input($_POST['bom']) : "");
+
+    $result = $DASHBOARD->purchase_data($bom, $start, $end);
     echo json_encode($result);
   } catch (PDOException $e) {
     die($e->getMessage());
   }
 }
 
-if ($action === "machine-month-data") {
-  try {
-    $data = json_decode(file_get_contents("php://input"), true);
-
-    $result = $DASHBOARD->machine_purchase();
-    echo json_encode($result);
-  } catch (PDOException $e) {
-    die($e->getMessage());
-  }
-}
-
-if ($action === "machine-year-data") {
-  try {
-    $data = json_decode(file_get_contents("php://input"), true);
-
-    $result = $DASHBOARD->machine_purchase();
-    echo json_encode($result);
-  } catch (PDOException $e) {
-    die($e->getMessage());
-  }
-}
-
-if ($action === "bom-month-data") {
-  try {
-    $data = json_decode(file_get_contents("php://input"), true);
-
-    $result = $DASHBOARD->bom_purchase();
-    echo json_encode($result);
-  } catch (PDOException $e) {
-    die($e->getMessage());
-  }
-}
-
-if ($action === "bom-year-data") {
+if ($action === "bom-data") {
   try {
     $data = json_decode(file_get_contents("php://input"), true);
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: database
--- Generation Time: Apr 05, 2024 at 09:58 AM
+-- Generation Time: Apr 09, 2024 at 09:21 AM
 -- Server version: 11.3.2-MariaDB-1:11.3.2+maria~ubu2204
 -- PHP Version: 8.2.17
 
@@ -1128,7 +1128,9 @@ INSERT INTO `issue` (`id`, `uuid`, `last`, `type`, `text`, `user_id`, `status`, 
 (2, 0x35623162633565392d663233612d313165652d61, 2, 1, 'นำเข้าส่วนผสม\r\nนำเข้าส่วนผสม', 1, 2, '2024-04-04 04:40:14', '2024-04-04 04:18:14'),
 (3, 0x39353333393565382d663233642d313165652d61, 3, 2, 'ทดสอบเบิกออก\r\nทดสอบเบิกออก', 1, 2, '2024-04-04 06:07:54', '2024-04-04 04:41:20'),
 (4, 0x31343436323261382d663234622d313165652d61, 4, 3, 'ทดสอบโอนย้าย\r\nทดสอบโอนย้าย', 1, 2, '2024-04-04 08:13:08', '2024-04-04 06:23:28'),
-(5, 0x36333633623062362d663266652d313165652d62, 5, 1, 'สั่งผลิตตาม เลขที่ใบ PR20240001', 1, 2, NULL, '2024-04-05 03:41:28');
+(5, 0x36333633623062362d663266652d313165652d62, 5, 1, 'สั่งผลิตตาม เลขที่ใบ PR20240001', 1, 2, NULL, '2024-04-05 03:41:28'),
+(6, 0x33643538316232332d663537322d313165652d61, 6, 1, 'ทดสอบระบบ\r\nทดสอบระบบ', 1, 2, '2024-04-08 06:38:41', '2024-04-08 06:38:31'),
+(7, 0x36663362303932652d663537322d313165652d61, 7, 1, 'สั่งผลิตตาม เลขที่ใบ PR20240002', 1, 2, NULL, '2024-04-08 06:39:55');
 
 -- --------------------------------------------------------
 
@@ -1193,7 +1195,9 @@ INSERT INTO `issue_item` (`id`, `issue_id`, `product_id`, `type`, `location_id`,
 (14, 4, 94, 1, 4, NULL, 40.0000, 40.0000, 2, '2024-04-04 08:13:08', '2024-04-04 06:23:28'),
 (15, 4, 94, 2, 2, NULL, 40.0000, 40.0000, 1, '2024-04-04 08:13:08', '2024-04-04 07:20:00'),
 (16, 4, 94, 1, 4, NULL, 40.0000, 40.0000, 1, '2024-04-04 08:13:08', '2024-04-04 07:20:00'),
-(17, 5, 223, 1, 4, NULL, 215.0000, 215.0000, 1, NULL, '2024-04-05 03:41:28');
+(17, 5, 223, 1, 4, NULL, 215.0000, 215.0000, 1, NULL, '2024-04-05 03:41:28'),
+(18, 6, 95, 1, 2, NULL, 50.0000, 50.0000, 1, '2024-04-08 06:38:41', '2024-04-08 06:38:31'),
+(19, 7, 223, 1, 4, NULL, 110.0000, 110.0000, 1, NULL, '2024-04-08 06:39:55');
 
 -- --------------------------------------------------------
 
@@ -1222,7 +1226,9 @@ INSERT INTO `issue_text` (`id`, `issue_id`, `user_id`, `text`, `status`, `create
 (5, 2, 1, '', 2, '2024-04-04 04:40:14'),
 (6, 3, 1, '', 2, '2024-04-04 06:07:54'),
 (7, 4, 1, '', 2, '2024-04-04 08:13:08'),
-(8, 5, 1, '', 2, '2024-04-05 03:41:28');
+(8, 5, 1, '', 2, '2024-04-05 03:41:28'),
+(9, 6, 1, '', 2, '2024-04-08 06:38:41'),
+(10, 7, 1, '', 2, '2024-04-08 06:39:55');
 
 -- --------------------------------------------------------
 
@@ -1273,8 +1279,10 @@ CREATE TABLE `login` (
 --
 
 INSERT INTO `login` (`id`, `uuid`, `email`, `password`, `level`, `auth`, `status`, `updated`, `created`) VALUES
-(1, 0x66653734613165312d643964352d313165652d38, 'john@test.com', '$2y$10$IS1zqkGKbRq0gjcxL9/ZB.ouRephRcc9bOjOliy6n8UHn0ja1W2oW', 9, '1,1,1', 1, '2024-03-06 16:06:55', '2024-03-04 10:19:17'),
-(2, 0x66653766343062302d643964352d313165652d38, 'jane@test.com', '$2y$10$27LPaNMieveE7HFAQmRPpeVBexB74Sc0ZzcCXa7d9jE5EQLOaNVVy', 1, '1,1,1', 1, '2024-03-06 16:07:01', '2024-03-04 10:19:17');
+(1, 0x66653734613165312d643964352d313165652d38, 'admin@test.com', '$2y$10$IS1zqkGKbRq0gjcxL9/ZB.ouRephRcc9bOjOliy6n8UHn0ja1W2oW', 9, '1,1,1', 1, '2024-04-09 09:13:56', '2024-03-04 10:19:17'),
+(2, 0x66653766343062302d643964352d313165652d38, 'user01@test.com', '$2y$10$27LPaNMieveE7HFAQmRPpeVBexB74Sc0ZzcCXa7d9jE5EQLOaNVVy', 9, '1,1,1', 1, '2024-04-09 09:19:00', '2024-03-04 10:19:17'),
+(3, 0x63393961356637302d663635302d313165652d39, 'user02@test.com', '$2y$10$nwIx7Pn/ca1yxuHnzmaVve74wFH22fneilxMgCRBHMSoG9R3ML/HC', 9, '', 1, '2024-04-09 09:19:50', '2024-04-09 09:19:25'),
+(4, 0x64333230316465642d663635302d313165652d39, 'user03@test.com', '$2y$10$MizaR/HvL5wcckOf7YBeu.AYCJyl4LGJhUV4YKUqCtJEiSk06kRIa', 9, '', 1, '2024-04-09 09:19:46', '2024-04-09 09:19:41');
 
 -- --------------------------------------------------------
 
@@ -1766,7 +1774,8 @@ CREATE TABLE `purchase` (
 --
 
 INSERT INTO `purchase` (`id`, `uuid`, `last`, `user_id`, `bom`, `machine`, `amount`, `confirm`, `date`, `text`, `status`, `updated`, `created`) VALUES
-(1, 0x64366531343631302d663266612d313165652d62, 1, 1, 1, 6, 200, 215, '2024-04-05', 'ทดสอบระบบ', 5, '2024-04-05 03:41:28', '2024-04-05 03:16:04');
+(1, 0x64366531343631302d663266612d313165652d62, 1, 1, 1, 6, 200, 215, '2024-04-05', 'ทดสอบระบบ', 5, '2024-04-05 03:41:28', '2024-04-05 03:16:04'),
+(2, 0x35366363393463612d663537322d313165652d61, 2, 1, 1, 2, 100, 110, '2024-04-08', 'ทดสอบสั่งผลิต\r\nทดสอบสั่งผลิต', 5, '2024-04-08 06:39:55', '2024-04-08 06:39:14');
 
 -- --------------------------------------------------------
 
@@ -1813,7 +1822,10 @@ CREATE TABLE `purchase_text` (
 INSERT INTO `purchase_text` (`id`, `purchase_id`, `user_id`, `text`, `status`, `created`) VALUES
 (1, 1, 1, '', 3, '2024-04-05 03:36:17'),
 (2, 1, 1, '', 4, '2024-04-05 03:40:10'),
-(3, 1, 1, '', 5, '2024-04-05 03:41:28');
+(3, 1, 1, '', 5, '2024-04-05 03:41:28'),
+(4, 2, 1, '', 3, '2024-04-08 06:39:30'),
+(5, 2, 1, '', 4, '2024-04-08 06:39:44'),
+(6, 2, 1, '', 5, '2024-04-08 06:39:55');
 
 -- --------------------------------------------------------
 
@@ -9435,8 +9447,10 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `login`, `firstname`, `lastname`, `contact`) VALUES
-(1, 1, 'john', 'doe', '123456'),
-(2, 2, 'jane', 'doe', '789456');
+(1, 1, 'admin', 'system', '123456'),
+(2, 2, 'พี่โจ', '.', '789456'),
+(3, 3, 'พี่แอน', '.', '1234'),
+(4, 4, 'น้องนิ้ง', '.', '1234');
 
 -- --------------------------------------------------------
 
@@ -9477,6 +9491,13 @@ CREATE TABLE `waste_auth` (
   `created` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
+--
+-- Dumping data for table `waste_auth`
+--
+
+INSERT INTO `waste_auth` (`id`, `user_id`, `type`, `status`, `updated`, `created`) VALUES
+(1, 1, 2, 1, NULL, '2024-04-08 02:52:42');
+
 -- --------------------------------------------------------
 
 --
@@ -9503,10 +9524,7 @@ INSERT INTO `waste_item` (`id`, `waste_id`, `type`, `item`, `quantity`, `remark`
 (1, 1, 1, '34', '15', 'กิโลกรัม', 1, NULL, '2024-04-05 04:48:52'),
 (2, 1, 2, 'เส้นผม', '35', 'เส้น', 1, NULL, '2024-04-05 04:48:52'),
 (3, 1, 2, 'ก้อนหิน', '5', 'ก้อน', 1, NULL, '2024-04-05 04:48:52'),
-(4, 1, 2, 'เศษพลาสติก', '7', 'ชิ้น', 1, '2024-04-05 08:58:42', '2024-04-05 04:48:52'),
-(5, NULL, 1, '19', '10', 'กิโลกรัม', 1, NULL, '2024-04-05 09:02:37'),
-(6, NULL, 1, '19', '10', 'กิโลกรัม', 1, NULL, '2024-04-05 09:03:43'),
-(7, 1, 1, '19', '10', 'กิโลกรัม', 1, NULL, '2024-04-05 09:04:03');
+(4, 1, 2, 'เศษพลาสติก', '7', 'ชิ้น', 1, '2024-04-05 08:58:42', '2024-04-05 04:48:52');
 
 -- --------------------------------------------------------
 
@@ -9762,7 +9780,7 @@ ALTER TABLE `district`
 -- AUTO_INCREMENT for table `issue`
 --
 ALTER TABLE `issue`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `issue_auth`
@@ -9774,13 +9792,13 @@ ALTER TABLE `issue_auth`
 -- AUTO_INCREMENT for table `issue_item`
 --
 ALTER TABLE `issue_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `issue_text`
 --
 ALTER TABLE `issue_text`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `location`
@@ -9792,7 +9810,7 @@ ALTER TABLE `location`
 -- AUTO_INCREMENT for table `login`
 --
 ALTER TABLE `login`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `machine`
@@ -9828,7 +9846,7 @@ ALTER TABLE `province`
 -- AUTO_INCREMENT for table `purchase`
 --
 ALTER TABLE `purchase`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `purchase_auth`
@@ -9840,7 +9858,7 @@ ALTER TABLE `purchase_auth`
 -- AUTO_INCREMENT for table `purchase_text`
 --
 ALTER TABLE `purchase_text`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `sale`
@@ -9876,7 +9894,7 @@ ALTER TABLE `unit`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `waste`
@@ -9888,13 +9906,13 @@ ALTER TABLE `waste`
 -- AUTO_INCREMENT for table `waste_auth`
 --
 ALTER TABLE `waste_auth`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `waste_item`
 --
 ALTER TABLE `waste_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `waste_text`

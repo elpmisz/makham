@@ -36,7 +36,7 @@ include_once(__DIR__ . "/../layout/header.php");
             <select class="form-control form-control-sm category-select"></select>
           </div>
           <div class="col-xl-3 mb-2">
-            <select class="form-control form-control-sm location-select"></select>
+            <select class="form-control form-control-sm store-select"></select>
           </div>
         </div>
 
@@ -103,19 +103,19 @@ include_once(__DIR__ . "/../layout/header.php");
 <script>
   filter_datatable();
 
-  $(document).on("change", ".category-select, .location-select", function() {
+  $(document).on("change", ".category-select, .store-select", function() {
     let category = ($(".category-select").val() ? $(".category-select").val() : "");
-    let location = ($(".location-select").val() ? $(".location-select").val() : "");
-    if (category || location) {
+    let store = ($(".store-select").val() ? $(".store-select").val() : "");
+    if (category || store) {
       $(".product-data").DataTable().destroy();
-      filter_datatable(category, location);
+      filter_datatable(category, store);
     } else {
       $(".product-data").DataTable().destroy();
       filter_datatable();
     }
   });
 
-  function filter_datatable(category, location) {
+  function filter_datatable(category, store) {
     $(".product-data").DataTable({
       serverSide: true,
       searching: true,
@@ -126,7 +126,7 @@ include_once(__DIR__ . "/../layout/header.php");
         type: "POST",
         data: {
           category: category,
-          location: location
+          store: store
         }
       },
       columnDefs: [{
@@ -191,12 +191,12 @@ include_once(__DIR__ . "/../layout/header.php");
     }
   });
 
-  $(".location-select").select2({
-    placeholder: "-- สถานที่ --",
+  $(".store-select").select2({
+    placeholder: "-- สถานที่จัดเก็บ --",
     allowClear: true,
     width: "100%",
     ajax: {
-      url: "/product/location-select",
+      url: "/product/store-select",
       method: "POST",
       dataType: "json",
       delay: 100,

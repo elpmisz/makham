@@ -344,20 +344,20 @@ $ROUTER->map("POST", "/user/[**:params]", function ($params) {
 });
 
 ##################### DASHBOARD #####################
-$ROUTER->map("GET", "/dashboard/sale", function () {
-  require(__DIR__ . "/src/Views/dashboard/sale.php");
-});
-$ROUTER->map("POST", "/dashboard/sale/[**:params]", function ($params) {
-  require(__DIR__ . "/src/Views/dashboard/sale_action.php");
-});
 $ROUTER->map("GET", "/dashboard/purchase", function () {
   require(__DIR__ . "/src/Views/dashboard/purchase.php");
+});
+$ROUTER->map("GET", "/dashboard/purchase/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/dashboard/purchase_download.php");
 });
 $ROUTER->map("POST", "/dashboard/purchase/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/dashboard/purchase_action.php");
 });
 $ROUTER->map("GET", "/dashboard/issue", function () {
   require(__DIR__ . "/src/Views/dashboard/issue.php");
+});
+$ROUTER->map("GET", "/dashboard/issue/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/dashboard/issue_download.php");
 });
 $ROUTER->map("POST", "/dashboard/issue/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/dashboard/issue_action.php");
@@ -368,7 +368,15 @@ $ROUTER->map("GET", "/dashboard/product", function () {
 $ROUTER->map("POST", "/dashboard/product/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/dashboard/product_action.php");
 });
-
+$ROUTER->map("GET", "/dashboard/waste", function () {
+  require(__DIR__ . "/src/Views/dashboard/waste.php");
+});
+$ROUTER->map("GET", "/dashboard/waste/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/dashboard/waste_download.php");
+});
+$ROUTER->map("POST", "/dashboard/waste/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/dashboard/waste_action.php");
+});
 
 ##################### AUTH #####################
 $ROUTER->map("GET", "/", function () {

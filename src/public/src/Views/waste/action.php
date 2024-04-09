@@ -105,6 +105,39 @@ if ($action === "approve") {
   }
 }
 
+if ($action === "auth") {
+  try {
+    $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
+    $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
+
+    $count = $WASTE->auth_count([$user_id, $type]);
+    if (intval($count) > 0) {
+      $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/purchase/waste");
+    }
+
+    $WASTE->auth_insert([$user_id, $type]);
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/purchase/waste");
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "auth-delete") {
+  try {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $id = $data['id'];
+
+    if (!empty($id)) {
+      $WASTE->auth_delete([$id]);
+      echo json_encode(200);
+    } else {
+      echo json_encode(500);
+    }
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
 if ($action === "upload") {
   try {
     $file_name = (isset($_FILES['file']['name']) ? $_FILES['file']['name'] : '');
@@ -174,6 +207,15 @@ if ($action === "approve-data") {
   }
 }
 
+if ($action === "auth-data") {
+  try {
+    $result = $WASTE->auth_data();
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
 if ($action === "item-delete") {
   try {
     $data = json_decode(file_get_contents("php://input"), true);
@@ -184,6 +226,17 @@ if ($action === "item-delete") {
     } else {
       echo json_encode(500);
     }
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "user-select") {
+  try {
+    $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
+    $result = $WASTE->user_select($keyword);
+
+    echo json_encode($result);
   } catch (PDOException $e) {
     die($e->getMessage());
   }

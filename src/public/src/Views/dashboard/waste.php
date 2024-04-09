@@ -1,19 +1,19 @@
 <?php
 $menu = "dashboard";
-$page = "dashboard-sale";
+$page = "dashboard-waste";
 include_once(__DIR__ . "/../layout/header.php");
 
-use App\Classes\DashboardSale;
+use App\Classes\DashboardWaste;
 
-$DASHBOARD = new DashboardSale();
+$DASHBOARD = new DashboardWaste();
 
-$card = $DASHBOARD->sale_card();
+$card = $DASHBOARD->waste_card();
 ?>
 <div class="row">
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">รายงานขาย</h4>
+        <h4 class="text-center">รายงานสรุปของเสีย</h4>
       </div>
       <div class="card-body">
 
@@ -22,7 +22,7 @@ $card = $DASHBOARD->sale_card();
             <div class="card bg-primary text-white shadow">
               <div class="card-body">
                 <h3 class="text-right"><?php echo (isset($card['total']) ? $card['total'] : 0) ?></h3>
-                <h5 class="text-right">ยอดขายทั้งหมด</h5>
+                <h5 class="text-right">รายการทั้งหมด</h5>
               </div>
             </div>
           </div>
@@ -30,7 +30,7 @@ $card = $DASHBOARD->sale_card();
             <div class="card bg-info text-white shadow">
               <div class="card-body">
                 <h3 class="text-right"><?php echo (isset($card['dd']) ? $card['dd'] : 0) ?></h3>
-                <h5 class="text-right">ยอดขายรายวัน</h5>
+                <h5 class="text-right">รายการประจำวัน</h5>
               </div>
             </div>
           </div>
@@ -38,7 +38,7 @@ $card = $DASHBOARD->sale_card();
             <div class="card bg-success text-white shadow">
               <div class="card-body">
                 <h3 class="text-right"><?php echo (isset($card['mm']) ? $card['mm'] : 0) ?></h3>
-                <h5 class="text-right">ยอดขายรายเดือน</h5>
+                <h5 class="text-right">รายการรายเดือน</h5>
               </div>
             </div>
           </div>
@@ -46,9 +46,25 @@ $card = $DASHBOARD->sale_card();
             <div class="card bg-danger text-white shadow">
               <div class="card-body">
                 <h3 class="text-right"><?php echo (isset($card['yy']) ? $card['yy'] : 0) ?></h3>
-                <h5 class="text-right">ยอดขายรายปี</h5>
+                <h5 class="text-right">รายการรายปี</h5>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="row justify-content-end mb-2">
+          <div class="col-xl-3 mb-2">
+            <a href="javascript:void(0)" class="btn btn-danger btn-sm btn-block download-btn">
+              <i class="fas fa-download pr-2"></i>นำข้อมูลออก
+            </a>
+          </div>
+          <div class="col-xl-3 mb-2">
+            <input type="text" class="form-control form-control-sm date-select" placeholder="-- วันที่ --">
+          </div>
+          <div class="col-xl-3 mb-2">
+            <button class="btn btn-sm btn-block btn-primary search-btn">
+              <i class="fa fa-search pr-2"></i>ค้นหา
+            </button>
           </div>
         </div>
 
@@ -57,16 +73,12 @@ $card = $DASHBOARD->sale_card();
             <div class="card shadow">
               <div class="card-body">
                 <div class="table-responsive">
-                  <table class="table table-bordered table-hover sale-data">
+                  <table class="table table-bordered table-hover waste-data">
                     <thead>
                       <tr>
                         <th width="10%">สถานะ</th>
-                        <th width="10%">ผู้ทำรายการ</th>
-                        <th width="10%">ลูกค้า</th>
-                        <th width="30%">รายละเอียด</th>
-                        <th width="10%">ส่งเสริมการขาย</th>
-                        <th width="10%">ภาษีมูลค่าเพิ่ม</th>
-                        <th width="10%">จำนวนเงิน</th>
+                        <th width="10%">เลขที่เอกสาร</th>
+                        <th width="40%">รายละเอียด</th>
                         <th width="10%">วันที่</th>
                       </tr>
                     </thead>
@@ -78,10 +90,10 @@ $card = $DASHBOARD->sale_card();
         </div>
 
         <div class="row mb-2">
-          <div class="col-xl-7">
+          <div class="col-xl-6">
             <div class="card shadow">
               <div class="card-header">
-                <h5>สินค้าขายดี ประจำเดือน</h5>
+                <h5>รายการของเสีย ประจำเดือน</h5>
               </div>
               <div class="card-body">
                 <div class="col-xl-12 mb-2">
@@ -94,10 +106,10 @@ $card = $DASHBOARD->sale_card();
             </div>
           </div>
 
-          <div class="col-xl-5">
+          <div class="col-xl-6">
             <div class="card shadow">
               <div class="card-header">
-                <h5>สินค้าขายดี ประจำปี</h5>
+                <h5>รายการของเสีย ประจำปี</h5>
               </div>
               <div class="card-body">
                 <div class="col-xl-12 mb-2">
@@ -121,22 +133,40 @@ $card = $DASHBOARD->sale_card();
 <script>
   filter_datatable();
 
-  function filter_datatable() {
-    $(".sale-data").DataTable({
+  $(document).on("click", ".download-btn", function() {
+    let date = ($(".date-select").val() ? $(".date-select").val() : "");
+    date = date.replaceAll("/", "+", date);
+    let path = "/dashboard/waste/download/" + date;
+    window.open(path);
+  });
+
+  $(document).on("click", ".search-btn", function() {
+    let date = ($(".date-select").val() ? $(".date-select").val() : "");
+    if (date) {
+      $(".waste-data").DataTable().destroy();
+      filter_datatable(date);
+    } else {
+      $(".waste-data").DataTable().destroy();
+      filter_datatable();
+    }
+  });
+
+  function filter_datatable(date) {
+    $(".waste-data").DataTable({
       serverSide: true,
       searching: true,
       scrollX: true,
       order: [],
       ajax: {
-        url: "/dashboard/sale/sale-data",
+        url: "/dashboard/waste/waste-data",
         type: "POST",
+        data: {
+          date: date,
+        }
       },
       columnDefs: [{
-        targets: [0, 5],
+        targets: [0],
         className: "text-center",
-      }, {
-        targets: [6],
-        className: "text-right",
       }],
       "oLanguage": {
         "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
@@ -164,23 +194,23 @@ $card = $DASHBOARD->sale_card();
     });
   };
 
-  axios.post("/dashboard/sale/month-data")
+  axios.post("/dashboard/waste/item-data")
     .then((res) => {
       let result = res.data;
-      let subjects = result.map(item => item.product_name);
-      let datas = result.map(item => item.total);
+      let subjects = result.map(item => item.item);
+      let datas = result.map(item => item.mm);
 
       if (result.length > 0) {
         let div = '<tr>';
         div += '<th width="50%">สินค้า</th>';
-        div += '<th width="20%">จำนวน</th>';
-        div += '<th width="30%">ยอดรวม</th>';
+        div += '<th width="30%">จำนวน</th>';
+        div += '<th width="20%">หมายเหตุ</th>';
         div += '</tr>';
         result.forEach((v, k) => {
           div += '<tr>';
-          div += '<td>' + v.product + '</td>';
-          div += '<td class="text-center">' + Number(v.amount).toLocaleString() + '</td>';
-          div += '<td class="text-right">' + Number(v.total).toLocaleString() + '</td>';
+          div += '<td>' + v.item + '</td>';
+          div += '<td class="text-center">' + Number(v.mm).toLocaleString() + '</td>';
+          div += '<td class="text-center">' + v.remark + '</td>';
           div += '</tr>';
         });
 
@@ -192,67 +222,6 @@ $card = $DASHBOARD->sale_card();
     }).catch((error) => {
       console.log(error);
     });
-
-
-  axios.post("/dashboard/sale/year-data")
-    .then((res) => {
-      let result = res.data;
-      let subjects = result.map(item => item.product_name);
-      let datas = result.map(item => item.total);
-
-      if (result.length > 0) {
-        let div = '<tr>';
-        div += '<th width="50%">สินค้า</th>';
-        div += '<th width="20%">จำนวน</th>';
-        div += '<th width="30%">ยอดรวม</th>';
-        div += '</tr>';
-        result.forEach((v, k) => {
-          div += '<tr>';
-          div += '<td>' + v.product + '</td>';
-          div += '<td class="text-center">' + Number(v.amount).toLocaleString() + '</td>';
-          div += '<td class="text-right">' + Number(v.total).toLocaleString() + '</td>';
-          div += '</tr>';
-        });
-
-        $(".year-table").empty().html(div);
-        yearRender("year-chart", subjects, datas);
-      } else {
-        $(".year-table").empty().html();
-      }
-    }).catch((error) => {
-      console.log(error);
-    });
-
-  var yearChart = new Chart(document.getElementById("year-chart"));
-
-  function yearRender(name, subjects, datas) {
-    yearChart.destroy();
-    yearChart = new Chart(
-      document.getElementById(name),
-      config = {
-        type: "doughnut",
-        data: {
-          labels: subjects,
-          datasets: [{
-            label: "ประจำปี",
-            data: datas,
-            borderWidth: 1,
-            fill: true,
-            backgroundColor: getRandomColor(subjects.length),
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          plugins: {
-            legend: {
-              display: false
-            }
-          }
-        }
-      }
-    );
-  }
 
   var monthChart = new Chart(document.getElementById("month-chart"));
 
@@ -283,6 +252,65 @@ $card = $DASHBOARD->sale_card();
     );
   }
 
+  axios.post("/dashboard/waste/item-data")
+    .then((res) => {
+      let result = res.data;
+      let subjects = result.map(item => item.item);
+      let datas = result.map(item => item.yy);
+
+      if (result.length > 0) {
+        let div = '<tr>';
+        div += '<th width="50%">สินค้า</th>';
+        div += '<th width="20%">จำนวน</th>';
+        div += '<th width="30%">ยอดรวม</th>';
+        div += '</tr>';
+        result.forEach((v, k) => {
+          div += '<tr>';
+          div += '<td>' + v.item + '</td>';
+          div += '<td class="text-center">' + Number(v.yy).toLocaleString() + '</td>';
+          div += '<td class="text-center">' + v.remark + '</td>';
+          div += '</tr>';
+        });
+
+        $(".year-table").empty().html(div);
+        yearRender("year-chart", subjects, datas);
+      } else {
+        $(".year-table").empty().html();
+      }
+    }).catch((error) => {
+      console.log(error);
+    });
+
+  var yearChart = new Chart(document.getElementById("year-chart"));
+
+  function yearRender(name, subjects, datas) {
+    yearChart.destroy();
+    yearChart = new Chart(
+      document.getElementById(name),
+      config = {
+        type: "bar",
+        data: {
+          labels: subjects,
+          datasets: [{
+            label: "ประจำปี",
+            data: datas,
+            borderWidth: 1,
+            fill: true,
+            backgroundColor: getRandomColor(subjects.length),
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      }
+    );
+  }
+
   function getRandomColor(amount) {
     var colors = [];
     for (var i = 0; i < amount; i++) {
@@ -295,4 +323,38 @@ $card = $DASHBOARD->sale_card();
     }
     return colors;
   }
+
+  $(".date-select").on('keydown paste', function(e) {
+    e.preventDefault();
+  });
+
+  $(".date-select").daterangepicker({
+    autoUpdateInput: false,
+    // minDate: moment(),
+    showDropdowns: true,
+    startDate: moment(),
+    endDate: moment().startOf('day').add(1, 'day'),
+    locale: {
+      "format": "DD/MM/YYYY",
+      "applyLabel": "ยืนยัน",
+      "cancelLabel": "ยกเลิก",
+      "daysOfWeek": [
+        "อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"
+      ],
+      "monthNames": [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ]
+    },
+    "applyButtonClasses": "btn-success",
+    "cancelClass": "btn-danger"
+  });
+
+  $(".date-select").on('apply.daterangepicker', function(ev, picker) {
+    $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+  });
+
+  $(".date-select").on('cancel.daterangepicker', function(ev, picker) {
+    $(this).val('');
+  });
 </script>

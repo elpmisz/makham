@@ -29,8 +29,8 @@ $card = $DASHBOARD->issue_card();
           <div class="col-xl-3 mb-2">
             <div class="card bg-info text-white shadow">
               <div class="card-body">
-                <h3 class="text-right"><?php echo (isset($card['approve']) ? $card['approve'] : 0) ?></h3>
-                <h5 class="text-right">รายการรอตรวจสอบ</h5>
+                <h3 class="text-right"><?php echo (isset($card['exchange']) ? $card['exchange'] : 0) ?></h3>
+                <h5 class="text-right">รายการโอนย้าย</h5>
               </div>
             </div>
           </div>
@@ -52,6 +52,34 @@ $card = $DASHBOARD->issue_card();
           </div>
         </div>
 
+        <div class="row justify-content-end mb-2">
+          <div class="col-xl-3 mb-2">
+            <a href="javascript:void(0)" class="btn btn-danger btn-sm btn-block download-btn">
+              <i class="fas fa-download pr-2"></i>นำข้อมูลออก
+            </a>
+          </div>
+          <div class="col-xl-3 mb-2">
+            <input type="text" class="form-control form-control-sm date-select" placeholder="-- วันที่ --">
+          </div>
+          <div class="col-xl-3 mb-2">
+            <select class="form-control form-control-sm type-select">
+              <option value="">-- ประเภท --</option>
+              <?php
+              $options = ["นำเข้า", "เบิกออก", "โอนย้าย"];
+              foreach ($options as $key => $value) {
+                $key++;
+                echo "<option value='{$key}'>{$value}</option>";
+              }
+              ?>
+            </select>
+          </div>
+          <div class="col-xl-3 mb-2">
+            <button class="btn btn-sm btn-block btn-primary search-btn">
+              <i class="fa fa-search pr-2"></i>ค้นหา
+            </button>
+          </div>
+        </div>
+
         <div class="row mb-2">
           <div class="col-xl-12">
             <div class="card shadow">
@@ -61,9 +89,10 @@ $card = $DASHBOARD->issue_card();
                     <thead>
                       <tr>
                         <th width="10%">สถานะ</th>
+                        <th width="10%">เลขที่เอกสาร</th>
                         <th width="10%">ประเภท</th>
                         <th width="10%">ผู้ทำรายการ</th>
-                        <th width="60">รายละเอียด</th>
+                        <th width="50%">รายละเอียด</th>
                         <th width="10%">วันที่</th>
                       </tr>
                     </thead>
@@ -75,7 +104,7 @@ $card = $DASHBOARD->issue_card();
         </div>
 
         <div class="row mb-2">
-          <div class="col-xl-6">
+          <div class="col-xl-6 mb-2">
             <div class="card shadow">
               <div class="card-header">
                 <h5>ยอดรวมสินค้านำเข้า</h5>
@@ -91,7 +120,7 @@ $card = $DASHBOARD->issue_card();
             </div>
           </div>
 
-          <div class="col-xl-6">
+          <div class="col-xl-6 mb-2">
             <div class="card shadow">
               <div class="card-header">
                 <h5>ยอดรวมสินค้าเบิกออก</h5>
@@ -118,7 +147,27 @@ $card = $DASHBOARD->issue_card();
 <script>
   filter_datatable();
 
-  function filter_datatable() {
+  $(document).on("click", ".download-btn", function() {
+    let date = ($(".date-select").val() ? $(".date-select").val() : "");
+    date = date.replaceAll("/", "+", date);
+    let type = ($(".type-select").val() ? $(".type-select").val() : "");
+    let path = "/dashboard/issue/download/" + date + "/" + type;
+    window.open(path);
+  });
+
+  $(document).on("click", ".search-btn", function() {
+    let date = ($(".date-select").val() ? $(".date-select").val() : "");
+    let type = ($(".type-select").val() ? $(".type-select").val() : "");
+    if (date || type) {
+      $(".issue-data").DataTable().destroy();
+      filter_datatable(date, type);
+    } else {
+      $(".issue-data").DataTable().destroy();
+      filter_datatable();
+    }
+  });
+
+  function filter_datatable(date, type) {
     $(".issue-data").DataTable({
       serverSide: true,
       searching: true,
@@ -127,9 +176,13 @@ $card = $DASHBOARD->issue_card();
       ajax: {
         url: "/dashboard/issue/issue-data",
         type: "POST",
+        data: {
+          date: date,
+          type: type,
+        },
       },
       columnDefs: [{
-        targets: [0, 1],
+        targets: [0, 1, 2],
         className: "text-center",
       }],
       "oLanguage": {
@@ -152,8 +205,8 @@ $card = $DASHBOARD->issue_card();
   axios.post("/dashboard/issue/income")
     .then((res) => {
       let result = res.data;
-      let subjects = result.map(item => item.product_name);
-      let datas = result.map(item => item.income);
+      let subjects = result.map(item => item.item);
+      let datas = result.map(item => item.total);
 
       if (result.length > 0) {
         let div = '<tr>';
@@ -162,8 +215,8 @@ $card = $DASHBOARD->issue_card();
         div += '</tr>';
         result.forEach((v, k) => {
           div += '<tr>';
-          div += '<td>' + v.product + '</td>';
-          div += '<td class="text-right">' + Number(v.income).toLocaleString() + '</td>';
+          div += '<td><a href="/product/edit/' + v.uuid + '" target="_blank">' + v.item + '</a></td>';
+          div += '<td class="text-right">' + Number(v.total).toLocaleString() + '</td>';
           div += '</tr>';
         });
 
@@ -179,8 +232,8 @@ $card = $DASHBOARD->issue_card();
   axios.post("/dashboard/issue/outcome")
     .then((res) => {
       let result = res.data;
-      let subjects = result.map(item => item.product_name);
-      let datas = result.map(item => item.outcome);
+      let subjects = result.map(item => item.item);
+      let datas = result.map(item => item.total);
 
       if (result.length > 0) {
         let div = '<tr>';
@@ -189,8 +242,8 @@ $card = $DASHBOARD->issue_card();
         div += '</tr>';
         result.forEach((v, k) => {
           div += '<tr>';
-          div += '<td>' + v.product + '</td>';
-          div += '<td class="text-right">' + Number(v.outcome).toLocaleString() + '</td>';
+          div += '<td><a href="/product/edit/' + v.uuid + '" target="_blank">' + v.item + '</a></td>';
+          div += '<td class="text-right">' + Number(v.total).toLocaleString() + '</td>';
           div += '</tr>';
         });
 
@@ -210,7 +263,7 @@ $card = $DASHBOARD->issue_card();
     incomeChart = new Chart(
       document.getElementById(name),
       config = {
-        type: "pie",
+        type: "bar",
         data: {
           labels: subjects,
           datasets: [{
@@ -222,7 +275,6 @@ $card = $DASHBOARD->issue_card();
           }]
         },
         options: {
-          indexAxis: 'y',
           responsive: true,
           plugins: {
             legend: {
@@ -241,7 +293,7 @@ $card = $DASHBOARD->issue_card();
     outcomeChart = new Chart(
       document.getElementById(name),
       config = {
-        type: "doughnut",
+        type: "bar",
         data: {
           labels: subjects,
           datasets: [{
@@ -253,7 +305,6 @@ $card = $DASHBOARD->issue_card();
           }]
         },
         options: {
-          indexAxis: 'y',
           responsive: true,
           plugins: {
             legend: {
@@ -277,4 +328,44 @@ $card = $DASHBOARD->issue_card();
     }
     return colors;
   }
+
+  $(".type-select").select2({
+    placeholder: "-- ประเภท --",
+    allowClear: true,
+    width: "100%",
+  });
+
+  $(".date-select").on('keydown paste', function(e) {
+    e.preventDefault();
+  });
+
+  $(".date-select").daterangepicker({
+    autoUpdateInput: false,
+    // minDate: moment(),
+    showDropdowns: true,
+    startDate: moment(),
+    endDate: moment().startOf('day').add(1, 'day'),
+    locale: {
+      "format": "DD/MM/YYYY",
+      "applyLabel": "ยืนยัน",
+      "cancelLabel": "ยกเลิก",
+      "daysOfWeek": [
+        "อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"
+      ],
+      "monthNames": [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ]
+    },
+    "applyButtonClasses": "btn-success",
+    "cancelClass": "btn-danger"
+  });
+
+  $(".date-select").on('apply.daterangepicker', function(ev, picker) {
+    $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+  });
+
+  $(".date-select").on('cancel.daterangepicker', function(ev, picker) {
+    $(this).val('');
+  });
 </script>

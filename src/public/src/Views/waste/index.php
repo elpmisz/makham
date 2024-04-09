@@ -2,6 +2,12 @@
 $menu = "service";
 $page = "service-waste";
 include_once(__DIR__ . "/../layout/header.php");
+
+use App\Classes\Waste;
+
+$WASTE = new Waste();
+$approver = $WASTE->auth_approve([$user['id']]);
+$approver_count = $WASTE->approver_count();
 ?>
 
 <div class="row">
@@ -15,13 +21,13 @@ include_once(__DIR__ . "/../layout/header.php");
         <div class="row justify-content-end mb-2">
           <?php if (intval($user['level']) === 9) : ?>
             <div class="col-xl-3 mb-2">
-              <a href="/purchase/auth" class="btn btn-info btn-sm btn-block">
+              <a href="/waste/auth" class="btn btn-info btn-sm btn-block">
                 <i class="fas fa-users pr-2"></i>สิทธิ์ใช้งาน
               </a>
             </div>
           <?php endif; ?>
           <div class="col-xl-3 mb-2">
-            <a href="/purchase/download" class="btn btn-danger btn-sm btn-block">
+            <a href="/waste/download" class="btn btn-danger btn-sm btn-block">
               <i class="fas fa-download pr-2"></i>นำข้อมูลออก
             </a>
           </div>
@@ -32,29 +38,31 @@ include_once(__DIR__ . "/../layout/header.php");
           </div>
         </div>
 
-        <div class="row mb-2">
-          <div class="col-xl-12">
-            <div class="card">
-              <div class="card-header">
-                <h5 class="text-center">รายการรอดำเนินการ</h5>
-              </div>
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table table-bordered table-hover approve-data">
-                    <thead>
-                      <tr>
-                        <th width="10%">สถานะ</th>
-                        <th width="10%">เลขที่เอกสาร</th>
-                        <th width="40%">รายละเอียด</th>
-                        <th width="10%">วันที่ล่าสุด</th>
-                      </tr>
-                    </thead>
-                  </table>
+        <?php if (intval($approver) > 0 && intval($approver_count) > 0) : ?>
+          <div class="row mb-2">
+            <div class="col-xl-12">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="text-center">รายการรอดำเนินการ</h5>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-bordered table-hover approve-data">
+                      <thead>
+                        <tr>
+                          <th width="10%">สถานะ</th>
+                          <th width="10%">เลขที่เอกสาร</th>
+                          <th width="40%">รายละเอียด</th>
+                          <th width="10%">วันที่</th>
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        <?php endif; ?>
 
         <div class="row mb-2">
           <div class="col-xl-12">
@@ -70,7 +78,7 @@ include_once(__DIR__ . "/../layout/header.php");
                         <th width="10%">สถานะ</th>
                         <th width="10%">เลขที่เอกสาร</th>
                         <th width="40%">รายละเอียด</th>
-                        <th width="10%">วันที่ล่าสุด</th>
+                        <th width="10%">วันที่</th>
                       </tr>
                     </thead>
                   </table>

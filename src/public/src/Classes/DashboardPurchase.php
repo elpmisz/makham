@@ -33,23 +33,6 @@ class DashboardPurchase
     return $stmt->fetch();
   }
 
-  public function machine_purchase()
-  {
-    $sql = "SELECT a.machine,b.name machine_name,
-    FORMAT(SUM(IF(DATE(a.created) = DATE(NOW()),a.confirm,0)),2) dd,
-    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()),a.confirm,0)),2) mm,
-    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()),a.confirm,0)),2) yy,
-    FORMAT(SUM(a.confirm ),2) total
-    FROM inventory.purchase a
-    LEFT JOIN inventory.machine b
-    ON a.machine = b.id
-    GROUP BY a.machine
-    ORDER BY b.name";
-    $stmt = $this->dbcon->prepare($sql);
-    $stmt->execute();
-    return $stmt->fetchAll();
-  }
-
   public function bom_purchase()
   {
     $sql = "SELECT a.bom,b.name bom_name,
@@ -66,56 +49,14 @@ class DashboardPurchase
     return $stmt->fetchAll();
   }
 
-
-  public function sale_month()
-  {
-    $sql = "SELECT CONCAT('[',c.code,'] ',c.name) product,c.name product_name,SUM(a.confirm) amount,
-    FORMAT(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) total
-    FROM inventory.issue_item a
-    LEFT JOIN inventory.sale b
-    ON a.sale_id = b.id
-    LEFT JOIN inventory.product c
-    ON a.product_id = c.id
-    LEFT JOIN inventory.promotion d
-    ON b.promotion = d.id
-    WHERE b.status = 1
-    AND YEAR(b.created) = YEAR(NOW())
-    AND MONTH(b.created) = MONTH(NOW())
-    GROUP BY a.product_id
-    ORDER BY FORMAT(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) DESC";
-    $stmt = $this->dbcon->prepare($sql);
-    $stmt->execute();
-    return $stmt->fetchAll();
-  }
-
-  public function sale_year()
-  {
-    $sql = "SELECT CONCAT('[',c.code,'] ',c.name) product,c.name product_name,SUM(a.confirm) amount,
-    FORMAT(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) total
-    FROM inventory.issue_item a
-    LEFT JOIN inventory.sale b
-    ON a.sale_id = b.id
-    LEFT JOIN inventory.product c
-    ON a.product_id = c.id
-    LEFT JOIN inventory.promotion d
-    ON b.promotion = d.id
-    WHERE b.status = 1
-    AND YEAR(b.created) = YEAR(NOW())
-    GROUP BY a.product_id
-    ORDER BY FORMAT(((a.price * SUM(a.confirm))  - IF(d.type = 1,d.discount,((a.price * SUM(a.confirm)) * (d.discount/100)))),2) DESC";
-    $stmt = $this->dbcon->prepare($sql);
-    $stmt->execute();
-    return $stmt->fetchAll();
-  }
-
-  public function purchase_data()
+  public function purchase_data($bom, $start, $end)
   {
     $sql = "SELECT COUNT(*) FROM inventory.purchase";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "b.firstname", "c.name", "d.name", "a.amount", "a.date", "a.text", "a.created"];
+    $column = ["a.status", "a.last", "c.name", "a.machine", "a.amount", "a.confirm", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -125,11 +66,17 @@ class DashboardPurchase
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.id,a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,4,'0')) ticket,
+    $sql = "SELECT a.id,a.uuid,CONCAT('PR',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     CONCAT(b.firstname,' ',b.lastname) fullname,
-    a.bom,c.name bom_name,
-    a.machine,d.name machine_name,
+    a.bom,c.name bom_name,a.machine,
     a.amount,a.confirm,a.date,a.text,
+    (
+      CASE
+        WHEN a.status = 1 THEN 'edit'
+        WHEN a.status = 3 THEN 'process'
+        ELSE 'complete'
+      END
+    ) page,
     (
       CASE
         WHEN a.status = 1 THEN 'รอการอนุมัติ'
@@ -159,17 +106,24 @@ class DashboardPurchase
     ON a.user_id = b.id
     LEFT JOIN inventory.bom c
     ON a.bom = c.id
-    LEFT JOIN inventory.machine d
-    ON a.machine = d.id ";
+    WHERE a.id != '' ";
 
     if (!empty($keyword)) {
-      $sql .= " WHERE a.name LIKE '%{$keyword}%' ";
+      $sql .= " AND a.name LIKE '%{$keyword}%' ";
+    }
+
+    if (!empty($bom)) {
+      $sql .= " AND a.bom = '{$bom}' ";
+    }
+
+    if (!empty($start)) {
+      $sql .= " AND DATE(a.date) BETWEEN STR_TO_DATE('{$start}','%d/%m/%Y') AND STR_TO_DATE('{$end}','%d/%m/%Y') ";
     }
 
     if ($filter_order) {
       $sql .= " ORDER BY {$column[$order_column]} {$order_dir} ";
     } else {
-      $sql .= " ORDER BY a.status ASC, a.machine ASC, a.date ASC ";
+      $sql .= " ORDER BY a.status ASC, a.date ASC ";
     }
 
     $sql2 = "";
@@ -186,12 +140,12 @@ class DashboardPurchase
 
     $data = [];
     foreach ($result as $row) {
-      $status = "<a href='/purchase/complete/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'  target='_blank'>{$row['status_name']}</a>";
+      $status = "<a href='/purchase/{$row['page']}/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a>";
       $data[] = [
         $status,
-        $row['fullname'],
+        $row['ticket'],
         $row['bom_name'],
-        $row['machine_name'],
+        $row['machine'],
         $row['amount'],
         $row['confirm'],
         str_replace("\n", "<br>", $row['text']),
@@ -206,5 +160,39 @@ class DashboardPurchase
       "data"    => $data
     ];
     return $output;
+  }
+
+  public function download($bom, $start, $end)
+  {
+    $sql = "SELECT a.uuid,CONCAT('PR',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    CONCAT(b.firstname,' ',b.lastname) fullname,c.name bom_name,DATE_FORMAT(a.date, '%d/%m/%Y') date,
+    a.machine,a.amount,a.confirm,a.text,
+    (
+    CASE
+      WHEN a.status = 1 THEN 'รอการอนุมัติ'
+      WHEN a.status = 2 THEN 'รอเบิกวัตถุดิบ'
+      WHEN a.status = 3 THEN 'กำลังผลิต'
+      WHEN a.status = 4 THEN 'รอตรวจสอบ'
+      WHEN a.status = 5 THEN 'ผ่านการตรวจสอบ'
+      WHEN a.status = 6 THEN 'รายการถูกยกเลิก'
+      ELSE NULL
+    END
+    ) status_name,
+    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
+    FROM inventory.purchase a
+    LEFT JOIN inventory.user b
+    ON a.user_id = b.id
+    LEFT JOIN inventory.bom c
+    ON a.bom = c.id
+    WHERE a.id != '' ";
+    if (!empty($bom)) {
+      $sql .= " AND a.bom = '{$bom}' ";
+    }
+    if (!empty($start)) {
+      $sql .= " AND DATE(a.date) BETWEEN STR_TO_DATE('{$start}','%d/%m/%Y') AND STR_TO_DATE('{$end}','%d/%m/%Y') ";
+    }
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_NUM);
   }
 }

@@ -29,7 +29,7 @@ $card = $DASHBOARD->product_card();
           <div class="col-xl mb-2">
             <div class="card bg-info text-white shadow">
               <div class="card-body">
-                <h3 class="text-right"><?php echo (isset($card['rm']) ? $card['rm'] : 0) ?></h3>
+                <h3 class="text-right"><?php echo (isset($card['cool']) ? $card['cool'] : 0) ?></h3>
                 <h5 class="text-right">วัตถุดิบ</h5>
               </div>
             </div>
@@ -71,12 +71,11 @@ $card = $DASHBOARD->product_card();
                         <th width="10%">สถานะ</th>
                         <th width="10%">รหัส</th>
                         <th width="20%">วัตถุดิบ / สินค้า</th>
+                        <th width="10%">หมวดหมู่</th>
+                        <th width="10%">สถานที่</th>
                         <th width="10%">นำเข้า (รวม)</th>
                         <th width="10%">เบิกออก (รวม)</th>
                         <th width="10%">คงเหลือ</th>
-                        <th width="10%">เบิกออก</th>
-                        <th width="10%">เบิกผลิต</th>
-                        <th width="10%">เบิกขาย</th>
                       </tr>
                     </thead>
                   </table>
@@ -141,10 +140,10 @@ $card = $DASHBOARD->product_card();
         type: "POST",
       },
       columnDefs: [{
-        targets: [0, 1],
+        targets: [0, 1, 3, 4],
         className: "text-center",
       }, {
-        targets: [3, 4, 5, 6, 7, 8],
+        targets: [5, 6, 7],
         className: "text-right",
       }],
       "oLanguage": {
@@ -162,7 +161,7 @@ $card = $DASHBOARD->product_card();
         }
       },
       "rowCallback": function(row, data, index) {
-        let comma = [3, 4, 5, 6, 7, 8]
+        let comma = [5, 6, 7]
         for (i = 0; i <= comma.length; i++) {
           let value = (parseInt(data[comma[i]]) !== 0 ? parseFloat(data[comma[i]]).toFixed(2) : 0);
           value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -199,6 +198,36 @@ $card = $DASHBOARD->product_card();
       console.log(error);
     });
 
+  var categoryChart = new Chart(document.getElementById("category-chart"));
+
+  function categoryRender(name, subjects, datas) {
+    categoryChart.destroy();
+    categoryChart = new Chart(
+      document.getElementById(name),
+      config = {
+        type: "bar",
+        data: {
+          labels: subjects,
+          datasets: [{
+            label: "หมวดหมู่",
+            data: datas,
+            borderWidth: 1,
+            fill: true,
+            backgroundColor: getRandomColor(subjects.length),
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      }
+    );
+  }
+
   axios.post("/dashboard/product/location")
     .then((res) => {
       let result = res.data;
@@ -225,37 +254,6 @@ $card = $DASHBOARD->product_card();
     }).catch((error) => {
       console.log(error);
     });
-
-  var categoryChart = new Chart(document.getElementById("category-chart"));
-
-  function categoryRender(name, subjects, datas) {
-    categoryChart.destroy();
-    categoryChart = new Chart(
-      document.getElementById(name),
-      config = {
-        type: "bar",
-        data: {
-          labels: subjects,
-          datasets: [{
-            label: "หมวดหมู่",
-            data: datas,
-            borderWidth: 1,
-            fill: true,
-            backgroundColor: getRandomColor(subjects.length),
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          plugins: {
-            legend: {
-              display: false
-            }
-          }
-        }
-      }
-    );
-  }
 
   var locationChart = new Chart(document.getElementById("location-chart"));
 

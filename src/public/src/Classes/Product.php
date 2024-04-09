@@ -317,7 +317,19 @@ class Product
 
   public function download()
   {
-    $sql = "SELECT a.uuid,a.code,a.name product_name,a.cost,a.price,a.min,a.max,a.text,
+    $sql = "SELECT a.uuid,a.code,a.name product_name,a.cost,a.price,a.min,a.max,
+    (
+      SELECT 
+      FORMAT((
+        SUM(IF(y.status IN (1,2) AND x.type = 1 AND x.status = 1,IF(y.status = 1,x.quantity,x.confirm),0)) -
+        SUM(IF(y.status IN (1,2) AND x.type = 2 AND x.status = 1,IF(y.status = 1,x.quantity,x.confirm),0))
+      ),2) 
+      FROM inventory.issue_item x
+      LEFT JOIN inventory.issue y
+      ON x.issue_id = y.id
+      WHERE x.product_id = a.id
+    ) remain,
+    a.text,
     b.name supplier_name,
     c.name unit_name,
     d.name brand_name,
@@ -330,7 +342,7 @@ class Product
         ELSE NULL
       END
     ) status_name,
-    DATE_FORMAT(a.updated, '%d/%m/%Y, %H:%i น.') updated
+    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
     FROM inventory.product a
     LEFT JOIN inventory.customer b
     ON a.supplier = b.id
@@ -341,7 +353,8 @@ class Product
     LEFT JOIN inventory.category e
     ON a.category = e.id
     LEFT JOIN inventory.store f
-    ON a.store = f.id ";
+    ON a.store = f.id
+    ORDER BY a.code";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_NUM);
@@ -390,7 +403,7 @@ class Product
     return $stmt->fetchAll();
   }
 
-  public function product_data($category, $location)
+  public function product_data($category, $store)
   {
     $sql = "SELECT COUNT(*) FROM inventory.product";
     $stmt = $this->dbcon->prepare($sql);
@@ -408,7 +421,7 @@ class Product
     ];
 
     $category = (!empty($category) ? $category : "");
-    $location = (!empty($location) ? $location : "");
+    $store = (!empty($store) ? $store : "");
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
     $order_column = (isset($_POST['order']['0']['column']) ? $_POST['order']['0']['column'] : "");
@@ -451,13 +464,13 @@ class Product
     WHERE a.id != '' ";
 
     if (!empty($keyword)) {
-      $sql .= " AND (a.name LIKE '%{$keyword}%' OR a.code LIKE '%{$keyword}%') ";
+      $sql .= " AND (a.name LIKE '%{$keyword}%' OR a.code LIKE '%{$keyword}%' OR d.name LIKE '%{$keyword}%' OR e.name LIKE '%{$keyword}%' OR f.name LIKE '%{$keyword}%' OR g.name LIKE '%{$keyword}%' OR CONCAT(h.room,h.floor,h.zone) LIKE '%{$keyword}%') ";
     }
     if (!empty($category)) {
-      $sql .= " AND e.category = '{$category}' ";
+      $sql .= " AND a.category = '{$category}' ";
     }
-    if (!empty($location)) {
-      $sql .= " AND e.location = '{$location}' ";
+    if (!empty($store)) {
+      $sql .= " AND a.store = '{$store}' ";
     }
 
     $sql .= " GROUP BY a.id ";
@@ -526,7 +539,7 @@ class Product
 
     $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
     a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
-    c.type issue_type,b.type,c.text,
+    c.uuid issue_uuid,c.type issue_type,b.type,c.text,
     FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),2) income,
     FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),2) outcome,
     a.supplier,d.name supplier_name,
@@ -620,7 +633,7 @@ class Product
 
     $data = [];
     foreach ($result as $row) {
-      $status = "<a href='/issue/complete/{$row['product_uuid']}' class='badge badge-primary font-weight-light' target='_blank'>รายละเอียด</a>";
+      $status = "<a href='/issue/complete/{$row['issue_uuid']}' class='badge badge-primary font-weight-light' target='_blank'>รายละเอียด</a>";
       $text = (intval($row['type']) === 1 ? "นำเข้า" : "เบิกออก");
       $type_text = (intval($row['issue_type']) === 3 ? "{$row['type_name']} ({$text})" : "{$row['type_name']}");
       $type = "<span class='badge badge-{$row['type_color']} font-weight-light'>{$type_text}</span>";

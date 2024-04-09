@@ -18,7 +18,12 @@ $param2 = (isset($param[2]) ? $param[2] : "");
 
 if ($action === "issue-data") {
   try {
-    $result = $DASHBOARD->issue_data();
+    $date = (isset($_POST['date']) ? explode("-", $VALIDATION->input($_POST['date'])) : "");
+    $start = (!empty($date[0]) ? trim($date[0]) : "");
+    $end = (!empty($date[1]) ? trim($date[1]) : "");
+    $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
+
+    $result = $DASHBOARD->issue_data($type, $start, $end);
     echo json_encode($result);
   } catch (PDOException $e) {
     die($e->getMessage());

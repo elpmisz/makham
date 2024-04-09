@@ -4,7 +4,7 @@ namespace App\Classes;
 
 use PDO;
 
-class DashboardIssue
+class DashboardWaste
 {
   private $dbcon;
 
@@ -19,65 +19,51 @@ class DashboardIssue
     return "DASHBOARD CLASS";
   }
 
-  public function issue_card()
+  public function waste_card()
   {
-    $sql = "SELECT COUNT(*) total,
-    SUM(IF(a.type = 1,1,0)) income,
-    SUM(IF(a.type = 2,1,0)) outcome,
-    SUM(IF(a.type = 3,1,0)) exchange
-    FROM inventory.issue a
+    $sql = "SELECT 
+    IF(DATE(a.created) = DATE(NOW()),COUNT(a.id),0) dd,
+    IF(YEAR(a.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()),COUNT(a.id),0) mm,
+    IF(YEAR(a.created) = YEAR(NOW()),COUNT(a.id),0) yy,
+    COUNT(a.id) total
+    FROM inventory.waste a
     WHERE a.status IN (1,2)";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetch();
   }
 
-  public function income()
+  public function waste_item()
   {
-    $sql = "SELECT c.uuid,CONCAT('[',c.code,'] ',c.name) item,SUM(a.confirm) total
-    FROM inventory.issue_item a
-    LEFT JOIN inventory.issue b
-    ON a.issue_id = b.id
+    $sql = "SELECT IF(a.type = 1,CONCAT('[',c.code,'] ',c.name),a.item) item,
+    FORMAT(SUM(IF(DATE(b.created) = DATE(NOW()),a.quantity,0)),2) dd,
+    FORMAT(SUM(IF(YEAR(b.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()),a.quantity,0)),2) mm,
+    FORMAT(SUM(IF(YEAR(b.created) = YEAR(NOW()),a.quantity,0)),2) yy,
+    FORMAT(SUM(a.quantity),2) total,
+    a.remark
+    FROM inventory.waste_item a
+    LEFT JOIN inventory.waste b
+    ON a.waste_id = b.id
     LEFT JOIN inventory.product c
-    ON a.product_id = c.id
-    WHERE b.type = 1
+    ON a.item = c.id
+    WHERE b.status IN (1,2)
     AND a.status = 1
-    AND b.status IN (1,2)
-    GROUP BY a.product_id
-    ORDER BY SUM(a.confirm) DESC
+    GROUP BY a.item
+    ORDER BY SUM(a.quantity) DESC
     LIMIT 10";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll();
   }
 
-  public function outcome()
+  public function waste_data($start, $end)
   {
-    $sql = "SELECT c.uuid,CONCAT('[',c.code,'] ',c.name) item,SUM(a.confirm) total
-    FROM inventory.issue_item a
-    LEFT JOIN inventory.issue b
-    ON a.issue_id = b.id
-    LEFT JOIN inventory.product c
-    ON a.product_id = c.id
-    WHERE b.type = 2
-    AND a.status = 1
-    AND b.status IN (1,2)
-    GROUP BY a.product_id
-    ORDER BY SUM(a.confirm) DESC
-    LIMIT 10";
-    $stmt = $this->dbcon->prepare($sql);
-    $stmt->execute();
-    return $stmt->fetchAll();
-  }
-
-  public function issue_data($type, $start, $end)
-  {
-    $sql = "SELECT COUNT(*) FROM inventory.issue";
+    $sql = "SELECT COUNT(*) FROM inventory.waste";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.last", "a.type", "b.firstname", "a.text", "a.created"];
+    $column = ["a.status", "a.last", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -87,25 +73,8 @@ class DashboardIssue
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
-    CONCAT(b.firstname,' ',b.lastname) fullname,a.text,
+    $sql = "SELECT a.uuid,a.text,CONCAT('WA',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     IF(a.status = 1,'edit','complete') page,
-    (
-      CASE
-        WHEN a.type = 1 THEN 'นำเข้า'
-        WHEN a.type = 2 THEN 'เบิกออก'
-        WHEN a.type = 3 THEN 'โอนย้าย'
-        ELSE NULL
-      END
-    ) type_name,
-    (
-      CASE
-        WHEN a.type = 1 THEN 'success'
-        WHEN a.type = 2 THEN 'primary'
-        WHEN a.type = 3 THEN 'info'
-        ELSE NULL
-      END
-    ) type_color,
     (
       CASE
         WHEN a.status = 1 THEN 'รอตรวจสอบ'
@@ -123,17 +92,11 @@ class DashboardIssue
       END
     ) status_color,
     DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
-    FROM inventory.issue a 
-    LEFT JOIN inventory.user b
-    ON a.user_id = b.id
+    FROM inventory.waste a
     WHERE a.id != '' ";
 
     if (!empty($keyword)) {
-      $sql .= " AND (a.text LIKE '%{$keyword}%') ";
-    }
-
-    if (!empty($type)) {
-      $sql .= " AND a.type = '{$type}' ";
+      $sql .= " AND a.text LIKE '%{$keyword}%' ";
     }
 
     if (!empty($start)) {
@@ -143,7 +106,7 @@ class DashboardIssue
     if ($filter_order) {
       $sql .= " ORDER BY {$column[$order_column]} {$order_dir} ";
     } else {
-      $sql .= " ORDER BY a.status ASC, a.created DESC ";
+      $sql .= " ORDER BY a.status ASC, a.text ASC ";
     }
 
     $sql2 = "";
@@ -160,13 +123,10 @@ class DashboardIssue
 
     $data = [];
     foreach ($result as $row) {
-      $status = "<a href='/issue/complete/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light' target='_blank'>{$row['status_name']}</a>";
-      $type = "<span class='badge badge-{$row['type_color']}'>{$row['type_name']}</span>";
+      $status = "<a href='/waste/{$row['page']}/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a>";
       $data[] = [
         $status,
         $row['ticket'],
-        $type,
-        $row['fullname'],
         str_replace("\n", "<br>", $row['text']),
         $row['created'],
       ];
@@ -181,19 +141,11 @@ class DashboardIssue
     return $output;
   }
 
-  public function download($type, $start, $end)
+  public function download($start, $end)
   {
-    $sql = "SELECT a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
-    CONCAT(d.firstname,' ',d.lastname) username,
-    (
-    CASE
-      WHEN a.type = 1 THEN 'นำเข้า'
-      WHEN a.type = 2 THEN 'เบิกออก'
-      WHEN a.type = 3 THEN 'โอนย้าย'
-      ELSE NULL
-    END
-    ) type_name,
-    c.name product_name,b.confirm,a.text,
+    $sql = "SELECT a.uuid,CONCAT('WA',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    CONCAT(b.firstname,' ',b.lastname) fullname,a.text,
+    IF(e.type = 1,f.name,e.item) item,e.quantity,e.remark,
     (
     CASE
       WHEN a.status = 1 THEN 'รอตรวจสอบ'
@@ -203,17 +155,18 @@ class DashboardIssue
     END
     ) status_name,
     DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
-    FROM inventory.issue a
-    LEFT JOIN inventory.issue_item b
-    ON a.id = b.issue_id
-    LEFT JOIN inventory.product c
-    ON b.product_id = c.id
+    FROM inventory.waste a
+    LEFT JOIN inventory.user b
+    ON a.user_id = b.id
+    LEFT JOIN inventory.waste_text c
+    ON a.id = c.waste_id
     LEFT JOIN inventory.user d
-    ON a.user_id = d.id
-    WHERE b.status = 1 ";
-    if (!empty($type)) {
-      $sql .= " AND a.type = '{$type}' ";
-    }
+    ON c.user_id = d.id
+    LEFT JOIN inventory.waste_item e
+    ON a.id = e.waste_id
+    LEFT JOIN inventory.product f
+    ON e.item = f.id
+    WHERE e.status = 1";
     if (!empty($start)) {
       $sql .= " AND DATE(a.created) BETWEEN STR_TO_DATE('{$start}','%d/%m/%Y') AND STR_TO_DATE('{$end}','%d/%m/%Y') ";
     }

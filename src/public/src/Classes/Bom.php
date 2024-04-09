@@ -162,7 +162,7 @@ class Bom
       ELSE NULL
     END
     ) status_name,
-    DATE_FORMAT(b.updated, '%d/%m/%Y, %H:%i น.') updated
+    DATE_FORMAT(b.created, '%d/%m/%Y, %H:%i น.') created
     FROM inventory.bom_item a
     LEFT JOIN inventory.bom b
     ON a.bom_id = b.id
@@ -236,7 +236,7 @@ class Bom
         ELSE NULL
       END
     ) status_color,
-    DATE_FORMAT(a.updated, '%d/%m/%Y, %H:%i น.') updated
+    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
     FROM inventory.bom a ";
 
     if (!empty($keyword)) {
@@ -268,7 +268,7 @@ class Bom
         $status,
         $row['name'],
         str_replace("\n", "<br>", $row['text']),
-        $row['updated'],
+        $row['created'],
       ];
     }
 
