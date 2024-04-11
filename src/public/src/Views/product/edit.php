@@ -7,6 +7,7 @@ $uuid = (isset($param[0]) ? $param[0] : die(header("Location: /error")));
 
 use App\Classes\Bom;
 use App\Classes\Product;
+use splitbrain\phpQRCode\QRCode;
 
 $BOM = new Bom();
 $PRODUCT = new Product();
@@ -72,7 +73,7 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
                 </div>
               </div>
               <div class="col-xl-4">
-                <img src="<?php echo "https://chart.googleapis.com/chart?cht=qr&chl={$url}&chs=200x200&choe=UTF-8" ?>">
+                <?php echo QRCode::svg("{$url}"); ?>
               </div>
             </div>
           <?php endif; ?>
@@ -80,7 +81,7 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
           <?php if (count($images) <= 0) : ?>
             <div class="row mb-2 justify-content-center">
               <div class="col-xl-4 offset-xl-8">
-                <img src="<?php echo "https://chart.googleapis.com/chart?cht=qr&chl={$url}&chs=200x200&choe=UTF-8" ?>">
+                <?php echo QRCode::svg("{$url}"); ?>
               </div>
             </div>
           <?php endif; ?>

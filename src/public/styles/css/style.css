@@ -33,6 +33,11 @@ td {
   font-size: 85%;
 }
 
+svg {
+  width: 10em;
+  height: 10em;
+}
+
 .font80 {
   font-size: 80%;
 }

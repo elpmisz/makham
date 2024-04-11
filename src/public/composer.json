@@ -1,5 +1,5 @@
 {
-  "name": "worachit.pa/template",
+  "name": "worachit.pa/makham",
   "autoload": {
     "psr-4": {
       "App\\": "src/"
@@ -26,7 +26,9 @@
     "fullcalendar/fullcalendar": "3.10.2",
     "phpmailer/phpmailer": "^6.8",
     "pnikolov/bootstrap-daterangepicker": "^2.1",
-    "firebase/php-jwt": "6.0.0"
+    "firebase/php-jwt": "6.0.0",
+    "mpdf/qrcode": "^1.2",
+    "splitbrain/php-qrcode": "^0.1.0"
   },
   "config": {
     "allow-plugins": {
