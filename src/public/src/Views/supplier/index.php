@@ -40,7 +40,7 @@ include_once(__DIR__ . "/../layout/header.php");
                     <th width="20%">ชื่อ</th>
                     <th width="20%">ติดต่อ</th>
                     <th width="50%">ที่อยู่</th>
-                    <th width="10%">วันที่ล่าสุด</th>
+                    <th width="10%">วันที่</th>
                   </tr>
                 </thead>
               </table>

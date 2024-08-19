@@ -206,7 +206,7 @@ class User
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.level", "a.email", "b.firstname", "b.lastname", "b.contact"];
+    $column = ["a.status", "a.level", "a.email", "b.firstname", "b.lastname", "b.contact", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");

@@ -27,6 +27,11 @@ $approver_count = $WASTE->approver_count();
             </div>
           <?php endif; ?>
           <div class="col-xl-3 mb-2">
+            <a href="/waste/manage" class="btn btn-success btn-sm btn-block">
+              <i class="fas fa-list pr-2"></i>จัดการ
+            </a>
+          </div>
+          <div class="col-xl-3 mb-2">
             <a href="/waste/download" class="btn btn-danger btn-sm btn-block">
               <i class="fas fa-download pr-2"></i>นำข้อมูลออก
             </a>
@@ -52,6 +57,7 @@ $approver_count = $WASTE->approver_count();
                         <tr>
                           <th width="10%">สถานะ</th>
                           <th width="10%">เลขที่เอกสาร</th>
+                          <th width="10%">ผู้ทำรายการ</th>
                           <th width="40%">รายละเอียด</th>
                           <th width="10%">วันที่</th>
                         </tr>
@@ -77,6 +83,7 @@ $approver_count = $WASTE->approver_count();
                       <tr>
                         <th width="10%">สถานะ</th>
                         <th width="10%">เลขที่เอกสาร</th>
+                        <th width="10%">ผู้ทำรายการ</th>
                         <th width="40%">รายละเอียด</th>
                         <th width="10%">วันที่</th>
                       </tr>

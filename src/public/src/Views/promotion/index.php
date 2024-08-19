@@ -42,7 +42,7 @@ include_once(__DIR__ . "/../layout/header.php");
                     <th width="10%">ส่วนลด</th>
                     <th width="10%">วันที่</th>
                     <th width="60">รายละเอียด</th>
-                    <th width="10%">วันที่ล่าสุด</th>
+                    <th width="10%">วันที่</th>
                   </tr>
                 </thead>
               </table>

@@ -48,7 +48,7 @@ $items = $SALE->item_view([$uuid]);
           </div>
           <div class="row mb-2">
             <label class="col-xl-2 offset-xl-1 col-form-label">เลขที่ใบ</label>
-            <div class="col-xl-3 text-underline">
+            <div class="col-xl-4 text-underline">
               <?php echo $ticket ?>
             </div>
           </div>

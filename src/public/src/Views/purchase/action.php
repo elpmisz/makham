@@ -139,6 +139,27 @@ if ($action === "check") {
   }
 }
 
+if ($action === "manage-update") {
+  try {
+    $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
+    $id = (isset($_POST['id']) ? $VALIDATION->input($_POST['id']) : "");
+    $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
+    $amount = (isset($_POST['amount']) ? $VALIDATION->input($_POST['amount']) : "");
+    $confirm = (isset($_POST['confirm']) ? $VALIDATION->input($_POST['confirm']) : "");
+    $machine = (isset($_POST['machine']) ? $VALIDATION->input($_POST['machine']) : "");
+    $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
+    $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
+    $remark = (isset($_POST['remark']) ? $VALIDATION->input($_POST['remark']) : "");
+
+    $PURCHASE->purchase_process([$confirm, $status, $uuid]);
+    $PURCHASE->text_insert([$id, $user_id, $remark, $status]);
+
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/purchase/manage");
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
 if ($action === "auth") {
   try {
     $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
@@ -163,6 +184,22 @@ if ($action === "auth-delete") {
 
     if (!empty($id)) {
       $PURCHASE->auth_delete([$id]);
+      echo json_encode(200);
+    } else {
+      echo json_encode(500);
+    }
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "purchase-delete") {
+  try {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $id = $data['id'];
+
+    if (!empty($id)) {
+      $PURCHASE->purchase_delete([$id]);
       echo json_encode(200);
     } else {
       echo json_encode(500);
@@ -241,9 +278,9 @@ if ($action === "approve-data") {
   }
 }
 
-if ($action === "product-data") {
+if ($action === "manage-data") {
   try {
-    $result = $PURCHASE->product_data();
+    $result = $PURCHASE->manage_data();
     echo json_encode($result);
   } catch (PDOException $e) {
     die($e->getMessage());

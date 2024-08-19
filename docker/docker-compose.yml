@@ -1,10 +1,9 @@
-version: '3.8'
 services:
   app:
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: makham-app
+    container_name: directory-app
     restart: unless-stopped
     working_dir: /var/www/
     volumes:
@@ -12,30 +11,31 @@ services:
 
   server:
     image: nginx:alpine
-    container_name: makham-server
+    container_name: directory-server
     restart: unless-stopped
     ports:
-      - 8000:80
+      - 9000:80
     volumes:
       - ../src:/var/www
       - ./nginx:/etc/nginx/conf.d
 
   database:
     image: mariadb:latest
-    container_name: makham-database
+    container_name: directory-database
     restart: unless-stopped
     ports:
-      - 3308:3306
+      - 3309:3306
     command: ['--sql_mode=']
     environment:
       MARIADB_ROOT_PASSWORD: P@ssw0rd#db
+      TZ: Asia/Bangkok
 
   phpmyadmin:
     image: phpmyadmin:latest
-    container_name: makham-phpmyadmin
+    container_name: directory-phpmyadmin
     restart: unless-stopped
     ports:
-      - 8001:80
+      - 9001:80
     environment:
       PMA_HOST: database
-  
+      UPLOAD_LIMIT: 20M

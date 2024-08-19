@@ -16,7 +16,7 @@ $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
 $requester = (!empty($row['requester']) ? $row['requester'] : "");
 $product_id = (!empty($row['product_id']) ? $row['product_id'] : "");
-$fullname = (!empty($row['fullname']) ? $row['fullname'] : "");
+$fullname = (!empty($row['firstname']) ? $row['firstname'] : "");
 $bom = (!empty($row['bom']) ? $row['bom'] : "");
 $bom_name = (!empty($row['bom_name']) ? $row['bom_name'] : "");
 $machine = (!empty($row['machine']) ? $row['machine'] : "");
@@ -87,13 +87,13 @@ $created = (!empty($row['created']) ? $row['created'] : "");
           </div>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">เลขที่ใบ</label>
-            <div class="col-xl-3 text-underline">
+            <div class="col-xl-4 text-underline">
               <?php echo $ticket ?>
             </div>
           </div>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ทำรายการ</label>
-            <div class="col-xl-3 text-underline">
+            <div class="col-xl-4 text-underline">
               <?php echo $fullname . " - " . $created ?>
             </div>
           </div>
@@ -117,13 +117,13 @@ $created = (!empty($row['created']) ? $row['created'] : "");
           </div>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">จำนวนเครื่องจักร</label>
-            <div class="col-xl-3 text-underline">
+            <div class="col-xl-4 text-underline">
               <?php echo $machine ?>
             </div>
           </div>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">วันที่ผลิต</label>
-            <div class="col-xl-3 text-underline">
+            <div class="col-xl-4 text-underline">
               <?php echo $date ?>
             </div>
           </div>
@@ -155,7 +155,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                             <?php echo $txt['status_name'] ?>
                           </span>
                         </td>
-                        <td><?php echo $txt['username'] ?></td>
+                        <td><?php echo $txt['firstname'] ?></td>
                         <td><?php echo str_replace("\n", "<br>", $txt['text']) ?></td>
                         <td><?php echo $txt['created'] ?></td>
                       </tr>

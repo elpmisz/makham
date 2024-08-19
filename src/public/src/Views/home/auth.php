@@ -34,7 +34,7 @@ $users = $USER->user_view();
                           <button class="btn btn-success btn-sm" type="submit"><i class="fa fa-check"></i></button>
                           <input type="hidden" name="user_id" value="<?php echo $us['uuid'] ?>" readonly>
                         </td>
-                        <td><?php echo $us['fullname'] ?></td>
+                        <td><?php echo $us['firstname'] ?></td>
                         <?php
                         $auths = explode(",", $us['auth']);
                         foreach ($lists as $key => $value) :

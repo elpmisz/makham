@@ -38,6 +38,12 @@ $ROUTER->map("GET", "/purchase/create", function () {
 $ROUTER->map("GET", "/purchase/auth", function () {
   require(__DIR__ . "/src/Views/purchase/auth.php");
 });
+$ROUTER->map("GET", "/purchase/manage", function () {
+  require(__DIR__ . "/src/Views/purchase/manage.php");
+});
+$ROUTER->map("GET", "/purchase/manage-edit/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/purchase/manage-edit.php");
+});
 $ROUTER->map("GET", "/purchase/edit/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/purchase/edit.php");
 });
@@ -79,6 +85,12 @@ $ROUTER->map("GET", "/issue/exchange", function () {
 $ROUTER->map("GET", "/issue/auth", function () {
   require(__DIR__ . "/src/Views/issue/auth.php");
 });
+$ROUTER->map("GET", "/issue/manage", function () {
+  require(__DIR__ . "/src/Views/issue/manage.php");
+});
+$ROUTER->map("GET", "/issue/manage-edit/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/issue/manage-edit.php");
+});
 $ROUTER->map("GET", "/issue/edit/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/issue/edit.php");
 });
@@ -95,7 +107,7 @@ $ROUTER->map("POST", "/issue/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/issue/action.php");
 });
 
-##################### ISSUE #####################
+##################### WASTE #####################
 $ROUTER->map("GET", "/waste", function () {
   require(__DIR__ . "/src/Views/waste/index.php");
 });
@@ -104,6 +116,12 @@ $ROUTER->map("GET", "/waste/create", function () {
 });
 $ROUTER->map("GET", "/waste/auth", function () {
   require(__DIR__ . "/src/Views/waste/auth.php");
+});
+$ROUTER->map("GET", "/waste/manage", function () {
+  require(__DIR__ . "/src/Views/waste/manage.php");
+});
+$ROUTER->map("GET", "/waste/manage-edit/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/waste/manage-edit.php");
 });
 $ROUTER->map("GET", "/waste/edit/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/waste/edit.php");

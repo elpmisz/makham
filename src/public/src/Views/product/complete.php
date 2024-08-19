@@ -228,7 +228,7 @@ $issue_count = $PRODUCT->issue_count([$id]);
                                 <th width="10%">ประเภท</th>
                                 <th width="20%">รายละเอียด</th>
                                 <th width="10%">ปริมาณ</th>
-                                <th width="10%">วันที่ล่าสุด</th>
+                                <th width="10%">วันที่</th>
                               </tr>
                             </thead>
                           </table>

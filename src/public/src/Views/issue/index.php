@@ -26,6 +26,11 @@ $approver_count = $ISSUE->approver_count();
             </div>
           <?php endif; ?>
           <div class="col-xl-3 mb-2">
+            <a href="/issue/manage" class="btn btn-success btn-sm btn-block">
+              <i class="fas fa-list pr-2"></i>จัดการ
+            </a>
+          </div>
+          <div class="col-xl-3 mb-2">
             <a href="/issue/download" class="btn btn-danger btn-sm btn-block">
               <i class="fas fa-download pr-2"></i>นำข้อมูลออก
             </a>
@@ -33,12 +38,12 @@ $approver_count = $ISSUE->approver_count();
         </div>
         <div class="row justify-content-end mb-2">
           <div class="col-xl-3 mb-2">
-            <a href="/issue/income" class="btn btn-success btn-sm btn-block">
+            <a href="/issue/income" class="btn btn-primary btn-sm btn-block">
               <i class="fas fa-plus pr-2"></i>นำเข้า
             </a>
           </div>
           <div class="col-xl-3 mb-2">
-            <a href="/issue/outcome" class="btn btn-primary btn-sm btn-block">
+            <a href="/issue/outcome" class="btn btn-success btn-sm btn-block">
               <i class="fas fa-minus pr-2"></i>เบิกออก
             </a>
           </div>

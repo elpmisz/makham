@@ -178,18 +178,18 @@ if ($action === "upload") {
         $price = (isset($value[4]) ? $value[4] : "");
         $min = (isset($value[5]) ? $value[5] : "");
         $max = (isset($value[6]) ? $value[6] : "");
-        $text = (isset($value[7]) ? $value[7] : "");
-        $supplier = (isset($value[8]) ? $value[8] : "");
+        $text = (isset($value[8]) ? $value[8] : "");
+        $supplier = (isset($value[9]) ? $value[9] : "");
         $supplier = (!empty($supplier) ? $PRODUCT->supplier_id([$supplier]) : "");
-        $unit = (isset($value[9]) ? $value[9] : "");
+        $unit = (isset($value[10]) ? $value[10] : "");
         $unit = (!empty($unit) ? $PRODUCT->unit_id([$supplier]) : "");
-        $brand = (isset($value[10]) ? $value[10] : "");
+        $brand = (isset($value[11]) ? $value[11] : "");
         $brand = (!empty($brand) ? $PRODUCT->brand_id([$brand]) : "");
-        $category = (isset($value[11]) ? $value[11] : "");
+        $category = (isset($value[12]) ? $value[12] : "");
         $category = (!empty($category) ? $PRODUCT->category_id([$category]) : "");
-        $store = (isset($value[12]) ? $value[12] : "");
+        $store = (isset($value[13]) ? $value[13] : "");
         $store = (!empty($store) ? $PRODUCT->store_id([$store]) : "");
-        $status = (isset($value[13]) ? $value[13] : "");
+        $status = (isset($value[14]) ? $value[14] : "");
         $status = ($status === "ใช้งาน" ? 1 : 2);
         $bom = "";
 

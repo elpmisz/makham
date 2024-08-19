@@ -215,6 +215,24 @@ if ($action === "approve-ex") {
   }
 }
 
+if ($action === "manage-update") {
+  try {
+    $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
+    $id = (isset($_POST['id']) ? $VALIDATION->input($_POST['id']) : "");
+    $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
+    $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
+    $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
+    $remark = (isset($_POST['remark']) ? $VALIDATION->input($_POST['remark']) : "");
+
+    $ISSUE->issue_approve([$status, $uuid]);
+    $ISSUE->text_insert([$id, $user_id, $remark, $status]);
+
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/issue/manage");
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
 if ($action === "auth") {
   try {
     $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
@@ -239,6 +257,22 @@ if ($action === "auth-delete") {
 
     if (!empty($id)) {
       $ISSUE->auth_delete([$id]);
+      echo json_encode(200);
+    } else {
+      echo json_encode(500);
+    }
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "issue-delete") {
+  try {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $id = $data['id'];
+
+    if (!empty($id)) {
+      $ISSUE->issue_delete([$id]);
       echo json_encode(200);
     } else {
       echo json_encode(500);
@@ -311,6 +345,15 @@ if ($action === "request-data") {
 if ($action === "approve-data") {
   try {
     $result = $ISSUE->approve_data();
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "manage-data") {
+  try {
+    $result = $ISSUE->manage_data();
     echo json_encode($result);
   } catch (PDOException $e) {
     die($e->getMessage());

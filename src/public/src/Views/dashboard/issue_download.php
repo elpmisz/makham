@@ -19,7 +19,7 @@ $WRITER = new Xlsx($SPREADSHEET);
 if ($action === 'download') {
   $result = $ISSUE->download($type, $start, $end);
 
-  $columns = ["UUID", "เลขที่เอกสาร", "ผู้ทำรายการ", "ประเภท", "วัตถุดิบ", "จำนวน", "รายละเอียด", "สถานะ", "วันที่ล่าสุด"];
+  $columns = ["UUID", "เลขที่เอกสาร", "ผู้ทำรายการ", "ประเภท", "วัตถุดิบ", "จำนวน", "รายละเอียด", "สถานะ", "วันที่"];
 
   $letters = [];
   for ($i = "A"; $i != $VALIDATION->letters(COUNT($columns) + 1); $i++) {

@@ -27,6 +27,11 @@ $approver_count = $PURCHASE->approver_count();
             </div>
           <?php endif; ?>
           <div class="col-xl-3 mb-2">
+            <a href="/purchase/manage" class="btn btn-success btn-sm btn-block">
+              <i class="fas fa-list pr-2"></i>จัดการ
+            </a>
+          </div>
+          <div class="col-xl-3 mb-2">
             <a href="/purchase/download" class="btn btn-danger btn-sm btn-block">
               <i class="fas fa-download pr-2"></i>นำข้อมูลออก
             </a>
@@ -41,7 +46,7 @@ $approver_count = $PURCHASE->approver_count();
         <?php if (intval($approver) > 0 && intval($approver_count) > 0) : ?>
           <div class="row mb-2">
             <div class="col-xl-12">
-              <div class="card">
+              <div class="card shadow">
                 <div class="card-header">
                   <h5 class="text-center">รายการรอดำเนินการ</h5>
                 </div>
@@ -53,7 +58,7 @@ $approver_count = $PURCHASE->approver_count();
                           <th width="10%">สถานะ</th>
                           <th width="10%">เลขที่เอกสาร</th>
                           <th width="10%">สูตรการผลิต</th>
-                          <th width="10%">เครื่องจักร</th>
+                          <th width="10%">จำนวนเครื่องจักร</th>
                           <th width="10%">เป้าหมาย</th>
                           <th width="10%">จำนวน</th>
                           <th width="20%">รายละเอียด</th>
@@ -70,7 +75,7 @@ $approver_count = $PURCHASE->approver_count();
 
         <div class="row mb-2">
           <div class="col-xl-12">
-            <div class="card">
+            <div class="card shadow">
               <div class="card-header">
                 <h5 class="text-center">รายการขอใช้บริการ</h5>
               </div>
@@ -82,7 +87,7 @@ $approver_count = $PURCHASE->approver_count();
                         <th width="10%">สถานะ</th>
                         <th width="10%">เลขที่เอกสาร</th>
                         <th width="10%">สูตรการผลิต</th>
-                        <th width="10%">เครื่องจักร</th>
+                        <th width="10%">จำนวนเครื่องจักร</th>
                         <th width="10%">เป้าหมาย</th>
                         <th width="10%">จำนวน</th>
                         <th width="20%">รายละเอียด</th>

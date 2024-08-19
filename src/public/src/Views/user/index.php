@@ -46,7 +46,7 @@ $password = (isset($system['password']) ? $system['password'] : "");
                     <th width="20%">ชื่อ</th>
                     <th width="20%">นามสกุล</th>
                     <th width="20%">ติดต่อ</th>
-                    <th width="10%">วันที่ล่าสุด</th>
+                    <th width="10%">วันที่</th>
                   </tr>
                 </thead>
               </table>

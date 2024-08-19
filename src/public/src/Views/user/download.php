@@ -19,7 +19,7 @@ function htmldecode(&$item, $key)
   $item = html_entity_decode($item, ENT_COMPAT, "UTF-8");
 }
 
-$columns = ["UUID", "อีเมล", "ชื่อ", "นามสกุล", "ติดต่อ", "ระดับ", "สถานะ", "วันที่ล่าสุด"];
+$columns = ["UUID", "อีเมล", "ชื่อ", "นามสกุล", "ติดต่อ", "ระดับ", "สถานะ", "วันที่"];
 
 $letters = [];
 for ($i = "A"; $i != $VALIDATION->letters(COUNT($columns) + 1); $i++) {

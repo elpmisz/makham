@@ -79,12 +79,6 @@ include_once(__DIR__ . "/../layout/header.php");
                     <span class="text-danger">ผู้อนุมัติ</span>
                   </label>
                 </div>
-                <div class="col-xl-4">
-                  <label class="form-check-label px-3 py-2">
-                    <input class="form-check-input" type="radio" name="type" value="3" required>
-                    <span class="text-primary">ผู้จัดการวัตถุดิบ</span>
-                  </label>
-                </div>
               </div>
             </div>
           </div>

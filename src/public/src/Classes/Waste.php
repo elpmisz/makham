@@ -54,7 +54,9 @@ class Waste
 
   public function waste_view($data)
   {
-    $sql = "SELECT a.id,a.uuid,a.text,a.user_id,CONCAT(b.firstname,' ',b.lastname) fullname,
+    $sql = "SELECT a.id,a.uuid,a.text,a.user_id,a.status,
+    b.firstname,b.lastname,
+    CONCAT(b.firstname,' ',b.lastname) fullname,
     CONCAT('WA',YEAR(a.created),LPAD(a.last,5,'0')) ticket,a.status,
     (
       CASE
@@ -73,6 +75,7 @@ class Waste
       END
     ) status_color,
     DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created,
+    d.firstname approver_firstname,' ',d.lastname approver_lastname,
     CONCAT(d.firstname,' ',d.lastname) approver,c.text approve_text,
     DATE_FORMAT(c.created, '%d/%m/%Y, %H:%i น.') approved
     FROM inventory.waste a
@@ -222,6 +225,16 @@ class Waste
     return $stmt->execute($data);
   }
 
+  public function waste_delete($data)
+  {
+    $sql = "UPDATE inventory.waste SET
+    status = 0,
+    updated = NOW()
+    WHERE id = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    return $stmt->execute($data);
+  }
+
   public function waste_data()
   {
     $sql = "SELECT COUNT(*) FROM inventory.waste";
@@ -229,7 +242,7 @@ class Waste
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.last", "a.text", "a.created"];
+    $column = ["a.status", "a.last", "b.firstname", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -240,6 +253,8 @@ class Waste
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
     $sql = "SELECT a.uuid,a.text,CONCAT('WA',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    b.firstname,b.lastname,
+    CONCAT(b.firstname,' ',b.lastname) fullname,
     IF(a.status = 1,'edit','complete') page,
     (
       CASE
@@ -258,7 +273,9 @@ class Waste
       END
     ) status_color,
     DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
-    FROM inventory.waste a ";
+    FROM inventory.waste a
+    LEFT JOIN inventory.user b
+    ON a.user_id = b.id ";
 
     if (!empty($keyword)) {
       $sql .= " WHERE a.text LIKE '%{$keyword}%' ";
@@ -288,6 +305,7 @@ class Waste
       $data[] = [
         $status,
         $row['ticket'],
+        $row['firstname'],
         str_replace("\n", "<br>", $row['text']),
         $row['created'],
       ];
@@ -320,6 +338,8 @@ class Waste
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
     $sql = "SELECT a.uuid,a.text,CONCAT('WA',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    b.firstname,b.lastname,
+    CONCAT(b.firstname,' ',b.lastname) fullname,
     (
       CASE
         WHEN a.status = 1 THEN 'รอตรวจสอบ'
@@ -338,6 +358,8 @@ class Waste
     ) status_color,
     DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
     FROM inventory.waste a
+    LEFT JOIN inventory.user b
+    ON a.user_id = b.id
     WHERE a.status = 1 ";
 
     if (!empty($keyword)) {
@@ -368,6 +390,93 @@ class Waste
       $data[] = [
         $status,
         $row['ticket'],
+        $row['firstname'],
+        str_replace("\n", "<br>", $row['text']),
+        $row['created'],
+      ];
+    }
+
+    $output = [
+      "draw"    => $draw,
+      "recordsTotal"  =>  $total,
+      "recordsFiltered" => $filter,
+      "data"    => $data
+    ];
+    return $output;
+  }
+
+  public function manage_data()
+  {
+    $sql = "SELECT COUNT(*) FROM inventory.waste";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    $total = $stmt->fetchColumn();
+
+    $column = ["a.status", "a.last", "b.firstname", "a.text", "a.created"];
+
+    $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
+    $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
+    $order_column = (isset($_POST['order']['0']['column']) ? $_POST['order']['0']['column'] : "");
+    $order_dir = (isset($_POST['order']['0']['dir']) ? $_POST['order']['0']['dir'] : "");
+    $limit_start = (isset($_POST['start']) ? $_POST['start'] : "");
+    $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
+    $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
+
+    $sql = "SELECT a.id,a.uuid,a.text,CONCAT('WA',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    b.firstname,b.lastname,
+    CONCAT(b.firstname,' ',b.lastname) fullname,
+    IF(a.status = 1,'edit','complete') page,
+    (
+      CASE
+        WHEN a.status = 1 THEN 'รอตรวจสอบ'
+        WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
+        WHEN a.status = 3 THEN 'รายการถูกยกเลิก'
+        ELSE NULL
+      END
+    ) status_name,
+    (
+      CASE
+        WHEN a.status = 1 THEN 'primary'
+        WHEN a.status = 2 THEN 'success'
+        WHEN a.status = 3 THEN 'danger'
+        ELSE NULL
+      END
+    ) status_color,
+    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
+    FROM inventory.waste a
+    LEFT JOIN inventory.user b
+    ON a.user_id = b.id
+    WHERE a.status != 0 ";
+
+    if (!empty($keyword)) {
+      $sql .= " AND a.text LIKE '%{$keyword}%' ";
+    }
+
+    if ($filter_order) {
+      $sql .= " ORDER BY {$column[$order_column]} {$order_dir} ";
+    } else {
+      $sql .= " ORDER BY a.status ASC, a.text ASC ";
+    }
+
+    $sql2 = "";
+    if ($limit_length) {
+      $sql2 .= " LIMIT {$limit_start}, {$limit_length}";
+    }
+
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    $filter = $stmt->rowCount();
+    $stmt = $this->dbcon->prepare($sql . $sql2);
+    $stmt->execute();
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $data = [];
+    foreach ($result as $row) {
+      $status = "<a href='/waste/manage-edit/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a> <a href='javascript:void(0)' class='badge badge-danger font-weight-light btn-delete' id='{$row['id']}'>ลบ</a>";
+      $data[] = [
+        $status,
+        $row['ticket'],
+        $row['firstname'],
         str_replace("\n", "<br>", $row['text']),
         $row['created'],
       ];

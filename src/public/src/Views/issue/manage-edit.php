@@ -15,11 +15,12 @@ $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
 $fullname = (!empty($row['firstname']) ? $row['firstname'] : "");
-$text = (!empty($row['text']) ? str_replace("\n", "<br>", $row['text']) : "");
+$text = (!empty($row['text']) ? $row['text'] : "");
 $type = (!empty($row['type']) ? $row['type'] : "");
 $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
 $type_color = (!empty($row['type_color']) ? $row['type_color'] : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
+$status = (!empty($row['status']) ? $row['status'] : "");
 ?>
 
 <div class="row">
@@ -29,8 +30,14 @@ $created = (!empty($row['created']) ? $row['created'] : "");
         <h4 class="text-center">ใบนำสินค้าเข้า - ออก</h4>
       </div>
       <div class="card-body">
-        <form action="/issue/approve" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="/issue/manage-update" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
+          <div class="row mb-2" style="display: none;">
+            <label class="col-xl-3 offset-xl-1 col-form-label">USER ID</label>
+            <div class="col-xl-4">
+              <input type="text" class="form-control form-control-sm" name="user_id" value="<?php echo $user['id'] ?>" readonly>
+            </div>
+          </div>
           <div class="row mb-2" style="display: none;">
             <label class="col-xl-3 offset-xl-1 col-form-label">ID</label>
             <div class="col-xl-4">
@@ -63,8 +70,11 @@ $created = (!empty($row['created']) ? $row['created'] : "");
           </div>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
-            <div class="col-xl-6 text-underline">
-              <?php echo $text ?>
+            <div class="col-xl-6">
+              <textarea class="form-control form-control-sm" name="text" rows="5" required><?php echo $text ?></textarea>
+              <div class="invalid-feedback">
+                กรุณากรอกข้อมูล!
+              </div>
             </div>
           </div>
 
@@ -88,7 +98,6 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                         <tr>
                           <td class="text-center">
                             <?php echo $key ?>
-                            <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $item['item_id'] ?>" readonly>
                           </td>
                           <td><?php echo $item['product_name'] ?></td>
                           <td><?php echo $item['location_name'] ?></td>
@@ -115,7 +124,6 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                       <tr>
                         <td class="text-center">
                           <?php echo $key ?>
-                          <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $item['item_id'] ?>" readonly>
                         </td>
                         <td><?php echo $item['product_name'] ?></td>
                         <td><?php echo $item['send'] ?></td>
@@ -132,21 +140,49 @@ $created = (!empty($row['created']) ? $row['created'] : "");
           </div>
 
           <div class="row mb-2">
-            <label class="col-xl-3 offset-xl-1 col-form-label">ผลการตรวจสอบ</label>
-            <div class="col-xl-4 text-underline">
-              <span class="text-<?php echo $row['status_color'] ?>"><?php echo $row['status_name'] ?></span>
-            </div>
-          </div>
-          <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ดำเนินการ</label>
             <div class="col-xl-4 text-underline">
               <span class="text-primary"><?php echo $row['approver_firstname'] . " - " . $row['approved'] ?></span>
             </div>
           </div>
 
+          <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">สถานะ</label>
+            <div class="col-xl-8">
+              <div class="row pb-2">
+                <div class="col-xl-3">
+                  <label class="form-check-label px-3 py-2">
+                    <input class="form-check-input" type="radio" name="status" value="2" <?php echo (intval($status) === 2 ? "checked" : "") ?> required>
+                    <span class="text-success">ผ่านการตรวจสอบ</span>
+                  </label>
+                </div>
+                <div class="col-xl-3">
+                  <label class="form-check-label px-3 py-2">
+                    <input class="form-check-input" type="radio" name="status" value="3" <?php echo (intval($status) === 3 ? "checked" : "") ?> required>
+                    <span class="text-danger">ระงับการใช้งาน</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียดเพิ่มเติม</label>
+            <div class="col-xl-6">
+              <textarea class="form-control form-control-sm" name="remark" rows="4" required></textarea>
+              <div class="invalid-feedback">
+                กรุณากรอกข้อมูล!
+              </div>
+            </div>
+          </div>
+
           <div class="row justify-content-center mb-2">
             <div class="col-xl-3 mb-2">
-              <a href="/issue" class="btn btn-sm btn-danger btn-block">
+              <button type="submit" class="btn btn-sm btn-success btn-block">
+                <i class="fas fa-check pr-2"></i>ตกลง
+              </button>
+            </div>
+            <div class="col-xl-3 mb-2">
+              <a href="/issue/manage" class="btn btn-sm btn-danger btn-block">
                 <i class="fa fa-arrow-left pr-2"></i>กลับ
               </a>
             </div>

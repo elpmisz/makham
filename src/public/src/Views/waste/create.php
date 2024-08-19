@@ -105,7 +105,7 @@ include_once(__DIR__ . "/../layout/header.php");
           </div>
 
           <div class="row mb-2">
-            <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียดเพิ่มเติม</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
             <div class="col-xl-6">
               <textarea class="form-control form-control-sm" name="text" rows="5"></textarea>
             </div>

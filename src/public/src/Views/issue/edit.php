@@ -14,7 +14,7 @@ $items = (intval($row['type']) === 3 ? $ISSUE->exchange_view([$uuid]) : $ISSUE->
 $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
-$fullname = (!empty($row['fullname']) ? $row['fullname'] : "");
+$fullname = (!empty($row['firstname']) ? $row['firstname'] : "");
 $text = (!empty($row['text']) ? $row['text'] : "");
 $type = (!empty($row['type']) ? $row['type'] : "");
 $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
@@ -51,19 +51,19 @@ $created = (!empty($row['created']) ? $row['created'] : "");
           </div>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">เลขที่ใบ</label>
-            <div class="col-xl-3 text-underline">
+            <div class="col-xl-4 text-underline">
               <?php echo $ticket ?>
             </div>
           </div>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ทำรายการ</label>
-            <div class="col-xl-3 text-underline">
+            <div class="col-xl-4 text-underline">
               <?php echo $fullname . " - " . $created ?>
             </div>
           </div>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">ประเภท</label>
-            <div class="col-xl-3 text-underline text-<?php echo $type_color ?>">
+            <div class="col-xl-4 text-underline text-<?php echo $type_color ?>">
               <?php echo $type_name ?>
             </div>
           </div>

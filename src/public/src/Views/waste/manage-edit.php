@@ -14,10 +14,16 @@ $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
 $fullname = (!empty($row['firstname']) ? $row['firstname'] : "");
-$text = (!empty($row['text']) ? str_replace("\n", "<br>", $row['text']) : "");
+$text = (!empty($row['text']) ? $row['text'] : "");
 $active = (intval($row['status']) === 1 ? "checked" : "");
 $inactive = (intval($row['status']) === 2 ? "checked" : "");
+$status_name = (!empty($row['status_name']) ? $row['status_name'] : "");
+$status_color = (!empty($row['status_color']) ? $row['status_color'] : "");
+$approver = (!empty($row['approver_firstname']) ? $row['approver_firstname'] : "");
+$approved = (!empty($row['approved']) ? $row['approved'] : "");
+$approve_text = (!empty($row['approve_text']) ? str_replace("\n", "<br>", $row['approve_text']) : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
+$status = (!empty($row['status']) ? $row['status'] : "");
 
 $items = $WASTE->item_view([$uuid, 1]);
 $wastes = $WASTE->item_view([$uuid, 2]);
@@ -30,7 +36,7 @@ $wastes = $WASTE->item_view([$uuid, 2]);
         <h4 class="text-center">ใบสรุปของเสีย</h4>
       </div>
       <div class="card-body">
-        <form action="/waste/approve" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="/waste/manage-update" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
           <div class="row mb-2" style="display: none;">
             <label class="col-xl-3 offset-xl-1 col-form-label">USER ID</label>
@@ -117,34 +123,39 @@ $wastes = $WASTE->item_view([$uuid, 2]);
 
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
-            <div class="col-xl-6 text-underline">
-              <?php echo $text ?>
+            <div class="col-xl-6">
+              <textarea class="form-control form-control-sm" name="text" rows="5"><?php echo $text ?></textarea>
             </div>
           </div>
-
           <div class="row mb-2">
-            <label class="col-xl-3 offset-xl-1 col-form-label">ผลการตรวจสอบ</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ดำเนินการ</label>
+            <div class="col-xl-4 text-underline">
+              <?php echo "<span class='text-primary'>{$approver} - {$approved}</span>" ?>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">สถานะ</label>
             <div class="col-xl-8">
               <div class="row pb-2">
                 <div class="col-xl-3">
                   <label class="form-check-label px-3 py-2">
-                    <input class="form-check-input" type="radio" name="status" value="2" required>
+                    <input class="form-check-input" type="radio" name="status" value="2" <?php echo (intval($status) === 2 ? "checked" : "") ?> required>
                     <span class="text-success">ผ่านการตรวจสอบ</span>
                   </label>
                 </div>
-                <div class="col-xl-4">
+                <div class="col-xl-3">
                   <label class="form-check-label px-3 py-2">
-                    <input class="form-check-input" type="radio" name="status" value="3" required>
-                    <span class="text-danger">ไม่ผ่านการตรวจสอบ</span>
+                    <input class="form-check-input" type="radio" name="status" value="3" <?php echo (intval($status) === 3 ? "checked" : "") ?> required>
+                    <span class="text-danger">ระงับการใช้งาน</span>
                   </label>
                 </div>
               </div>
             </div>
           </div>
-          <div class="row mb-2 text-div">
-            <label class="col-xl-3 offset-xl-1 col-form-label">หมายเหตุ</label>
+          <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียดเพิ่มเติม</label>
             <div class="col-xl-6">
-              <textarea class="form-control form-control-sm" name="remark" rows="4"></textarea>
+              <textarea class="form-control form-control-sm" name="remark" rows="4" required></textarea>
               <div class="invalid-feedback">
                 กรุณากรอกข้อมูล!
               </div>
@@ -158,7 +169,7 @@ $wastes = $WASTE->item_view([$uuid, 2]);
               </button>
             </div>
             <div class="col-xl-3 mb-2">
-              <a href="/waste" class="btn btn-sm btn-danger btn-block">
+              <a href="/waste/manage" class="btn btn-sm btn-danger btn-block">
                 <i class="fa fa-arrow-left pr-2"></i>กลับ
               </a>
             </div>
