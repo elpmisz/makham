@@ -32,6 +32,37 @@ include_once(__DIR__ . "/../layout/header.php");
             </div>
           </div>
           <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">เพื่อ</label>
+            <div class="col-xl-8">
+              <div class="row pb-2">
+                <div class="col-xl-3">
+                  <label class="form-check-label px-3 py-2">
+                    <input class="form-check-input" type="radio" name="group" value="1" required>
+                    <span class="text-info">สั่งผลิต</span>
+                  </label>
+                </div>
+                <div class="col-xl-3">
+                  <label class="form-check-label px-3 py-2">
+                    <input class="form-check-input" type="radio" name="group" value="2" required>
+                    <span class="text-primary">รอผลิต</span>
+                  </label>
+                </div>
+                <div class="col-xl-3">
+                  <label class="form-check-label px-3 py-2">
+                    <input class="form-check-input" type="radio" name="group" value="3" required>
+                    <span class="text-success">ขาย</span>
+                  </label>
+                </div>
+                <div class="col-xl-3">
+                  <label class="form-check-label px-3 py-2">
+                    <input class="form-check-input" type="radio" name="group" value="4" required>
+                    <span class="text-danger">อื่นๆ</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
             <div class="col-xl-6">
               <textarea class="form-control form-control-sm" name="text" rows="5" required></textarea>
@@ -80,7 +111,12 @@ include_once(__DIR__ . "/../layout/header.php");
                           กรุณากรอกข้อมูล!
                         </div>
                       </td>
-                      <td class="text-center"><span class="item-unit"></span></td>
+                      <td class="text-left">
+                        <select class="form-control form-control-sm unit-select" name="item_unit[]" required></select>
+                        <div class="invalid-feedback">
+                          กรุณาเลือกข้อมูล!
+                        </div>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -160,6 +196,24 @@ include_once(__DIR__ . "/../layout/header.php");
         cache: true
       }
     });
+
+    $(".unit-select").select2({
+      placeholder: "-- หน่วยนับ --",
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: "/issue/unit-select",
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
   });
 
   $(document).on("change", ".item-select, .location-select", function() {
@@ -211,6 +265,24 @@ include_once(__DIR__ . "/../layout/header.php");
     width: "100%",
     ajax: {
       url: "/issue/location-select",
+      method: "POST",
+      dataType: "json",
+      delay: 100,
+      processResults: function(data) {
+        return {
+          results: data
+        };
+      },
+      cache: true
+    }
+  });
+
+  $(".unit-select").select2({
+    placeholder: "-- หน่วยนับ --",
+    allowClear: true,
+    width: "100%",
+    ajax: {
+      url: "/issue/unit-select",
       method: "POST",
       dataType: "json",
       delay: 100,

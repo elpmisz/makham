@@ -9,7 +9,7 @@ include_once(__DIR__ . "/../layout/header.php");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">สถานที่</h4>
+        <h4 class="text-center">คลัง</h4>
       </div>
       <div class="card-body">
 

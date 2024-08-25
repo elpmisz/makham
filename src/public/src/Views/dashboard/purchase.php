@@ -7,7 +7,7 @@ use App\Classes\DashboardPurchase;
 
 $DASHBOARD = new DashboardPurchase();
 
-$card = $DASHBOARD->purchase_card();
+// $card = $DASHBOARD->purchase_card();
 ?>
 <div class="row">
   <div class="col-xl-12">
@@ -160,40 +160,40 @@ $card = $DASHBOARD->purchase_card();
     }
   });
 
-  function filter_datatable(date, bom) {
-    $(".purchase-data").DataTable({
-      serverSide: true,
-      searching: true,
-      scrollX: true,
-      order: [],
-      ajax: {
-        url: "/dashboard/purchase/purchase-data",
-        type: "POST",
-        data: {
-          date: date,
-          bom: bom,
-        }
-      },
-      columnDefs: [{
-        targets: [0, 3, 4, 5],
-        className: "text-center",
-      }],
-      "oLanguage": {
-        "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
-        "sZeroRecords": "ไม่พบข้อมูลที่ค้นหา",
-        "sInfo": "แสดง _START_ ถึง _END_ ของ _TOTAL_ ลำดับ",
-        "sInfoEmpty": "แสดง 0 ถึง 0 ของ 0 ลำดับ",
-        "sInfoFiltered": "",
-        "sSearch": "ค้นหา :",
-        "oPaginate": {
-          "sFirst": "หน้าแรก",
-          "sLast": "หน้าสุดท้าย",
-          "sNext": "ถัดไป",
-          "sPrevious": "ก่อนหน้า"
-        }
-      },
-    });
-  };
+  // function filter_datatable(date, bom) {
+  //   $(".purchase-data").DataTable({
+  //     serverSide: true,
+  //     searching: true,
+  //     scrollX: true,
+  //     order: [],
+  //     ajax: {
+  //       url: "/dashboard/purchase/purchase-data",
+  //       type: "POST",
+  //       data: {
+  //         date: date,
+  //         bom: bom,
+  //       }
+  //     },
+  //     columnDefs: [{
+  //       targets: [0, 3, 4, 5],
+  //       className: "text-center",
+  //     }],
+  //     "oLanguage": {
+  //       "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
+  //       "sZeroRecords": "ไม่พบข้อมูลที่ค้นหา",
+  //       "sInfo": "แสดง _START_ ถึง _END_ ของ _TOTAL_ ลำดับ",
+  //       "sInfoEmpty": "แสดง 0 ถึง 0 ของ 0 ลำดับ",
+  //       "sInfoFiltered": "",
+  //       "sSearch": "ค้นหา :",
+  //       "oPaginate": {
+  //         "sFirst": "หน้าแรก",
+  //         "sLast": "หน้าสุดท้าย",
+  //         "sNext": "ถัดไป",
+  //         "sPrevious": "ก่อนหน้า"
+  //       }
+  //     },
+  //   });
+  // };
 
   axios.post("/dashboard/purchase/bom-data")
     .then((res) => {

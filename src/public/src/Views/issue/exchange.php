@@ -87,7 +87,12 @@ include_once(__DIR__ . "/../layout/header.php");
                           กรุณากรอกข้อมูล!
                         </div>
                       </td>
-                      <td class="text-center"><span class="item-unit"></span></td>
+                      <td class="text-left">
+                        <select class="form-control form-control-sm unit-select" name="item_unit[]" required></select>
+                        <div class="invalid-feedback">
+                          กรุณาเลือกข้อมูล!
+                        </div>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -167,6 +172,24 @@ include_once(__DIR__ . "/../layout/header.php");
         cache: true
       }
     });
+
+    $(".unit-select").select2({
+      placeholder: "-- หน่วยนับ --",
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: "/issue/unit-select",
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
   });
 
   $(document).on("change", ".item-select, .location-select", function() {
@@ -218,6 +241,24 @@ include_once(__DIR__ . "/../layout/header.php");
     width: "100%",
     ajax: {
       url: "/issue/location-select",
+      method: "POST",
+      dataType: "json",
+      delay: 100,
+      processResults: function(data) {
+        return {
+          results: data
+        };
+      },
+      cache: true
+    }
+  });
+
+  $(".unit-select").select2({
+    placeholder: "-- หน่วยนับ --",
+    allowClear: true,
+    width: "100%",
+    ajax: {
+      url: "/issue/unit-select",
       method: "POST",
       dataType: "json",
       delay: 100,

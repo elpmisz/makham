@@ -48,7 +48,7 @@ class Issue
 
   public function issue_insert($data)
   {
-    $sql = "INSERT INTO inventory.issue(uuid,last,type,text,user_id) VALUES(uuid(),?,?,?,?)";
+    $sql = "INSERT INTO inventory.issue(uuid,last,type,`group`,text,user_id) VALUES(uuid(),?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -62,7 +62,7 @@ class Issue
 
   public function item_count($data)
   {
-    $sql = "SELECT COUNT(*) FROM inventory.issue_item WHERE issue_id = ? AND product_id = ? AND location_id = ? AND status = 1";
+    $sql = "SELECT COUNT(*) FROM inventory.issue_item WHERE issue_id = ? AND product_id = ? AND location_id = ? AND unit_id = ? AND status = 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
@@ -70,14 +70,22 @@ class Issue
 
   public function item_insert($data)
   {
-    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,location_id,quantity) VALUES(?,?,?,?,?)";
+    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,location_id,quantity,unit_id) VALUES(?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
 
+  public function item_import($data)
+  {
+    $sql = "INSERT INTO inventory.issue_item(`issue_id`, `product_id`, `type`, `location_id`, `quantity`, `confirm`) VALUES(?,?,?,?,?,?)";
+    $stmt = $this->dbcon->prepare($sql);
+    return $stmt->execute($data);
+  }
+
+
   public function item_purchase($data)
   {
-    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,location_id,quantity,confirm) VALUES(?,?,1,4,?,?)";
+    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,location_id,quantity,confirm,unit_id) VALUES(?,?,1,?,?,?,1)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -114,7 +122,7 @@ class Issue
 
   public function issue_view($data)
   {
-    $sql = "SELECT a.id,a.uuid,a.text,a.type,a.status,
+    $sql = "SELECT a.id,a.uuid,a.text,a.type,a.group,a.status,
     CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     b.firstname,b.lastname,
     CONCAT(b.firstname,' ',b.lastname) fullname,
@@ -134,6 +142,24 @@ class Issue
         ELSE NULL
       END
     ) type_color,
+    (
+      CASE
+        WHEN a.group = 1 THEN 'สั่งผลิต'
+        WHEN a.group = 2 THEN 'รอผลิต'
+        WHEN a.group = 3 THEN 'ขาย'
+        WHEN a.group = 4 THEN 'อื่นๆ'
+        ELSE NULL
+      END
+    ) group_name,
+    (
+      CASE
+        WHEN a.group = 1 THEN 'info'
+        WHEN a.group = 2 THEN 'primary'
+        WHEN a.group = 3 THEN 'success'
+        WHEN a.group = 4 THEN 'danger'
+        ELSE NULL
+      END
+    ) group_color,
     (
       CASE
         WHEN a.status = 1 THEN 'รอตรวจสอบ'
@@ -170,10 +196,12 @@ class Issue
   public function item_view($data)
   {
     $sql = "SELECT b.id item_id,a.id product_id,a.uuid product_uuid,
-    a.code product_code,a.name product_name,CAST(b.quantity AS DECIMAL(20,2)) quantity,b.confirm,
-    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
+    a.code product_code,a.name product_name,
+    IF(b.unit_id = 1,b.quantity,(b.quantity/a.per)) quantity,
+    IF(b.unit_id = 1,b.confirm,(b.confirm/a.per)) confirm,
+    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,a.per,
     a.supplier,d.name supplier_name,
-    a.unit,e.name unit_name,
+    b.unit_id,e.name unit_name,
     a.brand,f.name brand_name,
     a.category,g.name category_name,
     a.store,CONCAT(h.room,h.floor,h.zone) store_name,
@@ -189,7 +217,7 @@ class Issue
     LEFT JOIN inventory.customer d
     ON a.supplier = d.id
     LEFT JOIN inventory.unit e
-    ON a.unit = e.id
+    ON b.unit_id = e.id
     LEFT JOIN inventory.brand f
     ON a.brand = f.id 
     LEFT JOIN inventory.category g
@@ -211,11 +239,12 @@ class Issue
   {
     $sql = "SELECT IF(c.type = 3,CONCAT(b.issue_id,'-',b.product_id),b.id) item_id,
     a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
-    CAST(b.quantity AS DECIMAL(20,2)) quantity,b.confirm,
+    IF(b.unit_id = 1,b.quantity,(b.quantity/a.per)) quantity,
+    IF(b.unit_id = 1,b.confirm,(b.confirm/a.per)) confirm,
     MIN(i.name) send,MAX(i.name) receive,
     a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
     a.supplier,d.name supplier_name,
-    a.unit,e.name unit_name,
+    b.unit_id,e.name unit_name,
     a.brand,f.name brand_name,
     a.category,g.name category_name,
     a.store,CONCAT(h.room,h.floor,h.zone) store_name,
@@ -230,7 +259,7 @@ class Issue
     LEFT JOIN inventory.customer d
     ON a.supplier = d.id
     LEFT JOIN inventory.unit e
-    ON a.unit = e.id
+    ON b.unit_id = e.id
     LEFT JOIN inventory.brand f
     ON a.brand = f.id 
     LEFT JOIN inventory.category g
@@ -332,6 +361,7 @@ class Issue
   public function issue_update($data)
   {
     $sql = "UPDATE inventory.issue SET
+    `group` = ?,
     text = ?,
     updated = NOW()
     WHERE uuid = ?";
@@ -405,6 +435,23 @@ class Issue
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
+  }
+
+  public function product_count($data)
+  {
+    $sql = "SELECT COUNT(*)
+    FROM inventory.product a
+    WHERE a.code = ? AND a.name  = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    return $stmt->fetchColumn();
+  }
+
+  public function product_insert($data)
+  {
+    $sql = "INSERT INTO inventory.product(`uuid`, `code`, `name`, `per`, `unit`) VALUES(uuid(),?,?,?,?)";
+    $stmt = $this->dbcon->prepare($sql);
+    return $stmt->execute($data);
   }
 
   public function download()
@@ -870,6 +917,28 @@ class Issue
     return $stmt->fetchAll();
   }
 
+  public function warehouse_id($data)
+  {
+    $sql = "SELECT a.id 
+    FROM inventory.location a
+    WHERE a.name = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    $row = $stmt->fetch();
+    return (isset($row['id']) ? $row['id'] : "");
+  }
+
+  public function product_per($data)
+  {
+    $sql = "SELECT per
+    FROM inventory.product a
+    WHERE a.id = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    $row = $stmt->fetch();
+    return (isset($row['per']) ? $row['per'] : "");
+  }
+
   public function user_select($keyword)
   {
     $sql = "SELECT a.id, CONCAT(a.firstname,' ',a.lastname) text
@@ -895,6 +964,35 @@ class Issue
       $sql .= " AND (a.name LIKE '%{$keyword}%') ";
     }
     $sql .= " ORDER BY a.name ASC LIMIT 50";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
+  public function unit_select($keyword)
+  {
+    $sql = "SELECT a.id, a.name text
+    FROM inventory.unit a
+    WHERE a.status = 1 ";
+    if (!empty($keyword)) {
+      $sql .= " AND (a.name LIKE '%{$keyword}%') ";
+    }
+    $sql .= " ORDER BY a.name ASC LIMIT 50";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
+  public function issue_select($keyword)
+  {
+    $sql = "SELECT a.id,CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) `text`
+    FROM inventory.issue a
+    WHERE a.status IN (1,2)
+    AND a.type = 2 ";
+    if (!empty($keyword)) {
+      $sql .= " AND (CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) LIKE '%{$keyword}%') ";
+    }
+    $sql .= " ORDER BY a.created ASC LIMIT 50";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll();

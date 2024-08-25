@@ -19,6 +19,9 @@ $text = (!empty($row['text']) ? str_replace("\n", "<br>", $row['text']) : "");
 $type = (!empty($row['type']) ? $row['type'] : "");
 $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
 $type_color = (!empty($row['type_color']) ? $row['type_color'] : "");
+$group = (!empty($row['group']) ? $row['group'] : "");
+$group_name = (!empty($row['group_name']) ? $row['group_name'] : "");
+$group_color = (!empty($row['group_color']) ? $row['group_color'] : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
 ?>
 
@@ -67,6 +70,14 @@ $created = (!empty($row['created']) ? $row['created'] : "");
               <?php echo $type_name ?>
             </div>
           </div>
+          <?php if (intval($type) === 2) : ?>
+            <div class="row mb-2">
+              <label class="col-xl-3 offset-xl-1 col-form-label">เพื่อ</label>
+              <div class="col-xl-4 text-underline text-<?php echo $group_color ?>">
+                <?php echo $group_name ?>
+              </div>
+            </div>
+          <?php endif ?>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
             <div class="col-xl-6 text-underline">
@@ -98,9 +109,9 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           </td>
                           <td><?php echo $item['product_name'] ?></td>
                           <td><?php echo $item['location_name'] ?></td>
-                          <td class="text-right"><?php echo number_format($item['quantity'], 2) ?></td>
+                          <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
                           <td>
-                            <input type="number" class="form-control form-control-sm text-right" name="confirm[]" value="<?php echo $item['quantity'] ?>" min="0" step="0.01" required>
+                            <input type="number" class="form-control form-control-sm text-right" name="confirm[]" value="<?php echo intval($item['quantity']) ?>" min="0" step="1" required>
                             <div class="invalid-feedback">
                               กรุณากรอกข้อมูล!
                             </div>
@@ -131,9 +142,9 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                         <td><?php echo $item['product_name'] ?></td>
                         <td><?php echo $item['send'] ?></td>
                         <td><?php echo $item['receive'] ?></td>
-                        <td class="text-right"><?php echo number_format($item['quantity'], 2) ?></td>
+                        <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
                         <td>
-                          <input type="number" class="form-control form-control-sm text-right" name="confirm[]" value="<?php echo $item['quantity'] ?>" min="0" step="0.01" required>
+                          <input type="number" class="form-control form-control-sm text-right" name="confirm[]" value="<?php echo intval($item['quantity']) ?>" min="0" step="0.01" required>
                           <div class="invalid-feedback">
                             กรุณากรอกข้อมูล!
                           </div>
@@ -151,7 +162,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
             <label class="col-xl-3 offset-xl-1 col-form-label">ผลการตรวจสอบ</label>
             <div class="col-xl-8">
               <div class="row pb-2">
-                <div class="col-xl-3">
+                <div class="col-xl-4">
                   <label class="form-check-label px-3 py-2">
                     <input class="form-check-input" type="radio" name="status" value="2" required>
                     <span class="text-success">ผ่านการตรวจสอบ</span>

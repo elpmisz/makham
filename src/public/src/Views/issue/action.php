@@ -20,6 +20,7 @@ if ($action === "create") {
   try {
     $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
     $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
+    $group = (isset($_POST['group']) ? $VALIDATION->input($_POST['group']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
     $last = $ISSUE->issue_last();
 
@@ -27,18 +28,21 @@ if ($action === "create") {
     if (intval($count) > 0) {
       $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/issue");
     }
-    $ISSUE->issue_insert([$last, $type, $text, $user_id]);
+    $ISSUE->issue_insert([$last, $type, $group, $text, $user_id]);
     $issue_id = $ISSUE->last_insert_id();
 
     foreach ($_POST['item_product'] as $key => $value) {
       $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
       $location = (isset($_POST['item_location'][$key]) ? $VALIDATION->input($_POST['item_location'][$key]) : "");
       $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
+      $unit = (isset($_POST['item_unit'][$key]) ? $VALIDATION->input($_POST['item_unit'][$key]) : "");
+      $per = $ISSUE->product_per([$product]);
+      $quantity = (intval($unit) === 1 ? $quantity : ($quantity * $per));
 
       if (!empty($product)) {
-        $count = $ISSUE->item_count([$issue_id, $product, $location]);
+        $count = $ISSUE->item_count([$issue_id, $product, $location, $unit]);
         if (intval($count) === 0) {
-          $ISSUE->item_insert([$issue_id, $product, $type, $location, $quantity]);
+          $ISSUE->item_insert([$issue_id, $product, $type, $location, $quantity, $unit]);
         }
       }
     }
@@ -54,25 +58,28 @@ if ($action === "update") {
     $id = (isset($_POST['id']) ? $VALIDATION->input($_POST['id']) : "");
     $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
     $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
+    $group = (isset($_POST['group']) ? $VALIDATION->input($_POST['group']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
-    $item_product = (!empty($_POST['item_product']) ? $_POST['item_product'] : "");
 
-    if (!empty($item_product)) {
+    if (isset($_POST['item_product']) && !empty($_POST['item_product'])) {
       foreach ($_POST['item_product'] as $key => $value) {
         $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
         $location = (isset($_POST['item_location'][$key]) ? $VALIDATION->input($_POST['item_location'][$key]) : "");
         $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
+        $unit = (isset($_POST['item_unit'][$key]) ? $VALIDATION->input($_POST['item_unit'][$key]) : "");
+        $per = $ISSUE->product_per([$product]);
+        $quantity = (intval($unit) === 1 ? $quantity : ($quantity * $per));
 
         if (!empty($product)) {
-          $count = $ISSUE->item_count([$id, $product, $location]);
+          $count = $ISSUE->item_count([$id, $product, $location, $unit]);
           if (intval($count) === 0) {
-            $ISSUE->item_insert([$id, $product, $type, $location, $quantity]);
+            $ISSUE->item_insert([$id, $product, $type, $location, $quantity, $unit]);
           }
         }
       }
     }
 
-    $ISSUE->issue_update([$text, $uuid]);
+    $ISSUE->issue_update([$group, $text, $uuid]);
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/issue/edit/{$uuid}");
   } catch (PDOException $e) {
     die($e->getMessage());
@@ -98,10 +105,11 @@ if ($action === "exchange") {
       $send = (isset($_POST['item_send'][$key]) ? $VALIDATION->input($_POST['item_send'][$key]) : "");
       $receive = (isset($_POST['item_receive'][$key]) ? $VALIDATION->input($_POST['item_receive'][$key]) : "");
       $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
+      $unit = (isset($_POST['item_unit'][$key]) ? $VALIDATION->input($_POST['item_unit'][$key]) : "");
 
       if (!empty($product)) {
-        $ISSUE->item_insert([$issue_id, $product, 2, $send, $quantity]);
-        $ISSUE->item_insert([$issue_id, $product, 1, $receive, $quantity]);
+        $ISSUE->item_insert([$issue_id, $product, 2, $send, $quantity, $unit]);
+        $ISSUE->item_insert([$issue_id, $product, 1, $receive, $quantity, $unit]);
       }
     }
 
@@ -309,20 +317,30 @@ if ($action === "upload") {
       $data[] = array_map("trim", $value);
     }
 
+    $last = $ISSUE->issue_last();
+    $date = date("d/m/Y, H:i น.");
+    $ISSUE->issue_insert([$last, 1, 0, "ยอดยกมา วันที่ {$date}", 1]);
+    $issue_id = $ISSUE->last_insert_id();
+
     foreach ($data as $key => $value) {
       if (!in_array($key, [0])) {
-        $uuid = (isset($value[0]) ? $value[0] : "");
+        $code = (isset($value[0]) ? $value[0] : "");
         $name = (isset($value[1]) ? $value[1] : "");
-        $text = (isset($value[2]) ? $value[2] : "");
-        $status = (isset($value[3]) ? $value[3] : "");
-        $status = ($status === "ใช้งาน" ? 1 : 2);
+        $amount = (isset($value[2]) ? $value[2] : "");
+        $per = (isset($value[3]) ? $value[3] : "");
+        $total = ($amount * $per);
+        $warehouse = (isset($value[4]) ? $value[4] : "");
+        $warehouse_id = (!empty($warehouse) ? $ISSUE->warehouse_id([$warehouse]) : "");
 
-        $count = $issue->uuid_count([$uuid]);
+        $product_count = $ISSUE->product_count([$code, $name]);
+        if (intval($product_count) === 0) {
+          $ISSUE->product_insert([$code, $name, $per, 1]);
+          $product_id = $ISSUE->last_insert_id();
 
-        if (intval($count) > 0) {
-          $issue->issue_update([$name, $text, $status, $uuid]);
-        } else {
-          $issue->issue_insert([$name, $text]);
+          $item_count = $ISSUE->item_count([$issue_id, $product_id, $warehouse_id, 1]);
+          if (intval($item_count) === 0 && intval($total) > 0) {
+            $ISSUE->item_import([$issue_id, $product_id, 1, $warehouse_id, $total, $total]);
+          }
         }
       }
     }
@@ -406,6 +424,28 @@ if ($action === "user-select") {
   try {
     $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
     $result = $ISSUE->user_select($keyword);
+
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "unit-select") {
+  try {
+    $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
+    $result = $ISSUE->unit_select($keyword);
+
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "issue-select") {
+  try {
+    $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
+    $result = $ISSUE->issue_select($keyword);
 
     echo json_encode($result);
   } catch (PDOException $e) {

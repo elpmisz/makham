@@ -364,12 +364,16 @@ class Product
   {
     $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
     a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
-    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),2) income,
-    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),2) outcome,
+    FORMAT(
+      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0))
+    ,0) income,
+    FORMAT(
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(b.unit_id = 1,b.quantity,(b.quantity*a.per)),IF(b.unit_id = 1,b.confirm,(b.confirm*a.per))),0))
+    ,0) outcome,
     FORMAT((
       SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) -
-      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0))
-    ),2) remain,
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(b.unit_id = 1,b.quantity,(b.quantity*a.per)),IF(b.unit_id = 1,b.confirm,(b.confirm*a.per))),0))
+    ),0) remain,
     a.supplier,d.name supplier_name,
     a.unit,e.name unit_name,
     a.brand,f.name brand_name,
@@ -411,7 +415,14 @@ class Product
     $total = $stmt->fetchColumn();
 
     $column = [
-      "a.status", "a.code", "a.name", "g.name", "CONCAT(h.room,h.floor,h.zone)", "a.cost", "a.price", "a.min",
+      "a.status",
+      "a.code",
+      "a.name",
+      "g.name",
+      "CONCAT(h.room,h.floor,h.zone)",
+      "a.cost",
+      "a.price",
+      "a.min",
       "
       (
         SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) -
@@ -433,10 +444,12 @@ class Product
     $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
     a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
     SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) income,
-    SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) outcome,
+    FORMAT(
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(b.unit_id = 1,b.quantity,(b.quantity*a.per)),IF(b.unit_id = 1,b.confirm,(b.confirm*a.per))),0))
+    ,0) outcome,
     (
       SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) -
-      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0))
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(b.unit_id = 1,b.quantity,(b.quantity*a.per)),IF(b.unit_id = 1,b.confirm,(b.confirm*a.per))),0))
     ) remain,
     a.supplier,d.name supplier_name,
     a.unit,e.name unit_name,
@@ -540,10 +553,10 @@ class Product
     $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
     a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
     c.uuid issue_uuid,c.type issue_type,b.type,c.text,
-    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),2) income,
-    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),2) outcome,
+    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),0) income,
+    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),0) outcome,
     a.supplier,d.name supplier_name,
-    a.unit,e.name unit_name,
+    b.unit_id,e.name unit_name,
     a.brand,f.name brand_name,
     a.category,g.name category_name,
     a.store,CONCAT(h.room,h.floor,h.zone) store_name,
@@ -589,7 +602,7 @@ class Product
     LEFT JOIN inventory.customer d
     ON a.supplier = d.id
     LEFT JOIN inventory.unit e
-    ON a.unit = e.id
+    ON b.unit_id = e.id
     LEFT JOIN inventory.brand f
     ON a.brand = f.id 
     LEFT JOIN inventory.category g
@@ -643,6 +656,7 @@ class Product
         str_replace("\n", "<br>", $row['text']),
         $row['location_name'],
         ($row['type'] === 1 ? $row['income'] : $row['outcome']),
+        $row['unit_name'],
         $row['created'],
       ];
     }

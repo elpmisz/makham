@@ -182,7 +182,7 @@ $auth_waste = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
           <li <?php echo $setting_location ?>>
             <a href="/location">
               <i class="fa fa-gear pr-2"></i>
-              สถานที่
+              คลัง
             </a>
           </li>
           <li <?php echo $setting_store ?>>

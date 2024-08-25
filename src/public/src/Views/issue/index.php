@@ -25,10 +25,15 @@ $approver_count = $ISSUE->approver_count();
               </a>
             </div>
           <?php endif; ?>
-          <div class="col-xl-3 mb-2">
-            <a href="/issue/manage" class="btn btn-success btn-sm btn-block">
+          <!-- <div class="col-xl-3 mb-2">
+            <a href="/issue/manage" class="btn btn-primary btn-sm btn-block">
               <i class="fas fa-list pr-2"></i>จัดการ
             </a>
+          </div> -->
+          <div class="col-xl-3 mb-2">
+            <button class="btn btn-success btn-sm btn-block" data-toggle="modal" data-target="#modal-upload">
+              <i class="fas fa-upload pr-2"></i>นำข้อมูลเข้า
+            </button>
           </div>
           <div class="col-xl-3 mb-2">
             <a href="/issue/download" class="btn btn-danger btn-sm btn-block">
@@ -208,4 +213,35 @@ $approver_count = $ISSUE->approver_count();
       },
     });
   };
+
+  $("#import-modal").on("hidden.bs.modal", function() {
+    $(this).find("form")[0].reset();
+  })
+
+  $(document).on("change", "input[name='file']", function() {
+    let fileSize = ($(this)[0].files[0].size) / (1024 * 1024);
+    let fileExt = $(this).val().split(".").pop().toLowerCase();
+    let fileAllow = ["xls", "xlsx", "csv"];
+    let convFileSize = fileSize.toFixed(2);
+    if (convFileSize > 10) {
+      Swal.fire({
+        icon: "error",
+        title: "LIMIT 10MB!",
+      })
+      $(this).val("");
+    }
+
+    if ($.inArray(fileExt, fileAllow) == -1) {
+      Swal.fire({
+        icon: "error",
+        title: "เฉพาะเอกสารนามสกุล XLS XLSX CSV!",
+      })
+      $(this).val("");
+    }
+  });
+
+  $(document).on("submit", ".import", function() {
+    $("#import-modal").modal("hide");
+    $("#process-modal").modal("show");
+  });
 </script>

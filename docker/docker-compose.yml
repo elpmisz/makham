@@ -3,7 +3,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: directory-app
+    container_name: inventory-app
     restart: unless-stopped
     working_dir: /var/www/
     volumes:
@@ -11,7 +11,7 @@ services:
 
   server:
     image: nginx:alpine
-    container_name: directory-server
+    container_name: inventory-server
     restart: unless-stopped
     ports:
       - 9000:80
@@ -21,7 +21,7 @@ services:
 
   database:
     image: mariadb:latest
-    container_name: directory-database
+    container_name: inventory-database
     restart: unless-stopped
     ports:
       - 3309:3306
@@ -32,7 +32,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin:latest
-    container_name: directory-phpmyadmin
+    container_name: inventory-phpmyadmin
     restart: unless-stopped
     ports:
       - 9001:80

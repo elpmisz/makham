@@ -44,8 +44,8 @@ $ROUTER->map("GET", "/purchase/manage", function () {
 $ROUTER->map("GET", "/purchase/manage-edit/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/purchase/manage-edit.php");
 });
-$ROUTER->map("GET", "/purchase/edit/[**:params]", function ($params) {
-  require(__DIR__ . "/src/Views/purchase/edit.php");
+$ROUTER->map("GET", "/purchase/view/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/purchase/view.php");
 });
 $ROUTER->map("GET", "/purchase/approve/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/purchase/approve.php");

@@ -19,6 +19,7 @@ $text = (!empty($row['text']) ? $row['text'] : "");
 $type = (!empty($row['type']) ? $row['type'] : "");
 $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
 $type_color = (!empty($row['type_color']) ? $row['type_color'] : "");
+$group = (!empty($row['group']) ? $row['group'] : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
 ?>
 
@@ -67,6 +68,39 @@ $created = (!empty($row['created']) ? $row['created'] : "");
               <?php echo $type_name ?>
             </div>
           </div>
+          <?php if (intval($type === 2)) : ?>
+            <div class="row mb-2">
+              <label class="col-xl-3 offset-xl-1 col-form-label">เพื่อ</label>
+              <div class="col-xl-8">
+                <div class="row pb-2">
+                  <div class="col-xl-3">
+                    <label class="form-check-label px-3 py-2">
+                      <input class="form-check-input" type="radio" name="group" value="1" <?php echo (intval($group) === 1 ? "checked" : "") ?> required>
+                      <span class="text-info">สั่งผลิต</span>
+                    </label>
+                  </div>
+                  <div class="col-xl-3">
+                    <label class="form-check-label px-3 py-2">
+                      <input class="form-check-input" type="radio" name="group" value="2" <?php echo (intval($group) === 2 ? "checked" : "") ?> required>
+                      <span class="text-primary">รอผลิต</span>
+                    </label>
+                  </div>
+                  <div class="col-xl-3">
+                    <label class="form-check-label px-3 py-2">
+                      <input class="form-check-input" type="radio" name="group" value="3" <?php echo (intval($group) === 3 ? "checked" : "") ?> required>
+                      <span class="text-success">ขาย</span>
+                    </label>
+                  </div>
+                  <div class="col-xl-3">
+                    <label class="form-check-label px-3 py-2">
+                      <input class="form-check-input" type="radio" name="group" value="4" <?php echo (intval($group) === 4 ? "checked" : "") ?> required>
+                      <span class="text-danger">อื่นๆ</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <?php endif ?>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
             <div class="col-xl-6">
@@ -101,7 +135,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           <td><?php echo $item['product_name'] ?></td>
                           <td><?php echo $item['location_name'] ?></td>
                           <td class="text-right"></td>
-                          <td class="text-right"><?php echo number_format($item['quantity'], 2) ?></td>
+                          <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
                           <td class="text-center"><?php echo $item['unit_name'] ?></td>
                         </tr>
                       <?php endforeach; ?>
@@ -124,12 +158,17 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                         </td>
                         <td class="text-right"><span class="item-remain"></span></td>
                         <td>
-                          <input type="number" class="form-control form-control-sm text-center item-quantity" name="item_quantity[]" min="0" step="0.01">
+                          <input type="number" class="form-control form-control-sm text-center item-quantity" name="item_quantity[]" min="0" step="1">
                           <div class="invalid-feedback">
                             กรุณากรอกข้อมูล!
                           </div>
                         </td>
-                        <td class="text-center"><span class="item-unit"></span></td>
+                        <td class="text-left">
+                          <select class="form-control form-control-sm unit-select" name="item_unit[]" required></select>
+                          <div class="invalid-feedback">
+                            กรุณาเลือกข้อมูล!
+                          </div>
+                        </td>
                       </tr>
                     </tbody>
                   <?php endif; ?>
@@ -139,8 +178,8 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                         <th width="10%">#</th>
                         <th width="30%">วัตถุดิบ</th>
                         <th width="20%">สถานที่ (ต้นทาง)</th>
-                        <th width="10%">ปริมาณ (คงเหลือ)</th>
                         <th width="20%">สถานที่ (ปลายทาง)</th>
+                        <th width="10%">ปริมาณ (คงเหลือ)</th>
                         <th width="10%">ปริมาณ (โอนย้าย)</th>
                         <th width="10%">หน่วยนับ</th>
                       </tr>
@@ -153,9 +192,9 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           </td>
                           <td><?php echo $item['product_name'] ?></td>
                           <td><?php echo $item['send'] ?></td>
-                          <td class="text-right"></td>
                           <td><?php echo $item['receive'] ?></td>
-                          <td class="text-right"><?php echo number_format($item['quantity'], 2) ?></td>
+                          <td class="text-right"></td>
+                          <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
                           <td class="text-center"><?php echo $item['unit_name'] ?></td>
                         </tr>
                       <?php endforeach; ?>
@@ -176,20 +215,25 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                             กรุณาเลือกข้อมูล!
                           </div>
                         </td>
-                        <td class="text-center"><span class="item-remain"></span></td>
                         <td class="text-left">
                           <select class="form-control form-control-sm location-select" name="item_receive[]"></select>
                           <div class="invalid-feedback">
                             กรุณาเลือกข้อมูล!
                           </div>
                         </td>
+                        <td class="text-right"><span class="item-remain"></span></td>
                         <td>
                           <input type="number" class="form-control form-control-sm text-center item-quantity" name="item_quantity[]" min="0" step="0.01">
                           <div class="invalid-feedback">
                             กรุณากรอกข้อมูล!
                           </div>
                         </td>
-                        <td class="text-center"><span class="item-unit"></span></td>
+                        <td class="text-left">
+                          <select class="form-control form-control-sm unit-select" name="item_unit[]" required></select>
+                          <div class="invalid-feedback">
+                            กรุณาเลือกข้อมูล!
+                          </div>
+                        </td>
                       </tr>
                     </tbody>
                   <?php endif; ?>
@@ -291,6 +335,24 @@ $created = (!empty($row['created']) ? $row['created'] : "");
         cache: true
       }
     });
+
+    $(".unit-select").select2({
+      placeholder: "-- หน่วยนับ --",
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: "/issue/unit-select",
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
   });
 
   if (type === 1) {
@@ -337,6 +399,24 @@ $created = (!empty($row['created']) ? $row['created'] : "");
     width: "100%",
     ajax: {
       url: "/issue/location-select",
+      method: "POST",
+      dataType: "json",
+      delay: 100,
+      processResults: function(data) {
+        return {
+          results: data
+        };
+      },
+      cache: true
+    }
+  });
+
+  $(".unit-select").select2({
+    placeholder: "-- หน่วยนับ --",
+    allowClear: true,
+    width: "100%",
+    ajax: {
+      url: "/issue/unit-select",
       method: "POST",
       dataType: "json",
       delay: 100,

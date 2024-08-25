@@ -31,7 +31,7 @@ $SYSTEM = new System();
 $system = $SYSTEM->read();
 $user = $USER->user_view_email([$email]);
 $system_name = (isset($system['name']) ? $system['name'] : "");
-$firstname = (!empty($user['firstname']) ? ucfirst($user['firstname']) : "");
+$firstname = (!empty($user['firstname']) ? ($user['firstname']) : "");
 
 $lists = ["ใบสั่งผลิต", "ใบนำสินค้าเข้า - ออก", "ใบสรุปของเสีย"];
 $user_auth = explode(",", $user['auth']);

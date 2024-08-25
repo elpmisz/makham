@@ -92,8 +92,8 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           </td>
                           <td><?php echo $item['product_name'] ?></td>
                           <td><?php echo $item['location_name'] ?></td>
-                          <td class="text-right"><?php echo number_format($item['quantity'], 2) ?></td>
-                          <td class="text-right"><?php echo number_format($item['confirm'], 2) ?></td>
+                          <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
+                          <td class="text-right"><?php echo number_format($item['confirm'], 0, '.', ',') ?></td>
                           <td class="text-center"><?php echo $item['unit_name'] ?></td>
                         </tr>
                       <?php endforeach; ?>
@@ -120,8 +120,8 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                         <td><?php echo $item['product_name'] ?></td>
                         <td><?php echo $item['send'] ?></td>
                         <td><?php echo $item['receive'] ?></td>
-                        <td class="text-right"><?php echo number_format($item['quantity'], 2) ?></td>
-                        <td class="text-right"><?php echo number_format($item['confirm'], 2) ?></td>
+                        <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
+                        <td class="text-right"><?php echo number_format($item['confirm'], 0, '.', ',') ?></td>
                         <td class="text-center"><?php echo $item['unit_name'] ?></td>
                       </tr>
                     <?php endforeach; ?>

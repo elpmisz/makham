@@ -344,6 +344,7 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
                                 <th width="20%">รายละเอียด</th>
                                 <th width="10%">สถานที่</th>
                                 <th width="10%">ปริมาณ</th>
+                                <th width="10%">หน่วยนับ</th>
                                 <th width="10%">วันที่ทำรายการ</th>
                               </tr>
                             </thead>
