@@ -33,7 +33,7 @@ include_once(__DIR__ . "/../layout/header.php");
 
         <div class="row justify-content-end mb-2">
           <div class="col-xl-3 mb-2">
-            <select class="form-control form-control-sm category-select"></select>
+            <select class="form-control form-control-sm location-select"></select>
           </div>
           <div class="col-xl-3 mb-2">
             <select class="form-control form-control-sm store-select"></select>
@@ -103,19 +103,19 @@ include_once(__DIR__ . "/../layout/header.php");
 <script>
   filter_datatable();
 
-  $(document).on("change", ".category-select, .store-select", function() {
-    let category = ($(".category-select").val() ? $(".category-select").val() : "");
+  $(document).on("change", ".location-select, .store-select", function() {
+    let location = ($(".location-select").val() ? $(".location-select").val() : "");
     let store = ($(".store-select").val() ? $(".store-select").val() : "");
-    if (category || store) {
+    if (location || store) {
       $(".product-data").DataTable().destroy();
-      filter_datatable(category, store);
+      filter_datatable(location, store);
     } else {
       $(".product-data").DataTable().destroy();
       filter_datatable();
     }
   });
 
-  function filter_datatable(category, store) {
+  function filter_datatable(location, store) {
     $(".product-data").DataTable({
       serverSide: true,
       searching: true,
@@ -125,7 +125,7 @@ include_once(__DIR__ . "/../layout/header.php");
         url: "/product/product-data",
         type: "POST",
         data: {
-          category: category,
+          location: location,
           store: store
         }
       },
@@ -173,12 +173,12 @@ include_once(__DIR__ . "/../layout/header.php");
     });
   };
 
-  $(".category-select").select2({
-    placeholder: "-- หมวดหมู่ --",
+  $(".location-select").select2({
+    placeholder: "-- คลัง --",
     allowClear: true,
     width: "100%",
     ajax: {
-      url: "/product/category-select",
+      url: "/product/location-select",
       method: "POST",
       dataType: "json",
       delay: 100,

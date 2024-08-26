@@ -90,6 +90,7 @@ if ($action === "exchange") {
   try {
     $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
     $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
+    $group = (isset($_POST['group']) ? $VALIDATION->input($_POST['group']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
     $last = $ISSUE->issue_last();
 
@@ -97,7 +98,7 @@ if ($action === "exchange") {
     if (intval($count) > 0) {
       $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/issue");
     }
-    $ISSUE->issue_insert([$last, $type, $text, $user_id]);
+    $ISSUE->issue_insert([$last, $type, $group, $text, $user_id]);
     $issue_id = $ISSUE->last_insert_id();
 
     foreach ($_POST['item_product'] as $key => $value) {
@@ -339,7 +340,7 @@ if ($action === "upload") {
 
           $item_count = $ISSUE->item_count([$issue_id, $product_id, $warehouse_id, 1]);
           if (intval($item_count) === 0 && intval($total) > 0) {
-            $ISSUE->item_import([$issue_id, $product_id, 1, $warehouse_id, $total, $total]);
+            $ISSUE->item_import([$issue_id, $product_id, 1, $warehouse_id, $total, $total, 1]);
           }
         }
       }

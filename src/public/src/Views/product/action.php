@@ -211,9 +211,9 @@ if ($action === "upload") {
 
 if ($action === "product-data") {
   try {
-    $category = (isset($_POST['category']) ? $VALIDATION->input($_POST['category']) : "");
+    $location = (isset($_POST['location']) ? $VALIDATION->input($_POST['location']) : "");
     $store = (isset($_POST['store']) ? $VALIDATION->input($_POST['store']) : "");
-    $result = $PRODUCT->product_data($category, $store);
+    $result = $PRODUCT->product_data($location, $store);
     echo json_encode($result);
   } catch (PDOException $e) {
     die($e->getMessage());
@@ -267,6 +267,17 @@ if ($action === "brand-select") {
   try {
     $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
     $result = $PRODUCT->brand_select($keyword);
+
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "location-select") {
+  try {
+    $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
+    $result = $PRODUCT->location_select($keyword);
 
     echo json_encode($result);
   } catch (PDOException $e) {

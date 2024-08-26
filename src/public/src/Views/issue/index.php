@@ -62,7 +62,7 @@ $approver_count = $ISSUE->approver_count();
         <?php if (intval($approver) > 0 && intval($approver_count) > 0) : ?>
           <div class="row mb-2">
             <div class="col-xl-12">
-              <div class="card">
+              <div class="card shadow">
                 <div class="card-header">
                   <h5 class="text-center">รายการรอดำเนินการ</h5>
                 </div>
@@ -89,7 +89,7 @@ $approver_count = $ISSUE->approver_count();
 
         <div class="row mb-2">
           <div class="col-xl-12">
-            <div class="card">
+            <div class="card shadow">
               <div class="card-header">
                 <h5 class="text-center">รายการขอใช้บริการ</h5>
               </div>

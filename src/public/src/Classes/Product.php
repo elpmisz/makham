@@ -287,10 +287,24 @@ class Product
     return $stmt->fetchAll();
   }
 
+  public function location_select($keyword)
+  {
+    $sql = "SELECT a.id ,a.name `text`
+    FROM  inventory.location a 
+    WHERE a.status = 1 ";
+    if (!empty($keyword)) {
+      $sql .= " AND (a.name LIKE '%{$keyword}%' OR a.text LIKE '%{$keyword}%') ";
+    }
+    $sql .= " ORDER BY a.name ASC LIMIT 50";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
   public function category_select($keyword)
   {
-    $sql = "SELECT a.id,a.name text
-    FROM inventory.category a
+    $sql = "SELECT a.id ,a.name `text`
+    FROM  inventory.category a 
     WHERE a.status = 1 ";
     if (!empty($keyword)) {
       $sql .= " AND (a.name LIKE '%{$keyword}%' OR a.text LIKE '%{$keyword}%') ";
@@ -407,7 +421,7 @@ class Product
     return $stmt->fetchAll();
   }
 
-  public function product_data($category, $store)
+  public function product_data($location, $store)
   {
     $sql = "SELECT COUNT(*) FROM inventory.product";
     $stmt = $this->dbcon->prepare($sql);
@@ -431,7 +445,7 @@ class Product
       "
     ];
 
-    $category = (!empty($category) ? $category : "");
+    $category = (!empty($location) ? $location : "");
     $store = (!empty($store) ? $store : "");
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -479,8 +493,8 @@ class Product
     if (!empty($keyword)) {
       $sql .= " AND (a.name LIKE '%{$keyword}%' OR a.code LIKE '%{$keyword}%' OR d.name LIKE '%{$keyword}%' OR e.name LIKE '%{$keyword}%' OR f.name LIKE '%{$keyword}%' OR g.name LIKE '%{$keyword}%' OR CONCAT(h.room,h.floor,h.zone) LIKE '%{$keyword}%') ";
     }
-    if (!empty($category)) {
-      $sql .= " AND a.category = '{$category}' ";
+    if (!empty($location)) {
+      $sql .= " AND b.location_id = '{$location}' ";
     }
     if (!empty($store)) {
       $sql .= " AND a.store = '{$store}' ";

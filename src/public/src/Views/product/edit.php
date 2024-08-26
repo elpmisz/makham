@@ -249,7 +249,7 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
               <div class="row mb-2">
                 <label class="col-xl-3 offset-xl-1 col-form-label">หมวดหมู่</label>
                 <div class="col-xl-6">
-                  <select class="form-control form-control-sm category-select" name="category" required>
+                  <select class="form-control form-control-sm category-select" name="category">
                     <?php
                     if ($category > 0) {
                       echo "<option value='{$category}'>{$category_name}</option>";

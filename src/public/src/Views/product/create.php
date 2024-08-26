@@ -128,7 +128,7 @@ include_once(__DIR__ . "/../layout/header.php");
               <div class="row mb-2">
                 <label class="col-xl-3 offset-xl-1 col-form-label">หมวดหมู่</label>
                 <div class="col-xl-6">
-                  <select class="form-control form-control-sm category-select" name="category" required></select>
+                  <select class="form-control form-control-sm category-select" name="category"></select>
                   <div class="invalid-feedback">
                     กรุณาเลือกข้อมูล!
                   </div>

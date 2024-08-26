@@ -164,7 +164,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           </div>
                         </td>
                         <td class="text-left">
-                          <select class="form-control form-control-sm unit-select" name="item_unit[]" required></select>
+                          <select class="form-control form-control-sm unit-select" name="item_unit[]"></select>
                           <div class="invalid-feedback">
                             กรุณาเลือกข้อมูล!
                           </div>
