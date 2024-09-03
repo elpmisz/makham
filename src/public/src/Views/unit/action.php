@@ -41,7 +41,7 @@ if ($action === "update") {
     $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
 
     $UNIT->unit_update([$name, $text, $status, $uuid]);
-    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/unit");
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/unit/edit/{$uuid}");
   } catch (PDOException $e) {
     die($e->getMessage());
   }

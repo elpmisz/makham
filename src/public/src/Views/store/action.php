@@ -45,7 +45,7 @@ if ($action === "update") {
     $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
 
     $STORE->store_update([$room, $zone, $floor, $text, $status, $uuid]);
-    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/store");
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/store/edit/{$uuid}");
   } catch (PDOException $e) {
     die($e->getMessage());
   }

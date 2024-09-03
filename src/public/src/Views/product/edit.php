@@ -29,6 +29,7 @@ $supplier = (!empty($row['supplier']) ? $row['supplier'] : "");
 $supplier_name = (!empty($row['supplier_name']) ? $row['supplier_name'] : "");
 $unit = (!empty($row['unit']) ? $row['unit'] : "");
 $unit_name = (!empty($row['unit_name']) ? $row['unit_name'] : "");
+$per = (!empty($row['per']) ? $row['per'] : "");
 $brand = (!empty($row['brand']) ? $row['brand'] : "");
 $brand_name = (!empty($row['brand_name']) ? $row['brand_name'] : "");
 $category = (!empty($row['category']) ? $row['category'] : "");
@@ -186,36 +187,7 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
             </div>
 
             <div class="col-xl-6">
-              <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">สูตรการผลิต</label>
-                <div class="col-xl-6">
-                  <select class="form-control form-control-sm bom-select" name="bom">
-                    <?php
-                    if ($bom_id > 0) {
-                      echo "<option value='{$bom_id}'>{$bom_name}</option>";
-                    }
-                    ?>
-                  </select>
-                  <div class="invalid-feedback">
-                    กรุณาเลือกข้อมูล!
-                  </div>
-                </div>
-              </div>
-              <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">ผู้จัดจำหน่าย</label>
-                <div class="col-xl-6">
-                  <select class="form-control form-control-sm supplier-select" name="supplier">
-                    <?php
-                    if ($supplier > 0) {
-                      echo "<option value='{$supplier}'>{$supplier_name}</option>";
-                    }
-                    ?>
-                  </select>
-                  <div class="invalid-feedback">
-                    กรุณาเลือกข้อมูล!
-                  </div>
-                </div>
-              </div>
+
               <div class="row mb-2">
                 <label class="col-xl-3 offset-xl-1 col-form-label">หน่วยนับ</label>
                 <div class="col-xl-6">
@@ -228,6 +200,15 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
                   </select>
                   <div class="invalid-feedback">
                     กรุณาเลือกข้อมูล!
+                  </div>
+                </div>
+              </div>
+              <div class="row mb-2">
+                <label class="col-xl-3 offset-xl-1 col-form-label">กิโลกรัม/หน่วย</label>
+                <div class="col-xl-4">
+                  <input type="number" class="form-control form-control-sm text-center" name="per" min="0" value="<?php echo $per ?>" required>
+                  <div class="invalid-feedback">
+                    กรุณากรอกข้อมูล!
                   </div>
                 </div>
               </div>
@@ -247,27 +228,12 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
                 </div>
               </div>
               <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">หมวดหมู่</label>
+                <label class="col-xl-3 offset-xl-1 col-form-label">ผู้จัดจำหน่าย</label>
                 <div class="col-xl-6">
-                  <select class="form-control form-control-sm category-select" name="category">
+                  <select class="form-control form-control-sm supplier-select" name="supplier">
                     <?php
-                    if ($category > 0) {
-                      echo "<option value='{$category}'>{$category_name}</option>";
-                    }
-                    ?>
-                  </select>
-                  <div class="invalid-feedback">
-                    กรุณาเลือกข้อมูล!
-                  </div>
-                </div>
-              </div>
-              <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">สถานที่จัดเก็บ</label>
-                <div class="col-xl-6">
-                  <select class="form-control form-control-sm store-select" name="store">
-                    <?php
-                    if ($store > 0) {
-                      echo "<option value='{$store}'>{$store_name}</option>";
+                    if ($supplier > 0) {
+                      echo "<option value='{$supplier}'>{$supplier_name}</option>";
                     }
                     ?>
                   </select>

@@ -24,6 +24,8 @@ if ($action === "create") {
     $email = (isset($_POST['email']) ? $VALIDATION->input($_POST['email']) : "");
     $address = (isset($_POST['address']) ? $VALIDATION->input($_POST['address']) : "");
     $sub = (isset($_POST['sub']) ? $VALIDATION->input($_POST['sub']) : "");
+    $latitude = (isset($_POST['latitude']) ? $VALIDATION->input($_POST['latitude']) : "");
+    $longitude = (isset($_POST['longitude']) ? $VALIDATION->input($_POST['longitude']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
 
     $count = $CUSTOMER->customer_count([$name]);
@@ -31,7 +33,7 @@ if ($action === "create") {
       $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/customer");
     }
 
-    $CUSTOMER->customer_insert([$name, $vat, $email, $contact, $address, $sub, $text]);
+    $CUSTOMER->customer_insert([$name, $vat, $email, $contact, $address, $sub, $latitude, $longitude, $text]);
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/customer");
   } catch (PDOException $e) {
     die($e->getMessage());
@@ -47,11 +49,13 @@ if ($action === "update") {
     $email = (isset($_POST['email']) ? $VALIDATION->input($_POST['email']) : "");
     $address = (isset($_POST['address']) ? $VALIDATION->input($_POST['address']) : "");
     $sub = (isset($_POST['sub']) ? $VALIDATION->input($_POST['sub']) : "");
+    $latitude = (isset($_POST['latitude']) ? $VALIDATION->input($_POST['latitude']) : "");
+    $longitude = (isset($_POST['longitude']) ? $VALIDATION->input($_POST['longitude']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
     $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
 
-    $CUSTOMER->customer_update([$name, $vat, $email, $contact, $address, $sub, $text, $status, $uuid]);
-    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/customer");
+    $CUSTOMER->customer_update([$name, $vat, $email, $contact, $address, $sub, $latitude, $longitude, $text, $status, $uuid]);
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/customer/edit/{$uuid}");
   } catch (PDOException $e) {
     die($e->getMessage());
   }

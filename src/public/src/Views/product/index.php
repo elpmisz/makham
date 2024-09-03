@@ -49,12 +49,9 @@ include_once(__DIR__ . "/../layout/header.php");
                     <th width="10%">#</th>
                     <th width="10%">รหัส</th>
                     <th width="20%">ชื่อ</th>
-                    <th width="10%">หมวดหมู่</th>
-                    <th width="10%">สถานที่จัดเก็บ</th>
-                    <th width="10%">ราคาซื้อ</th>
-                    <th width="10%">ราคาขาย</th>
                     <th width="10%">MIN</th>
                     <th width="10%">คงเหลือ</th>
+                    <th width="10%">หน่วยนับ</th>
                   </tr>
                 </thead>
               </table>
@@ -130,11 +127,14 @@ include_once(__DIR__ . "/../layout/header.php");
         }
       },
       columnDefs: [{
-        targets: [0, 1, 3, 4],
+        targets: [0, 1, 5],
         className: "text-center",
       }, {
-        targets: [5, 6, 7, 8],
+        targets: [3, 4],
         className: "text-right",
+      }, {
+        targets: [2],
+        className: "text-left",
       }],
       "oLanguage": {
         "sLengthMenu": "แสดง _MENU_ ลำดับ ต่อหน้า",
@@ -155,7 +155,7 @@ include_once(__DIR__ . "/../layout/header.php");
         let min = parseInt(data[7]);
         let remain = parseInt(data[8]);
 
-        let comma = [5, 6, 7, 8]
+        let comma = [4]
         for (i = 0; i <= comma.length; i++) {
           let value = (parseInt(data[comma[i]]) !== 0 ? parseFloat(data[comma[i]]).toFixed(2) : 0);
           value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

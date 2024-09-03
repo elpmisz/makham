@@ -18,7 +18,7 @@
     "components/jquery": "^3.7",
     "select2/select2": "^4.0",
     "datatables/datatables": "^1.10",
-    "phpoffice/phpspreadsheet": "1.8.2",
+    "phpoffice/phpspreadsheet": "^1.8",
     "myclabs/deep-copy": "1.7.0",
     "paragonie/random_compat": "2.0.19",
     "mpdf/mpdf": "8.0.17",

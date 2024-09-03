@@ -51,7 +51,7 @@ if ($action === "update") {
     $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
 
     $SUPPLIER->supplier_update([$name, $vat, $email, $contact, $address, $sub, $text, $status, $uuid]);
-    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/supplier");
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/supplier/edit/{$uuid}");
   } catch (PDOException $e) {
     die($e->getMessage());
   }

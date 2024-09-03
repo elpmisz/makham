@@ -29,14 +29,14 @@ class Product
 
   public function product_insert($data)
   {
-    $sql = "INSERT INTO inventory.product(uuid,code,name,cost,price,min,max,bom_id,supplier,unit,brand,category,store,text) VALUES(uuid(),?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    $sql = "INSERT INTO inventory.product(uuid,code,name,cost,price,min,max,per,bom_id,supplier,unit,brand,category,store,text) VALUES(uuid(),?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
 
   public function product_view($data)
   {
-    $sql = "SELECT a.id,a.uuid,a.code,a.name product_name,a.cost,a.price,a.min,a.max,a.text,a.status,
+    $sql = "SELECT a.id,a.uuid,a.code,a.name product_name,a.cost,a.price,a.min,a.max,a.per,a.text,a.status,
     a.bom_id,g.uuid bom_uuid, g.name bom_name,
     a.supplier,b.name supplier_name,
     a.unit,c.name unit_name,
@@ -123,6 +123,7 @@ class Product
     price = ?,
     min = ?,
     max = ?,
+    per = ?,
     bom_id = ?,
     supplier = ?,
     unit = ?,
@@ -432,17 +433,14 @@ class Product
       "a.status",
       "a.code",
       "a.name",
-      "g.name",
-      "CONCAT(h.room,h.floor,h.zone)",
-      "a.cost",
-      "a.price",
       "a.min",
       "
       (
         SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) -
         SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0))
       )
-      "
+      ",
+      "e.name"
     ];
 
     $category = (!empty($location) ? $location : "");
@@ -527,12 +525,9 @@ class Product
         $status,
         $row['product_code'],
         $row['product_name'],
-        $row['category_name'],
-        $row['store_name'],
-        $row['product_cost'],
-        $row['product_price'],
         $row['product_min'],
         $row['remain'],
+        $row['unit_name'],
       ];
     }
 

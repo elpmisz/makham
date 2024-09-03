@@ -42,7 +42,7 @@ include_once(__DIR__ . "/../layout/header.php");
                 </div>
               </div>
               <div class="row mb-2">
-                <label class="col-xl-4 col-form-label">ชื่อ</label>
+                <label class="col-xl-4 col-form-label">ชื่อสินค้า</label>
                 <div class="col-xl-8">
                   <input type="text" class="form-control form-control-sm" name="name" required>
                   <div class="invalid-feedback">
@@ -90,29 +90,20 @@ include_once(__DIR__ . "/../layout/header.php");
 
             <div class="col-xl-6">
               <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">สูตรการผลิต</label>
-                <div class="col-xl-6">
-                  <select class="form-control form-control-sm bom-select" name="bom"></select>
-                  <div class="invalid-feedback">
-                    กรุณาเลือกข้อมูล!
-                  </div>
-                </div>
-              </div>
-              <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">ผู้จัดจำหน่าย</label>
-                <div class="col-xl-6">
-                  <select class="form-control form-control-sm supplier-select" name="supplier"></select>
-                  <div class="invalid-feedback">
-                    กรุณาเลือกข้อมูล!
-                  </div>
-                </div>
-              </div>
-              <div class="row mb-2">
                 <label class="col-xl-3 offset-xl-1 col-form-label">หน่วยนับ</label>
                 <div class="col-xl-6">
                   <select class="form-control form-control-sm unit-select" name="unit" required></select>
                   <div class="invalid-feedback">
                     กรุณาเลือกข้อมูล!
+                  </div>
+                </div>
+              </div>
+              <div class="row mb-2">
+                <label class="col-xl-3 offset-xl-1 col-form-label">กิโลกรัม/หน่วย</label>
+                <div class="col-xl-4">
+                  <input type="number" class="form-control form-control-sm text-center" name="per" min="0" required>
+                  <div class="invalid-feedback">
+                    กรุณากรอกข้อมูล!
                   </div>
                 </div>
               </div>
@@ -126,18 +117,9 @@ include_once(__DIR__ . "/../layout/header.php");
                 </div>
               </div>
               <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">หมวดหมู่</label>
+                <label class="col-xl-3 offset-xl-1 col-form-label">ผู้จัดจำหน่าย</label>
                 <div class="col-xl-6">
-                  <select class="form-control form-control-sm category-select" name="category"></select>
-                  <div class="invalid-feedback">
-                    กรุณาเลือกข้อมูล!
-                  </div>
-                </div>
-              </div>
-              <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">สถานที่จัดเก็บ</label>
-                <div class="col-xl-6">
-                  <select class="form-control form-control-sm store-select" name="store"></select>
+                  <select class="form-control form-control-sm supplier-select" name="supplier"></select>
                   <div class="invalid-feedback">
                     กรุณาเลือกข้อมูล!
                   </div>

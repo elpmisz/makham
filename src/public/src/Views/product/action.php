@@ -27,6 +27,7 @@ if ($action === "create") {
     $bom = (isset($_POST['bom']) ? $VALIDATION->input($_POST['bom']) : "");
     $supplier = (isset($_POST['supplier']) ? $VALIDATION->input($_POST['supplier']) : "");
     $unit = (isset($_POST['unit']) ? $VALIDATION->input($_POST['unit']) : "");
+    $per = (isset($_POST['per']) ? $VALIDATION->input($_POST['per']) : "");
     $brand = (isset($_POST['brand']) ? $VALIDATION->input($_POST['brand']) : "");
     $category = (isset($_POST['category']) ? $VALIDATION->input($_POST['category']) : "");
     $store = (isset($_POST['store']) ? $VALIDATION->input($_POST['store']) : "");
@@ -37,7 +38,7 @@ if ($action === "create") {
       $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/unit");
     }
 
-    $PRODUCT->product_insert([$code, $name, $cost, $price, $min, $max, $bom, $supplier, $unit, $brand, $category, $store, $text]);
+    $PRODUCT->product_insert([$code, $name, $cost, $price, $min, $max, $per, $bom, $supplier, $unit, $brand, $category, $store, $text]);
     $product_id = $PRODUCT->last_insert_id();
 
     foreach ($_FILES['file']['name'] as $key => $row) {
@@ -85,6 +86,7 @@ if ($action === "update") {
     $bom = (isset($_POST['bom']) ? $VALIDATION->input($_POST['bom']) : "");
     $supplier = (isset($_POST['supplier']) ? $VALIDATION->input($_POST['supplier']) : "");
     $unit = (isset($_POST['unit']) ? $VALIDATION->input($_POST['unit']) : "");
+    $per = (isset($_POST['per']) ? $VALIDATION->input($_POST['per']) : "");
     $brand = (isset($_POST['brand']) ? $VALIDATION->input($_POST['brand']) : "");
     $category = (isset($_POST['category']) ? $VALIDATION->input($_POST['category']) : "");
     $store = (isset($_POST['store']) ? $VALIDATION->input($_POST['store']) : "");
@@ -117,8 +119,8 @@ if ($action === "update") {
       }
     }
 
-    $PRODUCT->product_update([$code, $name, $cost, $price, $min, $max, $bom, $supplier, $unit, $brand, $category, $store, $text, $status, $uuid]);
-    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/product");
+    $PRODUCT->product_update([$code, $name, $cost, $price, $min, $max, $per, $bom, $supplier, $unit, $brand, $category, $store, $text, $status, $uuid]);
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/product/edit/{$uuid}");
   } catch (PDOException $e) {
     die($e->getMessage());
   }

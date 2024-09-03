@@ -143,22 +143,10 @@ $auth_waste = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
               จัดการสิทธิ์
             </a>
           </li>
-          <li <?php echo $setting_bom ?>>
-            <a href="/bom">
-              <i class="fa fa-gear pr-2"></i>
-              สูตรการผลิต
-            </a>
-          </li>
           <li <?php echo $setting_product ?>>
             <a href="/product">
               <i class="fa fa-gear pr-2"></i>
               วัตถุดิบ / สินค้า
-            </a>
-          </li>
-          <li <?php echo $setting_machine ?>>
-            <a href="/machine">
-              <i class="fa fa-gear pr-2"></i>
-              เครื่องจักร
             </a>
           </li>
           <li <?php echo $setting_customer ?>>
@@ -171,12 +159,6 @@ $auth_waste = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
             <a href="/supplier">
               <i class="fa fa-gear pr-2"></i>
               ผู้จัดจำหน่าย
-            </a>
-          </li>
-          <li <?php echo $setting_category ?>>
-            <a href="/category">
-              <i class="fa fa-gear pr-2"></i>
-              หมวดหมู่
             </a>
           </li>
           <li <?php echo $setting_location ?>>

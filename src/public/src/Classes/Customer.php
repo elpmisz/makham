@@ -29,14 +29,15 @@ class Customer
 
   public function customer_insert($data)
   {
-    $sql = "INSERT INTO inventory.customer(uuid,name,type,vat,email,contact,address,subcode,text) VALUES(uuid(),?,2,?,?,?,?,?,?)";
+    $sql = "INSERT INTO inventory.customer(uuid,name,type,vat,email,contact,address,subcode,latitude,longitude,text) VALUES(uuid(),?,2,?,?,?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
 
   public function customer_view($data)
   {
-    $sql = "SELECT a.uuid,a.name customer_name,a.vat,a.email,a.contact,a.address,b.name_th sub_name,c.name_th district_name,d.name_th province_name,
+    $sql = "SELECT a.uuid,a.name customer_name,a.vat,a.email,a.contact,a.address,b.name_th sub_name,
+    c.name_th district_name,d.name_th province_name,a.latitude,a.longitude,
     b.postal,a.text,a.subcode,CONCAT(IF(d.code = 10,'แขวง','ตำบล'),b.name_th,IF(d.code = 10,' ',' อำเภอ'),c.name_th,' จังหวัด',d.name_th,' ',b.postal) subname,a.status
     FROM inventory.customer a
     LEFT JOIN inventory.subdistrict b
@@ -60,6 +61,8 @@ class Customer
     contact = ?,
     address = ?,
     subcode = ?,
+    latitude = ?,
+    longitude = ?,
     text = ?,
     status = ?,
     updated = NOW()

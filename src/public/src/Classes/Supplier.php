@@ -36,7 +36,8 @@ class Supplier
 
   public function supplier_view($data)
   {
-    $sql = "SELECT a.uuid,a.name customer_name,a.vat,a.email,a.contact,a.address,b.name_th sub_name,c.name_th district_name,d.name_th province_name,
+    $sql = "SELECT a.uuid,a.name customer_name,a.vat,a.email,a.contact,a.address,b.name_th sub_name,
+    c.name_th district_name,d.name_th province_name,a.latitude,a.longitude,
     b.postal,a.text,a.subcode,CONCAT(IF(d.code = 10,'แขวง','ตำบล'),b.name_th,IF(d.code = 10,' ',' อำเภอ'),c.name_th,' จังหวัด',d.name_th,' ',b.postal) subname,a.status
     FROM inventory.customer a
     LEFT JOIN inventory.subdistrict b

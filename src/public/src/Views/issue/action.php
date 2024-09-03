@@ -327,20 +327,20 @@ if ($action === "upload") {
       if (!in_array($key, [0])) {
         $code = (isset($value[0]) ? $value[0] : "");
         $name = (isset($value[1]) ? $value[1] : "");
-        $amount = (isset($value[2]) ? $value[2] : "");
-        $per = (isset($value[3]) ? $value[3] : "");
-        $total = ($amount * $per);
-        $warehouse = (isset($value[4]) ? $value[4] : "");
+        $warehouse = (isset($value[2]) ? $value[2] : "");
         $warehouse_id = (!empty($warehouse) ? $ISSUE->warehouse_id([$warehouse]) : "");
+        $amount = (isset($value[3]) ? $value[3] : "");
+        $per = (isset($value[4]) ? $value[4] : "");
+
 
         $product_count = $ISSUE->product_count([$code, $name]);
         if (intval($product_count) === 0) {
-          $ISSUE->product_insert([$code, $name, $per, 1]);
+          $ISSUE->product_insert([$code, $name, $per, 4]);
           $product_id = $ISSUE->last_insert_id();
 
-          $item_count = $ISSUE->item_count([$issue_id, $product_id, $warehouse_id, 1]);
-          if (intval($item_count) === 0 && intval($total) > 0) {
-            $ISSUE->item_import([$issue_id, $product_id, 1, $warehouse_id, $total, $total, 1]);
+          $item_count = $ISSUE->item_count([$issue_id, $product_id, $warehouse_id, 4]);
+          if (intval($item_count) === 0 && intval($amount) > 0) {
+            $ISSUE->item_import([$issue_id, $product_id, 1, $warehouse_id, $amount, $amount, 4]);
           }
         }
       }

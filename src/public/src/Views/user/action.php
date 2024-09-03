@@ -52,7 +52,7 @@ if ($action === "update") {
     $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
 
     $USER->admin_update([$email, $level, $status, $firstname, $lastname, $contact, $uuid]);
-    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/user");
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/user/edit/{$uuid}");
   } catch (PDOException $e) {
     die($e->getMessage());
   }

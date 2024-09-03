@@ -91,6 +91,15 @@ include_once(__DIR__ . "/../layout/header.php");
                   </div>
                 </div>
               </div>
+              <div class="row mb-2">
+                <label class="col-xl-4 col-form-label">ละติจูด</label>
+                <div class="col-xl-8">
+                  <input type="text" class="form-control form-control-sm" name="latitude">
+                  <div class="invalid-feedback">
+                    กรุณากรอกข้อมูล!
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="col-xl-6">
@@ -107,6 +116,15 @@ include_once(__DIR__ . "/../layout/header.php");
                 <label class="col-xl-3 offset-xl-1 col-form-label">รหัสไปรษณีย์</label>
                 <div class="col-xl-4">
                   <input type="text" class="form-control form-control-sm postal" readonly>
+                  <div class="invalid-feedback">
+                    กรุณากรอกข้อมูล!
+                  </div>
+                </div>
+              </div>
+              <div class="row mb-2">
+                <label class="col-xl-3 offset-xl-1 col-form-label">ลองจิจูด</label>
+                <div class="col-xl-8">
+                  <input type="text" class="form-control form-control-sm" name="longitude">
                   <div class="invalid-feedback">
                     กรุณากรอกข้อมูล!
                   </div>

@@ -20,6 +20,8 @@ $sub_name = (!empty($row['sub_name']) ? $row['sub_name'] : "");
 $district_name = (!empty($row['district_name']) ? $row['district_name'] : "");
 $province_name = (!empty($row['province_name']) ? $row['province_name'] : "");
 $postal = (!empty($row['postal']) ? $row['postal'] : "");
+$latitude = (!empty($row['latitude']) ? $row['latitude'] : "");
+$longitude = (!empty($row['longitude']) ? $row['longitude'] : "");
 $text = (!empty($row['text']) ? $row['text'] : "");
 $active = (intval($row['status']) === 1 ? "checked" : "");
 $inactive = (intval($row['status']) === 2 ? "checked" : "");
@@ -122,6 +124,15 @@ $subname = (!empty($row['subname']) ? $row['subname'] : "");
                   </div>
                 </div>
               </div>
+              <div class="row mb-2">
+                <label class="col-xl-4 col-form-label">ละติจูด</label>
+                <div class="col-xl-8">
+                  <input type="text" class="form-control form-control-sm" name="latitude" value="<?php echo $latitude ?>">
+                  <div class="invalid-feedback">
+                    กรุณากรอกข้อมูล!
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="col-xl-6">
@@ -143,6 +154,15 @@ $subname = (!empty($row['subname']) ? $row['subname'] : "");
                   </div>
                 </div>
               </div>
+              <div class="row mb-2">
+                <label class="col-xl-3 offset-xl-1 col-form-label">ลองจิจูด</label>
+                <div class="col-xl-8">
+                  <input type="text" class="form-control form-control-sm" name="longitude" value="<?php echo $longitude ?>">
+                  <div class="invalid-feedback">
+                    กรุณากรอกข้อมูล!
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div class="row mb-2">
@@ -151,6 +171,14 @@ $subname = (!empty($row['subname']) ? $row['subname'] : "");
               <textarea class="form-control form-control-sm" name="text" rows="5"><?php echo $text ?></textarea>
             </div>
           </div>
+          <?php if (!empty($latitude) && !empty($longitude)) : ?>
+            <div class="row mb-2">
+              <label class="col-xl-2 col-form-label">แผนที่</label>
+              <div class="col-xl-7">
+                <iframe width="600" height="300" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=<?php echo $latitude . "," . $longitude ?>&hl=es;z=8&amp;output=embed"></iframe>
+              </div>
+            </div>
+          <?php endif; ?>
           <div class="row mb-2">
             <label class="col-xl-2 col-form-label">สถานะ</label>
             <div class="col-xl-8">
