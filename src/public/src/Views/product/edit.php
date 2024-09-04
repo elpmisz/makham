@@ -81,7 +81,7 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
 
           <?php if (count($images) <= 0) : ?>
             <div class="row mb-2 justify-content-center">
-              <div class="col-xl-4 offset-xl-8">
+              <div class="col-xl-2 offset-xl-8">
                 <?php echo QRCode::svg("{$url}"); ?>
               </div>
             </div>

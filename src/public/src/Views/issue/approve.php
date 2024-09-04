@@ -109,9 +109,12 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           </td>
                           <td><?php echo $item['product_name'] ?></td>
                           <td><?php echo $item['location_name'] ?></td>
-                          <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
+                          <td class="text-right">
+                            <?php echo number_format($item['quantity'], 0, '.', ',') ?>
+                          </td>
                           <td>
-                            <input type="number" class="form-control form-control-sm text-right" name="confirm[]" value="<?php echo intval($item['quantity']) ?>" min="0" step="1" required>
+
+                            <input type="number" class="form-control form-control-sm text-right" name="confirm[]" value="<?php echo intval($item['confirm']) ?>" min="0" step="1" required>
                             <div class="invalid-feedback">
                               กรุณากรอกข้อมูล!
                             </div>

@@ -100,7 +100,8 @@ class Store
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.uuid,CONCAT(a.room,a.floor,a.zone) name,a.room,a.zone,a.floor,a.text,
+    $sql = "SELECT a.uuid,CONCAT('ห้อง ',a.room,' ชั้น ',a.floor,' โซน ',a.zone) name,
+    a.room,a.zone,a.floor,a.text,
     (
       CASE
         WHEN a.status = 1 THEN 'ใช้งาน'

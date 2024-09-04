@@ -197,8 +197,8 @@ class Issue
   {
     $sql = "SELECT b.id item_id,a.id product_id,a.uuid product_uuid,
     a.code product_code,a.name product_name,
-    IF(b.unit_id = 1,b.quantity,(b.quantity/a.per)) quantity,
-    IF(b.unit_id = 1,b.confirm,(b.confirm/a.per)) confirm,
+    IF(b.unit_id != 1,b.quantity,(b.quantity*a.per)) quantity,
+    IF(b.unit_id != 1,b.confirm,(b.confirm*a.per)) confirm,
     a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,a.per,
     a.supplier,d.name supplier_name,
     b.unit_id,e.name unit_name,
@@ -239,8 +239,8 @@ class Issue
   {
     $sql = "SELECT IF(c.type = 3,CONCAT(b.issue_id,'-',b.product_id),b.id) item_id,
     a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
-    IF(b.unit_id = 1,b.quantity,(b.quantity/a.per)) quantity,
-    IF(b.unit_id = 1,b.confirm,(b.confirm/a.per)) confirm,
+    IF(b.unit_id != 1,b.quantity,(b.quantity*a.per)) quantity,
+    IF(b.unit_id != 1,b.confirm,(b.confirm*a.per)) confirm,
     MIN(i.name) send,MAX(i.name) receive,
     a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
     a.supplier,d.name supplier_name,
@@ -319,7 +319,7 @@ class Issue
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
-  public function item_detail($data, $location)
+  public function item_detail($data, $location, $store)
   {
     $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
     SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1 AND b.location_id = {$location},IF(c.status = 1,b.quantity,b.confirm),0)) income,
@@ -445,6 +445,24 @@ class Issue
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
+  }
+
+  public function product_last_id()
+  {
+    $sql = "SELECT id FROM inventory.product a ORDER BY id DESC LIMIT 1";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    $row = $stmt->fetch();
+    return (!empty($row['id']) ? $row['id'] : "");
+  }
+
+  public function product_id($data)
+  {
+    $sql = "SELECT id FROM inventory.product WHERE code = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    $row = $stmt->fetch();
+    return (!empty($row['id']) ? $row['id'] : "");
   }
 
   public function product_insert($data)
@@ -964,6 +982,20 @@ class Issue
       $sql .= " AND (a.name LIKE '%{$keyword}%') ";
     }
     $sql .= " ORDER BY a.name ASC LIMIT 50";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
+  public function store_select($keyword)
+  {
+    $sql = "SELECT a.id, CONCAT('ห้อง ',a.room,' ชั้น ',a.`floor`,' โซน ',a.`zone`) `text`
+    FROM inventory.store a
+    WHERE a.status = 1 ";
+    if (!empty($keyword)) {
+      $sql .= " AND (a.name LIKE '%{$keyword}%') ";
+    }
+    $sql .= " ORDER BY a.room ASC LIMIT 50";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll();

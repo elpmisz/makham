@@ -38,8 +38,8 @@ include_once(__DIR__ . "/../layout/header.php");
                 <thead>
                   <tr>
                     <th width="10%">สถานะ</th>
-                    <th width="20%">ชื่อ</th>
-                    <th width="60">รายละเอียด</th>
+                    <th width="40%">ชื่อ</th>
+                    <th width="40%">รายละเอียด</th>
                     <th width="10%">วันที่</th>
                   </tr>
                 </thead>

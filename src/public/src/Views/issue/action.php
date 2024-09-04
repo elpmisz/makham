@@ -332,16 +332,15 @@ if ($action === "upload") {
         $amount = (isset($value[3]) ? $value[3] : "");
         $per = (isset($value[4]) ? $value[4] : "");
 
-
         $product_count = $ISSUE->product_count([$code, $name]);
         if (intval($product_count) === 0) {
           $ISSUE->product_insert([$code, $name, $per, 4]);
-          $product_id = $ISSUE->last_insert_id();
+        }
+        $product_id = (intval($product_count) === 0 ? $ISSUE->product_last_id() : $ISSUE->product_id([$code]));
 
-          $item_count = $ISSUE->item_count([$issue_id, $product_id, $warehouse_id, 4]);
-          if (intval($item_count) === 0 && intval($amount) > 0) {
-            $ISSUE->item_import([$issue_id, $product_id, 1, $warehouse_id, $amount, $amount, 4]);
-          }
+        $item_count = $ISSUE->item_count([$issue_id, $product_id, $warehouse_id, 4]);
+        if (intval($item_count) === 0 && intval($amount) > 0) {
+          $ISSUE->item_import([$issue_id, $product_id, 1, $warehouse_id, $amount, $amount, 4]);
         }
       }
     }
@@ -421,6 +420,17 @@ if ($action === "location-select") {
   }
 }
 
+if ($action === "store-select") {
+  try {
+    $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
+    $result = $ISSUE->store_select($keyword);
+
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
 if ($action === "user-select") {
   try {
     $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
@@ -459,7 +469,8 @@ if ($action === "item-detail") {
     $data = json_decode(file_get_contents("php://input"), true);
     $item = $data['item'];
     $location = $data['location'];
-    $result = $ISSUE->item_detail([$item], $location);
+    $store = $data['store'];
+    $result = $ISSUE->item_detail([$item], $location, $store);
 
     echo json_encode($result);
   } catch (PDOException $e) {
