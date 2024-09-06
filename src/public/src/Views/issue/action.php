@@ -88,7 +88,10 @@ if ($action === "update") {
 
 if ($action === "exchange") {
   try {
+
     $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
+    $date = (isset($_POST['date']) ? $VALIDATION->input($_POST['date']) : "");
+    $date = (!empty($date) ? date("Y-m-d", strtotime(str_replace("/", "-", $date))) : "");
     $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
     $group = (isset($_POST['group']) ? $VALIDATION->input($_POST['group']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
@@ -103,14 +106,16 @@ if ($action === "exchange") {
 
     foreach ($_POST['item_product'] as $key => $value) {
       $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
-      $send = (isset($_POST['item_send'][$key]) ? $VALIDATION->input($_POST['item_send'][$key]) : "");
-      $receive = (isset($_POST['item_receive'][$key]) ? $VALIDATION->input($_POST['item_receive'][$key]) : "");
+      $send_location = (isset($_POST['item_send_location'][$key]) ? $VALIDATION->input($_POST['item_send_location'][$key]) : "");
+      $send_store = (isset($_POST['item_send_store'][$key]) ? $VALIDATION->input($_POST['item_send_store'][$key]) : "");
+      $receive_location = (isset($_POST['item_receive_location'][$key]) ? $VALIDATION->input($_POST['item_receive_location'][$key]) : "");
+      $receive_store = (isset($_POST['item_receive_store'][$key]) ? $VALIDATION->input($_POST['item_receive_store'][$key]) : "");
       $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
       $unit = (isset($_POST['item_unit'][$key]) ? $VALIDATION->input($_POST['item_unit'][$key]) : "");
 
       if (!empty($product)) {
-        $ISSUE->item_insert([$issue_id, $product, 2, $send, $quantity, $unit]);
-        $ISSUE->item_insert([$issue_id, $product, 1, $receive, $quantity, $unit]);
+        $ISSUE->item_insert([$issue_id, $product, 2, $send_location, $send_store, $quantity, $unit]);
+        $ISSUE->item_insert([$issue_id, $product, 1, $receive_location, $receive_store, $quantity, $unit]);
       }
     }
 
@@ -329,8 +334,10 @@ if ($action === "upload") {
         $name = (isset($value[1]) ? $value[1] : "");
         $warehouse = (isset($value[2]) ? $value[2] : "");
         $warehouse_id = (!empty($warehouse) ? $ISSUE->warehouse_id([$warehouse]) : "");
-        $amount = (isset($value[3]) ? $value[3] : "");
-        $per = (isset($value[4]) ? $value[4] : "");
+        $store = (isset($value[4]) ? $value[4] : "");
+        $store_id = (!empty($store) ? $ISSUE->store_id([$store]) : "");
+        $amount = (isset($value[4]) ? $value[4] : "");
+        $per = (isset($value[5]) ? $value[5] : "");
 
         $product_count = $ISSUE->product_count([$code, $name]);
         if (intval($product_count) === 0) {
@@ -467,9 +474,9 @@ if ($action === "issue-select") {
 if ($action === "item-detail") {
   try {
     $data = json_decode(file_get_contents("php://input"), true);
-    $item = $data['item'];
-    $location = $data['location'];
-    $store = $data['store'];
+    $item = (isset($data['item']) ? $data['item'] : 0);
+    $location = (isset($data['location']) ? $data['location'] : 0);
+    $store = (isset($data['store']) ? $data['store'] : 0);
     $result = $ISSUE->item_detail([$item], $location, $store);
 
     echo json_encode($result);

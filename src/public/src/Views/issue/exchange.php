@@ -21,8 +21,17 @@ include_once(__DIR__ . "/../layout/header.php");
           </div>
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ทำรายการ</label>
-            <div class="col-xl-4">
-              <input type="text" class="form-control form-control-sm" value="<?php echo $user['fullname'] ?>" readonly>
+            <div class="col-xl-4 text-underline">
+              <?php echo $user['fullname'] ?>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">วันที่</label>
+            <div class="col-xl-3">
+              <input type="text" class="form-control form-control-sm date-select" name="date" required>
+              <div class="invalid-feedback">
+                กรุณากรอกข้อมูล!
+              </div>
             </div>
           </div>
           <div class="row mb-2" style="display: none;">
@@ -77,7 +86,7 @@ include_once(__DIR__ . "/../layout/header.php");
                         </div>
                       </td>
                       <td class="text-left">
-                        <select class="form-control form-control-sm store-select" name="item_send_store[]" required></select>
+                        <select class="form-control form-control-sm store-select" name="item_send_store[]"></select>
                         <div class="invalid-feedback">
                           กรุณาเลือกข้อมูล!
                         </div>
@@ -231,7 +240,6 @@ include_once(__DIR__ . "/../layout/header.php");
       let item = row.find(".item-select").val();
       let location = row.find(".location-select").val();
       let store = row.find(".store-select").val();
-      console.log(location)
 
       if (item && location) {
         axios.post("/issue/item-detail", {
@@ -326,5 +334,31 @@ include_once(__DIR__ . "/../layout/header.php");
       },
       cache: true
     }
+  });
+
+  $(".date-select").daterangepicker({
+    singleDatePicker: true,
+    showDropdowns: true,
+    minDate: new Date(),
+    locale: {
+      "format": "DD/MM/YYYY",
+      "daysOfWeek": [
+        "อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"
+      ],
+      "monthNames": [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ]
+    },
+    "applyButtonClasses": "btn-success",
+    "cancelClass": "btn-danger"
+  });
+
+  $(".date-select").on("apply.daterangepicker", function(ev, picker) {
+    $(this).val(picker.startDate.format('DD/MM/YYYY'));
+  });
+
+  $(".date-select").on("keydown paste", function(e) {
+    e.preventDefault();
   });
 </script>

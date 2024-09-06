@@ -70,7 +70,7 @@ class Issue
 
   public function item_insert($data)
   {
-    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,location_id,quantity,unit_id) VALUES(?,?,?,?,?,?)";
+    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,location_id,store_id,quantity,unit_id) VALUES(?,?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -322,11 +322,11 @@ class Issue
   public function item_detail($data, $location, $store)
   {
     $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
-    SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1 AND b.location_id = {$location},IF(c.status = 1,b.quantity,b.confirm),0)) income,
-    SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1 AND b.location_id = {$location},IF(c.status = 1,b.quantity,b.confirm),0)) outcome,
+    SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,b.quantity,b.confirm),0)) income,
+    SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,b.quantity,b.confirm),0)) outcome,
     (
-      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1 AND b.location_id = {$location},IF(c.status = 1,b.quantity,b.confirm),0)) -
-      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1 AND b.location_id = {$location},IF(c.status = 1,b.quantity,b.confirm),0))
+      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,b.quantity,b.confirm),0)) -
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,b.quantity,b.confirm),0))
     ) remain,
     a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
     a.supplier,d.name supplier_name,
@@ -940,6 +940,17 @@ class Issue
     $sql = "SELECT a.id 
     FROM inventory.location a
     WHERE a.name = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    $row = $stmt->fetch();
+    return (isset($row['id']) ? $row['id'] : "");
+  }
+
+  public function store_id($data)
+  {
+    $sql = "SELECT a.id 
+    FROM inventory.store a
+    WHERE CONCAT('ห้อง ',a.room,' ชั้น ',a.`floor`,' โซน ',a.`zone`) = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     $row = $stmt->fetch();
