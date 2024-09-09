@@ -64,6 +64,26 @@ unset($_SESSION['alert'], $_SESSION['text']);
       }
     })
   });
+
+  function initializeSelect2(element, placeholder, url) {
+    element.select2({
+      placeholder: placeholder,
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: url,
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
+  }
 </script>
 </body>
 

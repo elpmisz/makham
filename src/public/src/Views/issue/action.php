@@ -18,9 +18,14 @@ $param2 = (isset($param[2]) ? $param[2] : "");
 
 if ($action === "create") {
   try {
+    echo "<pre>";
+    print_r($_POST);
+    die();
     $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
     $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
     $group = (isset($_POST['group']) ? $VALIDATION->input($_POST['group']) : "");
+    $date = (isset($_POST['date']) ? $VALIDATION->input($_POST['date']) : "");
+    $date = (!empty($date) ? date("Y-m-d", strtotime(str_replace("/", "-", $date))) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
     $last = $ISSUE->issue_last();
 
@@ -28,21 +33,22 @@ if ($action === "create") {
     if (intval($count) > 0) {
       $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/issue");
     }
-    $ISSUE->issue_insert([$last, $type, $group, $text, $user_id]);
+    $ISSUE->issue_insert([$last, $type, $group, $date, $text, $user_id]);
     $issue_id = $ISSUE->last_insert_id();
 
     foreach ($_POST['item_product'] as $key => $value) {
       $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
       $location = (isset($_POST['item_location'][$key]) ? $VALIDATION->input($_POST['item_location'][$key]) : "");
+      $store = (isset($_POST['item_store'][$key]) ? $VALIDATION->input($_POST['item_store'][$key]) : "");
       $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
       $unit = (isset($_POST['item_unit'][$key]) ? $VALIDATION->input($_POST['item_unit'][$key]) : "");
       $per = $ISSUE->product_per([$product]);
-      $quantity = (intval($unit) === 1 ? $quantity : ($quantity * $per));
+      $quantity = (intval($unit) !== 1 ? $quantity : ($quantity / $per));
 
       if (!empty($product)) {
-        $count = $ISSUE->item_count([$issue_id, $product, $location, $unit]);
+        $count = $ISSUE->item_count([$issue_id, $product, $location, $store, $unit]);
         if (intval($count) === 0) {
-          $ISSUE->item_insert([$issue_id, $product, $type, $location, $quantity, $unit]);
+          $ISSUE->item_insert([$issue_id, $product, $type, $location, $store, $quantity, $unit]);
         }
       }
     }
@@ -59,27 +65,30 @@ if ($action === "update") {
     $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
     $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
     $group = (isset($_POST['group']) ? $VALIDATION->input($_POST['group']) : "");
+    $date = (isset($_POST['date']) ? $VALIDATION->input($_POST['date']) : "");
+    $date = (!empty($date) ? date("Y-m-d", strtotime(str_replace("/", "-", $date))) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
 
     if (isset($_POST['item_product']) && !empty($_POST['item_product'])) {
       foreach ($_POST['item_product'] as $key => $value) {
         $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
         $location = (isset($_POST['item_location'][$key]) ? $VALIDATION->input($_POST['item_location'][$key]) : "");
+        $store = (isset($_POST['item_store'][$key]) ? $VALIDATION->input($_POST['item_store'][$key]) : "");
         $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
         $unit = (isset($_POST['item_unit'][$key]) ? $VALIDATION->input($_POST['item_unit'][$key]) : "");
         $per = $ISSUE->product_per([$product]);
-        $quantity = (intval($unit) === 1 ? $quantity : ($quantity * $per));
+        $quantity = (intval($unit) !== 1 ? $quantity : ($quantity / $per));
 
         if (!empty($product)) {
-          $count = $ISSUE->item_count([$id, $product, $location, $unit]);
+          $count = $ISSUE->item_count([$id, $product, $location, $store, $unit]);
           if (intval($count) === 0) {
-            $ISSUE->item_insert([$id, $product, $type, $location, $quantity, $unit]);
+            $ISSUE->item_insert([$id, $product, $type, $location, $store, $quantity, $unit]);
           }
         }
       }
     }
 
-    $ISSUE->issue_update([$group, $text, $uuid]);
+    $ISSUE->issue_update([$group, $date, $text, $uuid]);
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/issue/edit/{$uuid}");
   } catch (PDOException $e) {
     die($e->getMessage());
@@ -88,7 +97,6 @@ if ($action === "update") {
 
 if ($action === "exchange") {
   try {
-
     $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
     $date = (isset($_POST['date']) ? $VALIDATION->input($_POST['date']) : "");
     $date = (!empty($date) ? date("Y-m-d", strtotime(str_replace("/", "-", $date))) : "");
@@ -101,7 +109,7 @@ if ($action === "exchange") {
     if (intval($count) > 0) {
       $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/issue");
     }
-    $ISSUE->issue_insert([$last, $type, $group, $text, $user_id]);
+    $ISSUE->issue_insert([$last, $type, $group, $date, $text, $user_id]);
     $issue_id = $ISSUE->last_insert_id();
 
     foreach ($_POST['item_product'] as $key => $value) {
@@ -184,12 +192,12 @@ if ($action === "approve") {
     $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
     $remark = (isset($_POST['remark']) ? $VALIDATION->input($_POST['remark']) : "");
 
-    foreach ($_POST['product'] as $key => $value) {
-      $product = (isset($_POST['product'][$key]) ? $VALIDATION->input($_POST['product'][$key]) : "");
-      $confirm = (isset($_POST['confirm'][$key]) ? $VALIDATION->input($_POST['confirm'][$key]) : "");
+    foreach ($_POST['item_id'] as $key => $value) {
+      $item_id = (isset($_POST['item_id'][$key]) ? $VALIDATION->input($_POST['item_id'][$key]) : "");
+      $item_confirm = (isset($_POST['item_confirm'][$key]) ? $VALIDATION->input($_POST['item_confirm'][$key]) : "");
 
-      if (!empty($product)) {
-        $ISSUE->item_confirm([$confirm, $product]);
+      if (!empty($item_id)) {
+        $ISSUE->item_confirm([$item_confirm, $item_id]);
       }
     }
 
@@ -324,17 +332,18 @@ if ($action === "upload") {
     }
 
     $last = $ISSUE->issue_last();
-    $date = date("d/m/Y, H:i น.");
-    $ISSUE->issue_insert([$last, 1, 0, "ยอดยกมา วันที่ {$date}", 1]);
+    $date = date("Y-m-d");
+    $date_text = date("d/m/Y");
+    $ISSUE->issue_insert([$last, 1, 0, $date, "ยอดยกมา วันที่ {$date_text}", 1]);
     $issue_id = $ISSUE->last_insert_id();
 
     foreach ($data as $key => $value) {
       if (!in_array($key, [0])) {
         $code = (isset($value[0]) ? $value[0] : "");
         $name = (isset($value[1]) ? $value[1] : "");
-        $warehouse = (isset($value[2]) ? $value[2] : "");
-        $warehouse_id = (!empty($warehouse) ? $ISSUE->warehouse_id([$warehouse]) : "");
-        $store = (isset($value[4]) ? $value[4] : "");
+        $location = (isset($value[2]) ? $value[2] : "");
+        $location_id = (!empty($location) ? $ISSUE->location_id([$location]) : "");
+        $store = (isset($value[3]) ? $value[3] : "");
         $store_id = (!empty($store) ? $ISSUE->store_id([$store]) : "");
         $amount = (isset($value[4]) ? $value[4] : "");
         $per = (isset($value[5]) ? $value[5] : "");
@@ -345,9 +354,9 @@ if ($action === "upload") {
         }
         $product_id = (intval($product_count) === 0 ? $ISSUE->product_last_id() : $ISSUE->product_id([$code]));
 
-        $item_count = $ISSUE->item_count([$issue_id, $product_id, $warehouse_id, 4]);
-        if (intval($item_count) === 0 && intval($amount) > 0) {
-          $ISSUE->item_import([$issue_id, $product_id, 1, $warehouse_id, $amount, $amount, 4]);
+        $item_count = $ISSUE->item_count([$issue_id, $product_id, $location_id, $store_id, 4]);
+        if (intval($item_count) === 0) {
+          $ISSUE->item_import([$issue_id, $product_id, 1, $location_id, $store_id, $amount, $amount, 4]);
         }
       }
     }

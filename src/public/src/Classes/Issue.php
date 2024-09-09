@@ -48,7 +48,7 @@ class Issue
 
   public function issue_insert($data)
   {
-    $sql = "INSERT INTO inventory.issue(uuid,last,type,`group`,text,user_id) VALUES(uuid(),?,?,?,?,?)";
+    $sql = "INSERT INTO inventory.issue(uuid,last,type,`group`,date,text,user_id) VALUES(uuid(),?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -62,7 +62,13 @@ class Issue
 
   public function item_count($data)
   {
-    $sql = "SELECT COUNT(*) FROM inventory.issue_item WHERE issue_id = ? AND product_id = ? AND location_id = ? AND unit_id = ? AND status = 1";
+    $sql = "SELECT COUNT(*) FROM inventory.issue_item 
+    WHERE issue_id = ? 
+    AND product_id = ? 
+    AND location_id = ? 
+    AND store_id = ? 
+    AND unit_id = ? 
+    AND status = 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
@@ -77,7 +83,7 @@ class Issue
 
   public function item_import($data)
   {
-    $sql = "INSERT INTO inventory.issue_item(`issue_id`, `product_id`, `type`, `location_id`, `quantity`, `confirm`,`unit_id`) VALUES(?,?,?,?,?,?,?)";
+    $sql = "INSERT INTO inventory.issue_item(`issue_id`, `product_id`, `type`, `location_id`, `store_id`, `quantity`, `confirm`,`unit_id`) VALUES(?,?,?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -124,6 +130,7 @@ class Issue
   {
     $sql = "SELECT a.id,a.uuid,a.text,a.type,a.group,a.status,
     CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    DATE_FORMAT(a.date,'%d/%m/%Y') date,
     b.firstname,b.lastname,
     CONCAT(b.firstname,' ',b.lastname) fullname,
     (
@@ -195,41 +202,20 @@ class Issue
 
   public function item_view($data)
   {
-    $sql = "SELECT b.id item_id,a.id product_id,a.uuid product_uuid,
-    a.code product_code,a.name product_name,
-    IF(b.unit_id != 1,b.quantity,(b.quantity*a.per)) quantity,
-    IF(b.unit_id != 1,b.confirm,(b.confirm*a.per)) confirm,
-    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,a.per,
-    a.supplier,d.name supplier_name,
-    b.unit_id,e.name unit_name,
-    a.brand,f.name brand_name,
-    a.category,g.name category_name,
-    a.store,CONCAT(h.room,h.floor,h.zone) store_name,
-    b.location_id,i.name location_name,
-    IF(a.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
-    IF(a.status = 1,'success','danger') status_color,
-    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created
-    FROM inventory.product a
+    $sql = "SELECT b.id item_id,c.`name` product_name,d.`name` location_name,
+    CONCAT('ห้อง ',e.room,' ชั้น ',e.floor,' โซน ',e.zone) store_name,b.quantity,b.confirm,f.`name` unit_name
+    FROM inventory.issue a
     LEFT JOIN inventory.issue_item b
-    ON a.id = b.product_id
-    LEFT JOIN inventory.issue c
-    ON b.issue_id = c.id
-    LEFT JOIN inventory.customer d
-    ON a.supplier = d.id
-    LEFT JOIN inventory.unit e
-    ON b.unit_id = e.id
-    LEFT JOIN inventory.brand f
-    ON a.brand = f.id 
-    LEFT JOIN inventory.category g
-    ON a.category = g.id 
-    LEFT JOIN inventory.store h
-    ON a.store = h.id
-    LEFT JOIN inventory.location i
-    ON b.location_id = i.id
-    WHERE c.uuid = ?
-    AND b.status = 1
-    GROUP BY a.id,b.location_id
-    ORDER BY b.id ASC";
+    ON a.id = b.issue_id
+    LEFT JOIN inventory.product c
+    ON b.product_id = c.id
+    LEFT JOIN inventory.location d
+    ON b.location_id = d.id
+    LEFT JOIN inventory.store e
+    ON b.store_id = e.id
+    LEFT JOIN inventory.unit f
+    ON b.unit_id = f.id
+    WHERE a.`uuid` = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -362,6 +348,7 @@ class Issue
   {
     $sql = "UPDATE inventory.issue SET
     `group` = ?,
+    date = ?,
     text = ?,
     updated = NOW()
     WHERE uuid = ?";
@@ -935,7 +922,7 @@ class Issue
     return $stmt->fetchAll();
   }
 
-  public function warehouse_id($data)
+  public function location_id($data)
   {
     $sql = "SELECT a.id 
     FROM inventory.location a
@@ -1006,7 +993,7 @@ class Issue
     if (!empty($keyword)) {
       $sql .= " AND (a.name LIKE '%{$keyword}%') ";
     }
-    $sql .= " ORDER BY a.room ASC LIMIT 50";
+    $sql .= " ORDER BY a.room ASC, a.floor ASC, a.zone ASC LIMIT 50";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll();

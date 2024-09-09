@@ -15,6 +15,7 @@ $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
 $fullname = (!empty($row['firstname']) ? $row['firstname'] : "");
+$date = (!empty($row['date']) ? $row['date'] : "");
 $text = (!empty($row['text']) ? $row['text'] : "");
 $type = (!empty($row['type']) ? $row['type'] : "");
 $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
@@ -27,7 +28,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">ใบนำสินค้าเข้า - ออก</h4>
+        <h4 class="text-center"><?php echo "ใบ{$type_name}สินค้า" ?></h4>
       </div>
       <div class="card-body">
         <form action="/issue/<?php echo ($type === 3 ? "update-ex" : "update") ?>" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
@@ -102,6 +103,15 @@ $created = (!empty($row['created']) ? $row['created'] : "");
             </div>
           <?php endif ?>
           <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">วันที่</label>
+            <div class="col-xl-3">
+              <input type="text" class="form-control form-control-sm date-select" name="date" value="<?php echo $date ?>" required>
+              <div class="invalid-feedback">
+                กรุณากรอกข้อมูล!
+              </div>
+            </div>
+          </div>
+          <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
             <div class="col-xl-6">
               <textarea class="form-control form-control-sm" name="text" rows="5" required><?php echo $text ?></textarea>
@@ -119,8 +129,9 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                     <thead>
                       <tr>
                         <th width="10%">#</th>
-                        <th width="30%">วัตถุดิบ</th>
-                        <th width="20%">สถานที่</th>
+                        <th width="20%">วัตถุดิบ</th>
+                        <th width="20%">คลัง</th>
+                        <th width="20%">ห้อง</th>
                         <th width="10%">ปริมาณ (คงเหลือ)</th>
                         <th width="20%">ปริมาณ</th>
                         <th width="10%">หน่วยนับ</th>
@@ -134,6 +145,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           </td>
                           <td><?php echo $item['product_name'] ?></td>
                           <td><?php echo $item['location_name'] ?></td>
+                          <td><?php echo $item['store_name'] ?></td>
                           <td class="text-right"></td>
                           <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
                           <td class="text-center"><?php echo $item['unit_name'] ?></td>
@@ -152,6 +164,12 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                         </td>
                         <td class="text-left">
                           <select class="form-control form-control-sm location-select" name="item_location[]"></select>
+                          <div class="invalid-feedback">
+                            กรุณาเลือกข้อมูล!
+                          </div>
+                        </td>
+                        <td class="text-left">
+                          <select class="form-control form-control-sm store-select" name="item_store[]"></select>
                           <div class="invalid-feedback">
                             กรุณาเลือกข้อมูล!
                           </div>
@@ -176,7 +194,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                     <thead>
                       <tr>
                         <th width="10%">#</th>
-                        <th width="30%">วัตถุดิบ</th>
+                        <th width="20%">วัตถุดิบ</th>
                         <th width="20%">สถานที่ (ต้นทาง)</th>
                         <th width="20%">สถานที่ (ปลายทาง)</th>
                         <th width="10%">ปริมาณ (คงเหลือ)</th>
@@ -319,11 +337,29 @@ $created = (!empty($row['created']) ? $row['created'] : "");
     }
 
     $(".location-select").select2({
-      placeholder: "-- สถานที่ --",
+      placeholder: "-- คลัง --",
       allowClear: true,
       width: "100%",
       ajax: {
         url: "/issue/location-select",
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
+
+    $(".store-select").select2({
+      placeholder: "-- ห้อง --",
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: "/issue/store-select",
         method: "POST",
         dataType: "json",
         delay: 100,
@@ -394,11 +430,29 @@ $created = (!empty($row['created']) ? $row['created'] : "");
   }
 
   $(".location-select").select2({
-    placeholder: "-- สถานที่ --",
+    placeholder: "-- คลัง --",
     allowClear: true,
     width: "100%",
     ajax: {
       url: "/issue/location-select",
+      method: "POST",
+      dataType: "json",
+      delay: 100,
+      processResults: function(data) {
+        return {
+          results: data
+        };
+      },
+      cache: true
+    }
+  });
+
+  $(".store-select").select2({
+    placeholder: "-- ห้อง --",
+    allowClear: true,
+    width: "100%",
+    ajax: {
+      url: "/issue/store-select",
       method: "POST",
       dataType: "json",
       delay: 100,
@@ -429,17 +483,20 @@ $created = (!empty($row['created']) ? $row['created'] : "");
     }
   });
 
-  $(document).on("change", ".item-select, .location-select", function() {
+  $(document).on("change", ".item-select, .location-select, .store-select", function() {
     let type = parseInt($("input[name='type']").val());
+    $(".unit-select").empty();
     $(".item-select").each(function() {
       let row = $(this).closest("tr");
       let item = row.find(".item-select").val();
       let location = row.find(".location-select").val();
+      let store = row.find(".store-select").val();
 
       if (item && location) {
         axios.post("/issue/item-detail", {
             item: item,
             location: location,
+            store: store,
           })
           .then((res) => {
             let result = res.data;
@@ -449,7 +506,9 @@ $created = (!empty($row['created']) ? $row['created'] : "");
             if (type === 2) {
               row.find(".item-quantity").prop("max", result.remain)
             }
-            row.find(".item-unit").text(result.unit_name);
+            let selected = new Option(result.unit_name, result.unit, true, true);
+            row.find(".unit-select").append(selected).trigger("change");
+
           }).catch((error) => {
             console.log(error);
           });
@@ -486,5 +545,31 @@ $created = (!empty($row['created']) ? $row['created'] : "");
         return false;
       }
     })
+  });
+
+  $(".date-select").daterangepicker({
+    singleDatePicker: true,
+    showDropdowns: true,
+    minDate: new Date(),
+    locale: {
+      "format": "DD/MM/YYYY",
+      "daysOfWeek": [
+        "อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"
+      ],
+      "monthNames": [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ]
+    },
+    "applyButtonClasses": "btn-success",
+    "cancelClass": "btn-danger"
+  });
+
+  $(".date-select").on("apply.daterangepicker", function(ev, picker) {
+    $(this).val(picker.startDate.format('DD/MM/YYYY'));
+  });
+
+  $(".date-select").on("keydown paste", function(e) {
+    e.preventDefault();
   });
 </script>

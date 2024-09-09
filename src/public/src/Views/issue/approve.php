@@ -15,6 +15,7 @@ $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
 $fullname = (!empty($row['firstname']) ? $row['firstname'] : "");
+$date = (!empty($row['date']) ? $row['date'] : "");
 $text = (!empty($row['text']) ? str_replace("\n", "<br>", $row['text']) : "");
 $type = (!empty($row['type']) ? $row['type'] : "");
 $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
@@ -29,7 +30,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">ใบนำสินค้าเข้า - ออก</h4>
+        <h4 class="text-center"><?php echo "ใบ{$type_name}สินค้า" ?></h4>
       </div>
       <div class="card-body">
         <form action="/issue/<?php echo ($type === 3 ? "approve-ex" : "approve") ?>" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
@@ -79,6 +80,12 @@ $created = (!empty($row['created']) ? $row['created'] : "");
             </div>
           <?php endif ?>
           <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">วันที่</label>
+            <div class="col-xl-4 text-underline">
+              <?php echo $date ?>
+            </div>
+          </div>
+          <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
             <div class="col-xl-6 text-underline">
               <?php echo $text ?>
@@ -93,10 +100,11 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                     <thead>
                       <tr>
                         <th width="10%">#</th>
-                        <th width="30%">วัตถุดิบ</th>
-                        <th width="20%">สถานที่</th>
-                        <th width="20%">ปริมาณ <?php echo "({$row['type_name']})" ?></th>
-                        <th width="20%">ปริมาณ (ตรวจสอบ)</th>
+                        <th width="20%">วัตถุดิบ</th>
+                        <th width="20%">คลัง</th>
+                        <th width="20%">ห้อง</th>
+                        <th width="10%">ปริมาณ <?php echo "({$row['type_name']})" ?></th>
+                        <th width="10%">ปริมาณ (ตรวจสอบ)</th>
                         <th width="10%">หน่วยนับ</th>
                       </tr>
                     </thead>
@@ -105,16 +113,16 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                         <tr>
                           <td class="text-center">
                             <?php echo $key ?>
-                            <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $item['item_id'] ?>" readonly>
+                            <input type="hidden" class="form-control form-control-sm text-center" name="item_id[]" value="<?php echo $item['item_id'] ?>" readonly>
                           </td>
                           <td><?php echo $item['product_name'] ?></td>
                           <td><?php echo $item['location_name'] ?></td>
+                          <td><?php echo $item['store_name'] ?></td>
                           <td class="text-right">
                             <?php echo number_format($item['quantity'], 0, '.', ',') ?>
                           </td>
                           <td>
-
-                            <input type="number" class="form-control form-control-sm text-right" name="confirm[]" value="<?php echo intval($item['confirm']) ?>" min="0" step="1" required>
+                            <input type="number" class="form-control form-control-sm text-right" name="item_confirm[]" value="<?php echo intval($item['quantity']) ?>" min="0" step="1" required>
                             <div class="invalid-feedback">
                               กรุณากรอกข้อมูล!
                             </div>
@@ -140,14 +148,14 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                       <tr>
                         <td class="text-center">
                           <?php echo $key ?>
-                          <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $item['item_id'] ?>" readonly>
+                          <input type="hidden" class="form-control form-control-sm text-center" name="item_id[]" value="<?php echo $item['item_id'] ?>" readonly>
                         </td>
                         <td><?php echo $item['product_name'] ?></td>
                         <td><?php echo $item['send'] ?></td>
                         <td><?php echo $item['receive'] ?></td>
                         <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
                         <td>
-                          <input type="number" class="form-control form-control-sm text-right" name="confirm[]" value="<?php echo intval($item['quantity']) ?>" min="0" step="0.01" required>
+                          <input type="number" class="form-control form-control-sm text-right" name="item_confirm[]" value="<?php echo intval($item['quantity']) ?>" min="0" step="0.01" required>
                           <div class="invalid-feedback">
                             กรุณากรอกข้อมูล!
                           </div>

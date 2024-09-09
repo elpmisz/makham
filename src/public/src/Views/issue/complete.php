@@ -76,8 +76,9 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                     <thead>
                       <tr>
                         <th width="10%">#</th>
-                        <th width="30%">วัตถุดิบ</th>
-                        <th width="20%">สถานที่</th>
+                        <th width="20%">วัตถุดิบ</th>
+                        <th width="20%">คลัง</th>
+                        <th width="20%">ห้อง</th>
                         <th width="20%">ปริมาณ <?php echo "({$row['type_name']})" ?></th>
                         <th width="20%">ปริมาณ (ตรวจสอบ)</th>
                         <th width="10%">หน่วยนับ</th>
@@ -92,6 +93,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           </td>
                           <td><?php echo $item['product_name'] ?></td>
                           <td><?php echo $item['location_name'] ?></td>
+                          <td><?php echo $item['store_name'] ?></td>
                           <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
                           <td class="text-right"><?php echo number_format($item['confirm'], 0, '.', ',') ?></td>
                           <td class="text-center"><?php echo $item['unit_name'] ?></td>
