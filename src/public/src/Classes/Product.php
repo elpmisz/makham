@@ -377,46 +377,32 @@ class Product
 
   public function stock_data($data)
   {
-    $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
-    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
-    FORMAT(
-      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0))
-    ,0) income,
-    FORMAT(
-      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(b.unit_id = 1,b.quantity,(b.quantity*a.per)),IF(b.unit_id = 1,b.confirm,(b.confirm*a.per))),0))
-    ,0) outcome,
-    FORMAT((
-      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) -
-      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(b.unit_id = 1,b.quantity,(b.quantity*a.per)),IF(b.unit_id = 1,b.confirm,(b.confirm*a.per))),0))
-    ),0) remain,
-    a.supplier,d.name supplier_name,
-    a.unit,e.name unit_name,
-    a.brand,f.name brand_name,
-    a.category,g.name category_name,
-    a.store,CONCAT(h.room,h.floor,h.zone) store_name,
-    b.location_id,i.name location_name,
-    IF(a.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
-    IF(a.status = 1,'success','danger') status_color,
-    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created
-    FROM inventory.product a
-    LEFT JOIN inventory.issue_item b
-    ON a.id = b.product_id
-    LEFT JOIN inventory.issue c
-    ON b.issue_id = c.id
-    LEFT JOIN inventory.customer d
-    ON a.supplier = d.id
-    LEFT JOIN inventory.unit e
-    ON a.unit = e.id
-    LEFT JOIN inventory.brand f
-    ON a.brand = f.id 
-    LEFT JOIN inventory.category g
-    ON a.category = g.id 
-    LEFT JOIN inventory.store h
-    ON a.store = h.id
-    LEFT JOIN inventory.location i
-    ON b.location_id = i.id
-    WHERE a.uuid = ?
-    GROUP BY b.location_id";
+    $sql = "SELECT x.product_id,x.location_name,x.store_name,
+    SUM(qty_in) qty_in,SUM(qty_out) qty_out,FORMAT((SUM(qty_in) - SUM(qty_out)),0) qty_remain,
+    FORMAT(SUM(cf_in),0) cf_in,FORMAT(SUM(cf_out),0) cf_out,FORMAT((SUM(cf_in) - SUM(cf_out)),0) cf_remain,
+    unit_name
+    FROM (
+        SELECT b.product_id,b.location_id,e.`name` location_name,
+        b.store_id,CONCAT('ห้อง ',f.room,' ชั้น ',f.floor,' โซน ',f.zone) store_name,d.name unit_name,
+      IF(a.`status` = 1 AND b.`type` = 1,(IF(c.unit != b.unit_id,(b.quantity/c.per),b.quantity)),0) qty_in,
+      IF(a.`status` = 1 AND b.`type` = 2,(IF(c.unit != b.unit_id,(b.quantity/c.per),b.quantity)),0) qty_out,
+      IF(a.`status` = 2 AND b.`type` = 1,(IF(c.unit != b.unit_id,(b.confirm/c.per),b.confirm)),0) cf_in,
+      IF(a.`status` = 2 AND b.`type` = 2,(IF(c.unit != b.unit_id,(b.confirm/c.per),b.confirm)),0) cf_out
+      FROM inventory.issue a
+      LEFT JOIN inventory.issue_item b
+      ON a.id = b.issue_id
+      LEFT JOIN inventory.product c
+      ON b.product_id = c.id
+      LEFT JOIN inventory.unit d
+      ON c.unit = d.id
+      LEFT JOIN inventory.location e
+      ON b.location_id = e.id
+      LEFT JOIN inventory.store f
+      ON b.store_id = f.id
+      WHERE c.`uuid` = ?
+      AND b.status = 1
+    ) x
+    GROUP BY x.location_id,x.store_id";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll();
@@ -562,45 +548,49 @@ class Product
     $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
     a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
     c.uuid issue_uuid,c.type issue_type,b.type,c.text,
-    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),0) income,
-    FORMAT(SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)),0) outcome,
+    FORMAT(
+      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0)),0
+    ) income,
+    FORMAT(
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0)),0
+    ) outcome,
     a.supplier,d.name supplier_name,
     b.unit_id,e.name unit_name,
     a.brand,f.name brand_name,
     a.category,g.name category_name,
-    a.store,CONCAT(h.room,h.floor,h.zone) store_name,
+    a.store,CONCAT('ห้อง ',h.room,' ชั้น ',h.floor,' โซน ',h.zone) store_name,
     b.location_id,i.name location_name,
     (
-      CASE
-        WHEN c.type = 1 THEN 'นำเข้า'
-        WHEN c.type = 2 THEN 'เบิกออก'
-        WHEN c.type = 3 THEN 'โอนย้าย'
-        ELSE NULL
-      END
+    CASE
+      WHEN c.type = 1 THEN 'นำเข้า'
+      WHEN c.type = 2 THEN 'เบิกออก'
+      WHEN c.type = 3 THEN 'โอนย้าย'
+      ELSE NULL
+    END
     ) type_name,
     (
-      CASE
-        WHEN c.type = 1 THEN 'success'
-        WHEN c.type = 2 THEN 'primary'
-        WHEN c.type = 3 THEN 'info'
-        ELSE NULL
-      END
+    CASE
+      WHEN c.type = 1 THEN 'success'
+      WHEN c.type = 2 THEN 'primary'
+      WHEN c.type = 3 THEN 'info'
+      ELSE NULL
+    END
     ) type_color,
     (
-      CASE
-        WHEN c.status = 1 THEN 'รอตรวจสอบ'
-        WHEN c.status = 2 THEN 'ผ่านการตรวจสอบ'
-        WHEN c.status = 3 THEN 'รายการถูกยกเลิก'
-        ELSE NULL
-      END
+    CASE
+      WHEN c.status = 1 THEN 'รอตรวจสอบ'
+      WHEN c.status = 2 THEN 'ผ่านการตรวจสอบ'
+      WHEN c.status = 3 THEN 'รายการถูกยกเลิก'
+      ELSE NULL
+    END
     ) status_name,
     (
-      CASE
-        WHEN c.status = 1 THEN 'primary'
-        WHEN c.status = 2 THEN 'success'
-        WHEN c.status = 3 THEN 'danger'
-        ELSE NULL
-      END
+    CASE
+      WHEN c.status = 1 THEN 'primary'
+      WHEN c.status = 2 THEN 'success'
+      WHEN c.status = 3 THEN 'danger'
+      ELSE NULL
+    END
     ) status_color,
     DATE_FORMAT(c.created, '%d/%m/%Y, %H:%i น.') created
     FROM inventory.product a
@@ -611,13 +601,13 @@ class Product
     LEFT JOIN inventory.customer d
     ON a.supplier = d.id
     LEFT JOIN inventory.unit e
-    ON b.unit_id = e.id
+    ON a.unit = e.id
     LEFT JOIN inventory.brand f
     ON a.brand = f.id 
     LEFT JOIN inventory.category g
     ON a.category = g.id 
     LEFT JOIN inventory.store h
-    ON a.store = h.id
+    ON b.store_id = h.id
     LEFT JOIN inventory.location i
     ON b.location_id = i.id
     WHERE b.status = 1 
@@ -664,6 +654,7 @@ class Product
         $type,
         str_replace("\n", "<br>", $row['text']),
         $row['location_name'],
+        $row['store_name'],
         ($row['type'] === 1 ? $row['income'] : $row['outcome']),
         $row['unit_name'],
         $row['created'],

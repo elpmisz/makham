@@ -266,7 +266,8 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
                             <thead>
                               <tr class="table-success">
                                 <th width="10%">#</th>
-                                <th width="40%">สถานที่</th>
+                                <th width="20%">คลัง</th>
+                                <th width="20%">ห้อง</th>
                                 <th width="10%">ปริมาณ (นำเข้า)</th>
                                 <th width="10%">ปริมาณ (เบิกออก)</th>
                                 <th width="10%">ปริมาณ (คงเหลือ)</th>
@@ -276,9 +277,10 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
                               <tr>
                                 <td class="text-center"><?php echo $key ?></td>
                                 <td class="text-left"><?php echo $stock['location_name'] ?></td>
-                                <td class="text-right"><?php echo $stock['income'] ?></td>
-                                <td class="text-right"><?php echo $stock['outcome'] ?></td>
-                                <td class="text-right"><?php echo $stock['remain'] ?></td>
+                                <td class="text-left"><?php echo $stock['store_name'] ?></td>
+                                <td class="text-right"><?php echo $stock['cf_in'] ?></td>
+                                <td class="text-right"><?php echo $stock['cf_out'] ?></td>
+                                <td class="text-right"><?php echo $stock['cf_remain'] ?></td>
                               </tr>
                             <?php endforeach; ?>
                           </table>
@@ -308,7 +310,8 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
                                 <th width="10%">สถานะ</th>
                                 <th width="10%">ประเภท</th>
                                 <th width="20%">รายละเอียด</th>
-                                <th width="10%">สถานที่</th>
+                                <th width="10%">คลัง</th>
+                                <th width="10%">ห้อง</th>
                                 <th width="10%">ปริมาณ</th>
                                 <th width="10%">หน่วยนับ</th>
                                 <th width="10%">วันที่ทำรายการ</th>
@@ -593,10 +596,10 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
       }
     },
     columnDefs: [{
-      targets: [0, 1, 3, 5],
+      targets: [0, 1, 3, 6],
       className: "text-center",
     }, {
-      targets: [4],
+      targets: [5],
       className: "text-right",
     }],
     "oLanguage": {

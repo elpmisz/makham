@@ -18,9 +18,6 @@ $param2 = (isset($param[2]) ? $param[2] : "");
 
 if ($action === "create") {
   try {
-    echo "<pre>";
-    print_r($_POST);
-    die();
     $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
     $type = (isset($_POST['type']) ? $VALIDATION->input($_POST['type']) : "");
     $group = (isset($_POST['group']) ? $VALIDATION->input($_POST['group']) : "");
@@ -43,7 +40,6 @@ if ($action === "create") {
       $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
       $unit = (isset($_POST['item_unit'][$key]) ? $VALIDATION->input($_POST['item_unit'][$key]) : "");
       $per = $ISSUE->product_per([$product]);
-      $quantity = (intval($unit) !== 1 ? $quantity : ($quantity / $per));
 
       if (!empty($product)) {
         $count = $ISSUE->item_count([$issue_id, $product, $location, $store, $unit]);
@@ -407,6 +403,17 @@ if ($action === "item-all-select") {
   try {
     $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
     $result = $ISSUE->item_all_select($keyword);
+
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "item-50-select") {
+  try {
+    $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
+    $result = $ISSUE->item_50_select($keyword);
 
     echo json_encode($result);
   } catch (PDOException $e) {

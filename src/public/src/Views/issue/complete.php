@@ -15,6 +15,7 @@ $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
 $fullname = (!empty($row['firstname']) ? $row['firstname'] : "");
+$date = (!empty($row['date']) ? $row['date'] : "");
 $text = (!empty($row['text']) ? str_replace("\n", "<br>", $row['text']) : "");
 $type = (!empty($row['type']) ? $row['type'] : "");
 $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
@@ -26,7 +27,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">ใบนำสินค้าเข้า - ออก</h4>
+        <h4 class="text-center"><?php echo "ใบ{$type_name}สินค้า" ?></h4>
       </div>
       <div class="card-body">
         <form action="/issue/approve" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
@@ -59,6 +60,12 @@ $created = (!empty($row['created']) ? $row['created'] : "");
             <label class="col-xl-3 offset-xl-1 col-form-label">ประเภท</label>
             <div class="col-xl-4 text-underline text-<?php echo $type_color ?>">
               <?php echo $type_name ?>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">วันที่</label>
+            <div class="col-xl-4 text-underline">
+              <?php echo $date ?>
             </div>
           </div>
           <div class="row mb-2">

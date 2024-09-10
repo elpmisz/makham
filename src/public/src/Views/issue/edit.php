@@ -122,7 +122,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
           </div>
 
           <div class="row justify-content-center mb-2">
-            <div class="col-sm-10">
+            <div class="col-sm-12">
               <div class="table-responsive">
                 <table class="table table-bordered table-sm item-table">
                   <?php if ($type !== 3) : ?>
@@ -132,13 +132,18 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                         <th width="20%">วัตถุดิบ</th>
                         <th width="20%">คลัง</th>
                         <th width="20%">ห้อง</th>
+                        <th width="10%">ปริมาณ (รอตรวจสอบ)</th>
                         <th width="10%">ปริมาณ (คงเหลือ)</th>
-                        <th width="20%">ปริมาณ</th>
+                        <th width="20%">ปริมาณ<?php echo $type_name ?></th>
                         <th width="10%">หน่วยนับ</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <?php foreach ($items as $item) : ?>
+                      <?php
+                      foreach ($items as $item) :
+                        $quantity_remain = $ISSUE->item_quantity_remain([$item['product_id'], $item['location_id'], $item['store_id'], $item['item_id']]);
+                        $confirm_remain = $ISSUE->item_confirm_remain([$item['product_id'], $item['location_id'], $item['store_id'], $item['item_id']]);
+                      ?>
                         <tr>
                           <td class="text-center">
                             <a href="javascript:void(0)" class="badge badge-danger font-weight-light item-delete" id="<?php echo $item['item_id'] ?>">ลบ</a>
@@ -146,8 +151,11 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           <td><?php echo $item['product_name'] ?></td>
                           <td><?php echo $item['location_name'] ?></td>
                           <td><?php echo $item['store_name'] ?></td>
-                          <td class="text-right"></td>
-                          <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
+                          <td class="text-right"><?php echo $quantity_remain ?></td>
+                          <td class="text-right"><?php echo $confirm_remain ?></td>
+                          <td class="text-right">
+                            <?php echo number_format($item['quantity'], 0) . ($item['unit_id'] === $item['unit'] ? "" : " ({$item['product_quantity']} {$item['product_unit']})") ?>
+                          </td>
                           <td class="text-center"><?php echo $item['unit_name'] ?></td>
                         </tr>
                       <?php endforeach; ?>
@@ -174,6 +182,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                             กรุณาเลือกข้อมูล!
                           </div>
                         </td>
+                        <td></td>
                         <td class="text-right"><span class="item-remain"></span></td>
                         <td>
                           <input type="number" class="form-control form-control-sm text-center item-quantity" name="item_quantity[]" min="0" step="1">
@@ -203,7 +212,10 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                       </tr>
                     </thead>
                     <tbody>
-                      <?php foreach ($items as $item) : ?>
+                      <?php
+                      foreach ($items as $item) :
+                        $quantity_remain = $ISSUE->item_quantity_remain([$item['item_id'], $item['location_id'], $item['store_id']]);
+                      ?>
                         <tr>
                           <td class="text-center">
                             <a href="javascript:void(0)" class="badge badge-danger font-weight-light item-delete" id="<?php echo $item['item_id'] ?>">ลบ</a>
@@ -211,7 +223,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           <td><?php echo $item['product_name'] ?></td>
                           <td><?php echo $item['send'] ?></td>
                           <td><?php echo $item['receive'] ?></td>
-                          <td class="text-right"></td>
+                          <td class="text-right"><?php echo $quantity_remain ?></td>
                           <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
                           <td class="text-center"><?php echo $item['unit_name'] ?></td>
                         </tr>

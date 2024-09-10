@@ -306,7 +306,7 @@ include_once(__DIR__ . "/../layout/header.php");
     allowClear: true,
     width: "100%",
     ajax: {
-      url: "/issue/item-all-select",
+      url: "/issue/item-50-select",
       method: "POST",
       dataType: "json",
       delay: 100,

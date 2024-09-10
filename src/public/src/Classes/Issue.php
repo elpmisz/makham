@@ -202,8 +202,13 @@ class Issue
 
   public function item_view($data)
   {
-    $sql = "SELECT b.id item_id,c.`name` product_name,d.`name` location_name,
-    CONCAT('ห้อง ',e.room,' ชั้น ',e.floor,' โซน ',e.zone) store_name,b.quantity,b.confirm,f.`name` unit_name
+    $sql = "SELECT b.id item_id,b.product_id,c.`name` product_name,b.location_id,d.`name` location_name,
+    b.store_id,CONCAT('ห้อง ',e.room,' ชั้น ',e.floor,' โซน ',e.zone) store_name,
+    b.quantity,b.confirm,
+    IF(b.unit_id != c.unit,FORMAT((b.quantity/c.per),0),FORMAT(b.quantity,0)) product_quantity,
+    IF(b.unit_id != c.unit,FORMAT((b.confirm/c.per),0),FORMAT(b.confirm,0)) product_confirm,
+    b.unit_id,f.`name` unit_name,
+    c.unit,g.name product_unit
     FROM inventory.issue a
     LEFT JOIN inventory.issue_item b
     ON a.id = b.issue_id
@@ -215,7 +220,10 @@ class Issue
     ON b.store_id = e.id
     LEFT JOIN inventory.unit f
     ON b.unit_id = f.id
-    WHERE a.`uuid` = ?";
+    LEFT JOIN inventory.unit g
+    ON c.unit = g.id
+    WHERE a.`uuid` = ?
+    ORDER BY b.id ASC";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -308,11 +316,11 @@ class Issue
   public function item_detail($data, $location, $store)
   {
     $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
-    SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,b.quantity,b.confirm),0)) income,
-    SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,b.quantity,b.confirm),0)) outcome,
+    SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,IF(a.unit != b.unit_id,(b.quantity/a.per),b.quantity),IF(a.unit != b.unit_id,(b.confirm/a.per),b.confirm)),0)) income,
+    SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,IF(a.unit != b.unit_id,(b.quantity/a.per),b.quantity),IF(a.unit != b.unit_id,(b.confirm/a.per),b.confirm)),0)) outcome,
     (
-      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,b.quantity,b.confirm),0)) -
-      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,b.quantity,b.confirm),0))
+      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,IF(a.unit != b.unit_id,(b.quantity/a.per),b.quantity),IF(a.unit != b.unit_id,(b.confirm/a.per),b.confirm)),0)) -
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1 AND b.location_id = {$location} AND b.store_id = {$store},IF(c.status = 1,IF(a.unit != b.unit_id,(b.quantity/a.per),b.quantity),IF(a.unit != b.unit_id,(b.confirm/a.per),b.confirm)),0))
     ) remain,
     a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
     a.supplier,d.name supplier_name,
@@ -342,6 +350,68 @@ class Issue
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetch();
+  }
+
+  public function item_quantity_remain($data)
+  {
+    $sql = "SELECT a.product_id,
+    SUM(qty_in) qty_in,SUM(qty_out) qty_out,FORMAT((SUM(qty_in) - SUM(qty_out)),0) qty_remain,
+    SUM(cf_in) cf_in,SUM(cf_out) cf_out,FORMAT((SUM(cf_in) - SUM(cf_out)),0) cf_remain,
+    unit_name
+    FROM (
+      SELECT b.product_id,d.name unit_name,
+      IF(a.`status` = 1 AND b.`type` = 1,(IF(c.unit != b.unit_id,(b.quantity/c.per),b.quantity)),0) qty_in,
+      IF(a.`status` = 1 AND b.`type` = 2,(IF(c.unit != b.unit_id,(b.quantity/c.per),b.quantity)),0) qty_out,
+      IF(a.`status` = 2 AND b.`type` = 1,(IF(c.unit != b.unit_id,(b.confirm/c.per),b.confirm)),0) cf_in,
+      IF(a.`status` = 2 AND b.`type` = 2,(IF(c.unit != b.unit_id,(b.confirm/c.per),b.confirm)),0) cf_out
+      FROM inventory.issue a
+      LEFT JOIN inventory.issue_item b
+      ON a.id = b.issue_id
+      LEFT JOIN inventory.product c
+      ON b.product_id = c.id
+      LEFT JOIN inventory.unit d
+      ON c.unit = d.id
+      WHERE b.product_id = ?
+      AND b.location_id = ?
+      AND b.store_id = ?
+      AND b.id != ?
+      AND b.status = 1
+    ) a";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    $row = $stmt->fetch();
+    return (empty($row['qty_remain']) ? "0 ลัง" : "{$row['qty_remain']} {$row['unit_name']}");
+  }
+
+  public function item_confirm_remain($data)
+  {
+    $sql = "SELECT a.product_id,
+    SUM(qty_in) qty_in,SUM(qty_out) qty_out,FORMAT((SUM(qty_in) - SUM(qty_out)),0) qty_remain,
+    SUM(cf_in) cf_in,SUM(cf_out) cf_out,FORMAT((SUM(cf_in) - SUM(cf_out)),0) cf_remain,
+    unit_name
+    FROM (
+      SELECT b.product_id,d.name unit_name,
+      IF(a.`status` = 1 AND b.`type` = 1,(IF(c.unit != b.unit_id,(b.quantity/c.per),b.quantity)),0) qty_in,
+      IF(a.`status` = 1 AND b.`type` = 2,(IF(c.unit != b.unit_id,(b.quantity/c.per),b.quantity)),0) qty_out,
+      IF(a.`status` = 2 AND b.`type` = 1,(IF(c.unit != b.unit_id,(b.confirm/c.per),b.confirm)),0) cf_in,
+      IF(a.`status` = 2 AND b.`type` = 2,(IF(c.unit != b.unit_id,(b.confirm/c.per),b.confirm)),0) cf_out
+      FROM inventory.issue a
+      LEFT JOIN inventory.issue_item b
+      ON a.id = b.issue_id
+      LEFT JOIN inventory.product c
+      ON b.product_id = c.id
+      LEFT JOIN inventory.unit d
+      ON c.unit = d.id
+      WHERE b.product_id = ?
+      AND b.location_id = ?
+      AND b.store_id = ?
+      AND b.id != ?
+      AND b.status = 1
+    ) a";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    $row = $stmt->fetch();
+    return (empty($row['cf_remain']) ? "0 ลัง" : "{$row['cf_remain']} {$row['unit_name']}");
   }
 
   public function issue_update($data)
@@ -894,6 +964,21 @@ class Issue
     $sql = "SELECT id,CONCAT('[',p.code,'] ',p.name) text
     FROM inventory.product p
     WHERE p.status = 1 ";
+    if (!empty($keyword)) {
+      $sql .= " AND (p.code LIKE '%{$keyword}%' OR p.name LIKE '%{$keyword}%') ";
+    }
+    $sql .= " ORDER BY p.code ASC LIMIT 50";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
+  public function item_50_select($keyword)
+  {
+    $sql = "SELECT id,CONCAT('[',p.code,'] ',p.name) text
+    FROM inventory.product p
+    WHERE p.status = 1
+    AND p.code LIKE '50%' ";
     if (!empty($keyword)) {
       $sql .= " AND (p.code LIKE '%{$keyword}%' OR p.name LIKE '%{$keyword}%') ";
     }
