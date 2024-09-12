@@ -43,13 +43,14 @@ if ($action === "create") {
     foreach ($_POST['item_product'] as $key => $value) {
       $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
       $location = (isset($_POST['item_location'][$key]) ? $VALIDATION->input($_POST['item_location'][$key]) : "");
+      $store = (isset($_POST['item_store'][$key]) ? $VALIDATION->input($_POST['item_store'][$key]) : "");
       $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
       $unit = (isset($_POST['item_unit'][$key]) ? $VALIDATION->input($_POST['item_unit'][$key]) : "");
 
       if (!empty($product)) {
-        $item_count = $PURCHASE->purchase_item_count([$purchase_id, $product, $location, $quantity, $unit]);
+        $item_count = $PURCHASE->purchase_item_count([$purchase_id, $product, $location, $store, $quantity, $unit]);
         if (intval($item_count) === 0) {
-          $PURCHASE->purchase_item_insert([$purchase_id, $product, $location, $quantity, $unit]);
+          $PURCHASE->purchase_item_insert([$purchase_id, $product, $location, $store, $quantity, $unit]);
         }
       }
     }
@@ -80,13 +81,14 @@ if ($action === "update") {
       foreach ($_POST['item_product'] as $key => $value) {
         $product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
         $location = (isset($_POST['item_location'][$key]) ? $VALIDATION->input($_POST['item_location'][$key]) : "");
+        $store = (isset($_POST['item_store'][$key]) ? $VALIDATION->input($_POST['item_store'][$key]) : "");
         $quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
         $unit = (isset($_POST['item_unit'][$key]) ? $VALIDATION->input($_POST['item_unit'][$key]) : "");
 
         if (!empty($product)) {
-          $item_count = $PURCHASE->purchase_item_count([$id, $product, $location, $quantity, $unit]);
+          $item_count = $PURCHASE->purchase_item_count([$purchase_id, $product, $location, $store, $quantity, $unit]);
           if (intval($item_count) === 0) {
-            $PURCHASE->purchase_item_insert([$id, $product, $location, $quantity, $unit]);
+            $PURCHASE->purchase_item_insert([$purchase_id, $product, $location, $store, $quantity, $unit]);
           }
         }
       }
@@ -136,6 +138,7 @@ if ($action === "check") {
       $item_id = (isset($_POST['item_id'][$key]) ? $VALIDATION->input($_POST['item_id'][$key]) : "");
       $item_product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
       $item_location = (isset($_POST['item_location'][$key]) ? $VALIDATION->input($_POST['item_location'][$key]) : "");
+      $item_store = (isset($_POST['item_store'][$key]) ? $VALIDATION->input($_POST['item_store'][$key]) : "");
       $item_confirm = (isset($_POST['item_confirm'][$key]) ? $VALIDATION->input($_POST['item_confirm'][$key]) : "");
 
       $PURCHASE->purchase_item_update([$item_confirm, $item_id]);

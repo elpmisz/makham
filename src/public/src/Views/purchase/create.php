@@ -90,16 +90,17 @@ include_once(__DIR__ . "/../layout/header.php");
           </div>
 
           <div class="row justify-content-center mb-2">
-            <div class="col-sm-11">
+            <div class="col-sm-12">
               <div class="table-responsive">
                 <table class="table table-bordered table-sm item-table">
                   <thead>
                     <tr>
                       <th width="10%">#</th>
-                      <th width="30%">วัตถุดิบ</th>
-                      <th width="20%">สถานที่</th>
+                      <th width="20%">วัตถุดิบ</th>
+                      <th width="20%">คลัง</th>
+                      <th width="20%">ห้อง</th>
                       <th width="10%">ปริมาณ (คงเหลือ)</th>
-                      <th width="20%">ปริมาณ</th>
+                      <th width="10%">ปริมาณ (เป้าหมาย)</th>
                       <th width="10%">หน่วยนับ</th>
                     </tr>
                   </thead>
@@ -117,6 +118,12 @@ include_once(__DIR__ . "/../layout/header.php");
                       </td>
                       <td class="text-left">
                         <select class="form-control form-control-sm location-select" name="item_location[]" required></select>
+                        <div class="invalid-feedback">
+                          กรุณาเลือกข้อมูล!
+                        </div>
+                      </td>
+                      <td class="text-left">
+                        <select class="form-control form-control-sm store-select" name="item_store[]"></select>
                         <div class="invalid-feedback">
                           กรุณาเลือกข้อมูล!
                         </div>
@@ -163,22 +170,70 @@ include_once(__DIR__ . "/../layout/header.php");
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
 <script>
-  $(".customer-select").select2({
-    placeholder: "-- รายชื่อลูกค้า --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/purchase/customer-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
+  $("form").on("submit", function(event) {
+    $(".store-select").each(function() {
+      if ($(this).val() === null || $(this).val() === "") {
+        $(this).after('<input type="hidden" name="' + $(this).prop('name') + '" value="0">');
+      }
+    });
+  });
+
+  $(".item-decrease").hide();
+  $(document).on("click", ".item-increase", function() {
+    let row = $(".item-tr:last");
+    let clone = row.clone();
+    clone.find("input, select").val("");
+    clone.find("span").text("");
+    clone.find(".item-increase").hide();
+    clone.find(".item-decrease").show();
+    clone.find(".item-decrease").off("click").on("click", function() {
+      $(this).closest("tr").remove();
+    });
+
+    row.after(clone);
+
+    clone.find(".store-select").val("0");
+
+    initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/issue/item-50-select");
+    initializeSelect2($(".location-select"), "-- คลัง --", "/issue/location-select");
+    initializeSelect2($(".store-select"), "-- ห้อง --", "/issue/store-select");
+    initializeSelect2($(".unit-select"), "-- หน่วยนับ --", "/issue/unit-select");
+  });
+
+  initializeSelect2($(".customer-select"), "-- รายชื่อลูกค้า --", "/purchase/customer-select");
+  initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/issue/item-50-select");
+  initializeSelect2($(".location-select"), "-- คลัง --", "/issue/location-select");
+  initializeSelect2($(".store-select"), "-- ห้อง --", "/issue/store-select");
+  initializeSelect2($(".unit-select"), "-- หน่วยนับ --", "/issue/unit-select");
+
+  $(document).on("change", ".item-select, .location-select, .store-select", function() {
+    $(".unit-select").empty();
+    $(".item-select").each(function() {
+      let row = $(this).closest("tr");
+      let item = row.find(".item-select").val();
+      let location = row.find(".location-select").val();
+      let store = row.find(".store-select").val();
+
+      if (item && location) {
+        axios.post("/issue/item-detail", {
+            item: item,
+            location: location,
+            store: store,
+          })
+          .then((res) => {
+            let result = res.data;
+            row.find(".item-remain").text(parseFloat(result.remain).toLocaleString("en-US", {
+              minimumFractionDigits: 2
+            }));
+
+            let selected = new Option(result.unit_name, result.unit, true, true);
+            row.find(".unit-select").append(selected).trigger("change");
+
+          }).catch((error) => {
+            console.log(error);
+          });
+      }
+    });
   });
 
   $(".date-select").daterangepicker({
@@ -205,153 +260,5 @@ include_once(__DIR__ . "/../layout/header.php");
 
   $(".date-select").on("keydown paste", function(e) {
     e.preventDefault();
-  });
-
-  $(".item-decrease").hide();
-  $(document).on("click", ".item-increase", function() {
-    $(".item-select, .location-select, .unit-select").select2('destroy');
-    let row = $(".item-tr:last");
-    let clone = row.clone();
-    clone.find("input, select").val("").empty();
-    clone.find("span").text("");
-    clone.find(".item-increase").hide();
-    clone.find(".item-decrease").show();
-    clone.find(".item-decrease").on("click", function() {
-      $(this).closest("tr").remove();
-    });
-    row.after(clone);
-    clone.show();
-
-    $(".item-select").select2({
-      placeholder: "-- วัตถุดิบ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/item-all-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
-
-    $(".location-select").select2({
-      placeholder: "-- สถานที่ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/location-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
-
-    $(".unit-select").select2({
-      placeholder: "-- หน่วยนับ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/unit-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
-  });
-
-  $(document).on("change", ".item-select, .location-select", function() {
-    $(".item-select").each(function() {
-      let row = $(this).closest("tr");
-      let item = row.find(".item-select").val();
-      let location = row.find(".location-select").val();
-
-      if (item && location) {
-        axios.post("/issue/item-detail", {
-            item: item,
-            location: location,
-          })
-          .then((res) => {
-            let result = res.data;
-            row.find(".item-remain").text(parseFloat(result.remain).toLocaleString("en-US", {
-              minimumFractionDigits: 2
-            }));
-            row.find(".item-unit").text(result.unit_name);
-          }).catch((error) => {
-            console.log(error);
-          });
-      }
-    });
-  });
-
-  $(".item-select").select2({
-    placeholder: "-- วัตถุดิบ --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/item-50-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".location-select").select2({
-    placeholder: "-- สถานที่ --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/location-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".unit-select").select2({
-    placeholder: "-- หน่วยนับ --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/unit-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
   });
 </script>

@@ -19,6 +19,15 @@ include_once(__DIR__ . "/../layout/header.php");
               <input type="text" class="form-control form-control-sm" name="user_id" value="<?php echo $user['id'] ?>" readonly>
             </div>
           </div>
+          <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">เลขที่ใบสั่งผลิต</label>
+            <div class="col-xl-4">
+              <select class="form-control form-control-sm purchase-select" name="purchase_id"></select>
+              <div class="invalid-feedback">
+                กรุณาเลือกข้อมูล!
+              </div>
+            </div>
+          </div>
 
           <div class="row justify-content-center mb-2">
             <div class="col-sm-10">
@@ -147,23 +156,7 @@ include_once(__DIR__ . "/../layout/header.php");
     row.after(clone);
     clone.show();
 
-    $(".item-select").select2({
-      placeholder: "-- วัตถุดิบ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/bom/item-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
+    initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/bom/item-select");
   });
 
   $(document).on("click", ".waste-increase", function() {
@@ -179,21 +172,6 @@ include_once(__DIR__ . "/../layout/header.php");
     clone.show();
   });
 
-  $(".item-select").select2({
-    placeholder: "-- วัตถุดิบ --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/bom/item-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
+  initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/bom/item-select");
+  initializeSelect2($(".purchase-select"), "-- ใบสั่งผลิต --", "/waste/purchase-select");
 </script>

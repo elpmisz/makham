@@ -139,15 +139,17 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
           </div>
 
           <div class="row justify-content-center mb-2">
-            <div class="col-sm-11">
+            <div class="col-sm-12">
               <div class="table-responsive">
                 <table class="table table-bordered table-sm item-table">
                   <thead>
                     <tr>
                       <th width="10%">#</th>
-                      <th width="30%">วัตถุดิบ</th>
-                      <th width="20%">สถานที่</th>
-                      <th width="20%">ปริมาณ</th>
+                      <th width="20%">วัตถุดิบ</th>
+                      <th width="20%">คลัง</th>
+                      <th width="20%">ห้อง</th>
+                      <th width="10%">ปริมาณ (คงเหลือ)</th>
+                      <th width="10%">ปริมาณ (เป้าหมาย)</th>
                       <th width="10%">หน่วยนับ</th>
                     </tr>
                   </thead>
@@ -159,6 +161,8 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
                         </td>
                         <td><?php echo $item['product_name'] ?></td>
                         <td><?php echo $item['location_name'] ?></td>
+                        <td><?php echo $item['store_name'] ?></td>
+                        <td></td>
                         <td class="text-center"><?php echo $item['quantity'] ?></td>
                         <td class="text-center"><?php echo $item['unit_name'] ?></td>
                       </tr>
@@ -180,6 +184,13 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
                           กรุณาเลือกข้อมูล!
                         </div>
                       </td>
+                      <td class="text-left">
+                        <select class="form-control form-control-sm store-select" name="item_store[]"></select>
+                        <div class="invalid-feedback">
+                          กรุณาเลือกข้อมูล!
+                        </div>
+                      </td>
+                      <td class="text-center"><span class="item-remain"></span></td>
                       <td>
                         <input type="number" class="form-control form-control-sm text-center item-quantity" name="item_quantity[]" min="0" step="0.01">
                         <div class="invalid-feedback">
@@ -212,7 +223,7 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
                 <div class="col-xl-4">
                   <label class="form-check-label px-3 py-2">
                     <input class="form-check-input" type="radio" name="status" value="2" required>
-                    <span class="text-primary">กำลังผลิต</span>
+                    <span class="text-primary">ดำเนินการผลิต</span>
                   </label>
                 </div>
               </div>
@@ -228,6 +239,11 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
             <div class="col-xl-3 mb-2">
               <a href="/purchase" class="btn btn-sm btn-danger btn-block">
                 <i class="fa fa-arrow-left pr-2"></i>กลับ
+              </a>
+            </div>
+            <div class="col-xl-3 mb-2">
+              <a href="/purchase/print/<?php echo $uuid ?>" class="btn btn-sm btn-primary btn-block">
+                <i class="fa fa-print pr-2"></i>พิมพ์
               </a>
             </div>
           </div>
@@ -250,190 +266,71 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
     }
   });
 
-  $(".customer-select").select2({
-    placeholder: "-- รายชื่อลูกค้า --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/purchase/customer-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".date-select").daterangepicker({
-    singleDatePicker: true,
-    showDropdowns: true,
-    minDate: new Date(),
-    locale: {
-      "format": "DD/MM/YYYY",
-      "daysOfWeek": [
-        "อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"
-      ],
-      "monthNames": [
-        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-      ]
-    },
-    "applyButtonClasses": "btn-success",
-    "cancelClass": "btn-danger"
-  });
-
-  $(".date-select").on("apply.daterangepicker", function(ev, picker) {
-    $(this).val(picker.startDate.format('DD/MM/YYYY'));
-  });
-
-  $(".date-select").on("keydown paste", function(e) {
-    e.preventDefault();
+  $("form").on("submit", function(event) {
+    $(".store-select").each(function() {
+      if ($(this).val() === null || $(this).val() === "") {
+        $(this).after('<input type="hidden" name="' + $(this).prop('name') + '" value="0">');
+      }
+    });
   });
 
   $(".item-decrease").hide();
   $(document).on("click", ".item-increase", function() {
-    $(".item-select, .location-select, .unit-select").select2('destroy');
     let row = $(".item-tr:last");
     let clone = row.clone();
-    clone.find("input, select").val("").empty();
+    clone.find("input, select").val("");
     clone.find("span").text("");
     clone.find(".item-increase").hide();
     clone.find(".item-decrease").show();
-    clone.find(".item-decrease").on("click", function() {
+    clone.find(".item-decrease").off("click").on("click", function() {
       $(this).closest("tr").remove();
     });
+
     row.after(clone);
-    clone.show();
 
-    $(".item-select").select2({
-      placeholder: "-- วัตถุดิบ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/item-all-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
+    clone.find(".store-select").val("0");
+
+    initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/issue/item-50-select");
+    initializeSelect2($(".location-select"), "-- คลัง --", "/issue/location-select");
+    initializeSelect2($(".store-select"), "-- ห้อง --", "/issue/store-select");
+    initializeSelect2($(".unit-select"), "-- หน่วยนับ --", "/issue/unit-select");
+  });
+
+  initializeSelect2($(".customer-select"), "-- รายชื่อลูกค้า --", "/purchase/customer-select");
+  initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/issue/item-50-select");
+  initializeSelect2($(".location-select"), "-- คลัง --", "/issue/location-select");
+  initializeSelect2($(".store-select"), "-- ห้อง --", "/issue/store-select");
+  initializeSelect2($(".unit-select"), "-- หน่วยนับ --", "/issue/unit-select");
+  initializeSelect2($(".issue-select"), "-- ใบเบิกวัตถุดิบ --", "/issue/issue-select");
+
+  $(document).on("change", ".item-select, .location-select, .store-select", function() {
+    $(".unit-select").empty();
+    $(".item-select").each(function() {
+      let row = $(this).closest("tr");
+      let item = row.find(".item-select").val();
+      let location = row.find(".location-select").val();
+      let store = row.find(".store-select").val();
+
+      if (item && location) {
+        axios.post("/issue/item-detail", {
+            item: item,
+            location: location,
+            store: store,
+          })
+          .then((res) => {
+            let result = res.data;
+            row.find(".item-remain").text(parseFloat(result.remain).toLocaleString("en-US", {
+              minimumFractionDigits: 2
+            }));
+
+            let selected = new Option(result.unit_name, result.unit, true, true);
+            row.find(".unit-select").append(selected).trigger("change");
+
+          }).catch((error) => {
+            console.log(error);
+          });
       }
     });
-
-    $(".location-select").select2({
-      placeholder: "-- สถานที่ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/location-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
-
-    $(".unit-select").select2({
-      placeholder: "-- หน่วยนับ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/unit-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
-  });
-
-  $(".item-select").select2({
-    placeholder: "-- วัตถุดิบ --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/item-all-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".location-select").select2({
-    placeholder: "-- สถานที่ --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/location-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".unit-select").select2({
-    placeholder: "-- หน่วยนับ --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/unit-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".issue-select").select2({
-    placeholder: "-- ใบเบิกวัตถุดิบ --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/issue-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
   });
 
   $(document).on("click", ".btn-delete", function(e) {
@@ -475,5 +372,31 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
         return false;
       }
     })
+  });
+
+  $(".date-select").daterangepicker({
+    singleDatePicker: true,
+    showDropdowns: true,
+    minDate: new Date(),
+    locale: {
+      "format": "DD/MM/YYYY",
+      "daysOfWeek": [
+        "อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"
+      ],
+      "monthNames": [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ]
+    },
+    "applyButtonClasses": "btn-success",
+    "cancelClass": "btn-danger"
+  });
+
+  $(".date-select").on("apply.daterangepicker", function(ev, picker) {
+    $(this).val(picker.startDate.format('DD/MM/YYYY'));
+  });
+
+  $(".date-select").on("keydown paste", function(e) {
+    e.preventDefault();
   });
 </script>

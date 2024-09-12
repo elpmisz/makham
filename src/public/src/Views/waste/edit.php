@@ -13,6 +13,7 @@ $row = $WASTE->waste_view([$uuid]);
 $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
+$purchase_ticket = (!empty($row['purchase_ticket']) ? $row['purchase_ticket'] : "");
 $fullname = (!empty($row['firstname']) ? $row['firstname'] : "");
 $text = (!empty($row['text']) ? $row['text'] : "");
 $active = (intval($row['status']) === 1 ? "checked" : "");
@@ -54,6 +55,12 @@ $wastes = $WASTE->item_view([$uuid, 2]);
             <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ทำรายการ</label>
             <div class="col-xl-4 text-underline">
               <?php echo $fullname . " - " . $created ?>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">เลขที่ใบสั่งผลิต</label>
+            <div class="col-xl-4 text-underline">
+              <?php echo $purchase_ticket ?>
             </div>
           </div>
 

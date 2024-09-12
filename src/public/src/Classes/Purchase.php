@@ -76,7 +76,7 @@ class Purchase
 
   public function purchase_view($data)
   {
-    $sql = "SELECT a.id,a.`uuid`,CONCAT('PR',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    $sql = "SELECT a.id,a.`uuid`,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     a.user_id,CONCAT(c.firstname,' ',c.lastname) fullname,
     a.customer_id,CONCAT('คุณ',d.name) customer_name,
     a.amount,a.machine,a.per,
@@ -110,7 +110,7 @@ class Purchase
   public function purchase_item_count($data)
   {
     $sql = "SELECT COUNT(*) FROM inventory.purchase_item 
-    WHERE purchase_id = ? AND product_id = ? AND location_id = ? AND quantity = ? AND unit_id = ? AND status = 1";
+    WHERE purchase_id = ? AND product_id = ? AND location_id = ? AND store_id = ? AND quantity = ? AND unit_id = ? AND status = 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
@@ -118,7 +118,7 @@ class Purchase
 
   public function purchase_item_insert($data)
   {
-    $sql = "INSERT INTO inventory.purchase_item(`purchase_id`, `product_id`, `location_id`, `quantity`, `unit_id`) VALUES(?,?,?,?,?)";
+    $sql = "INSERT INTO inventory.purchase_item(`purchase_id`, `product_id`, `location_id`, `store_id`, `quantity`, `unit_id`) VALUES(?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -136,7 +136,9 @@ class Purchase
   public function purchase_item_view($data)
   {
     $sql = "SELECT b.id,b.product_id,c.name product_name,
-    b.location_id,d.name location_name,b.quantity,b.confirm,e.name unit_name
+    b.location_id,d.name location_name,b.store_id,
+    CONCAT('ห้อง ',f.room,' ชั้น ',f.floor,' โซน ',f.zone) store_name,
+    b.quantity,b.confirm,e.name unit_name
     FROM inventory.purchase a 
     LEFT JOIN inventory.purchase_item b 
     ON a.id  = b.purchase_id 
@@ -146,6 +148,8 @@ class Purchase
     ON b.location_id = d.id
     LEFT JOIN inventory.unit e 
     ON b.unit_id = e.id 
+    LEFT JOIN inventory.store f
+    ON b.store_id = f.id
     WHERE a.`uuid` = ?
     AND b.status = 1";
     $stmt = $this->dbcon->prepare($sql);
@@ -221,7 +225,7 @@ class Purchase
 
   public function download()
   {
-    $sql = "SELECT a.uuid,CONCAT('PR',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    $sql = "SELECT a.uuid,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     CONCAT(b.firstname,' ',b.lastname) fullname,c.name bom_name,DATE_FORMAT(a.date, '%d/%m/%Y') date,
     a.machine,a.amount,a.text,
     (
@@ -308,7 +312,7 @@ class Purchase
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.id,a.`uuid`,CONCAT('PR',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    $sql = "SELECT a.id,a.`uuid`,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     CONCAT(c.firstname,' ',c.lastname) fullname,
     a.customer_id,CONCAT('คุณ',d.name) customer_name,
     a.amount,a.machine,a.per,
@@ -422,7 +426,7 @@ class Purchase
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.id,a.`uuid`,CONCAT('PR',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    $sql = "SELECT a.id,a.`uuid`,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     CONCAT(c.firstname,' ',c.lastname) fullname,
     a.customer_id,CONCAT('คุณ',d.name) customer_name,
     a.amount,a.machine,a.per,
@@ -509,7 +513,7 @@ class Purchase
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.id,a.uuid,CONCAT('PR',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    $sql = "SELECT a.id,a.uuid,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
     CONCAT(b.firstname,' ',b.lastname) fullname,
     a.bom,c.name bom_name,a.machine,
     a.amount,a.date,a.text,

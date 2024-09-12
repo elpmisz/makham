@@ -47,6 +47,9 @@ $ROUTER->map("GET", "/purchase/manage-edit/[**:params]", function ($params) {
 $ROUTER->map("GET", "/purchase/view/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/purchase/view.php");
 });
+$ROUTER->map("GET", "/purchase/print/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/purchase/print.php");
+});
 $ROUTER->map("GET", "/purchase/approve/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/purchase/approve.php");
 });
@@ -94,6 +97,9 @@ $ROUTER->map("GET", "/issue/manage-edit/[**:params]", function ($params) {
 $ROUTER->map("GET", "/issue/edit/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/issue/edit.php");
 });
+$ROUTER->map("GET", "/issue/print/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/issue/print.php");
+});
 $ROUTER->map("GET", "/issue/approve/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/issue/approve.php");
 });
@@ -125,6 +131,9 @@ $ROUTER->map("GET", "/waste/manage-edit/[**:params]", function ($params) {
 });
 $ROUTER->map("GET", "/waste/edit/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/waste/edit.php");
+});
+$ROUTER->map("GET", "/waste/print/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/waste/print.php");
 });
 $ROUTER->map("GET", "/waste/approve/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/waste/approve.php");

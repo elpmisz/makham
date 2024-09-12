@@ -66,31 +66,31 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
           <div class="row">
             <div class="col-xl-6">
               <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form label">รายชื่อลูกค้า</label>
+                <label class="col-xl-3 col-form label">รายชื่อลูกค้า</label>
                 <div class="col-xl-8 text-underline">
                   <?php echo $customer_name ?>
                 </div>
               </div>
               <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">จำนวนที่ผลิต</label>
+                <label class="col-xl-3 col-form-label">จำนวนที่ผลิต</label>
                 <div class="col-xl-4 text-underline">
                   <?php echo $amount ?>
                 </div>
               </div>
               <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">จำนวนตู้</label>
+                <label class="col-xl-3 col-form-label">จำนวนตู้</label>
                 <div class="col-xl-4 text-underline">
                   <?php echo $machine ?>
                 </div>
               </div>
               <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">ตู้ละ</label>
+                <label class="col-xl-3 col-form-label">ตู้ละ</label>
                 <div class="col-xl-4 text-underline">
                   <?php echo $per ?>
                 </div>
               </div>
               <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">เลขที่ใบเบิก</label>
+                <label class="col-xl-3 col-form-label">เลขที่ใบเบิก</label>
                 <div class="col-xl-6 text-underline">
                   <a href="/issue/complete/<?php echo $issue_uuid ?>" target="_blank"><?php echo $issue_ticket ?></a>
                 </div>
@@ -132,7 +132,7 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
           </div>
 
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-1 col-form-label">วัตถุประสงค์</label>
+            <label class="col-xl-2 col-form-label">วัตถุประสงค์</label>
             <div class="col-xl-6 text-underline">
               <?php echo str_replace("\n", "<br>", $text) ?>
             </div>
@@ -145,10 +145,11 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
                   <thead>
                     <tr>
                       <th width="10%">#</th>
-                      <th width="30%">วัตถุดิบ</th>
-                      <th width="20%">สถานที่</th>
+                      <th width="20%">วัตถุดิบ</th>
+                      <th width="20%">คลัง</th>
+                      <th width="20%">ห้อง</th>
                       <th width="10%">ปริมาณ (เป้าหมาย)</th>
-                      <th width="20%">ปริมาณ (ผลิต)</th>
+                      <th width="10%">ปริมาณ (ผลิต)</th>
                       <th width="10%">หน่วยนับ</th>
                     </tr>
                   </thead>
@@ -160,9 +161,11 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
                           <input type="hidden" class="form-control form-control-sm" name="item_id[]" value="<?php echo $item['id'] ?>">
                           <input type="hidden" class="form-control form-control-sm" name="item_product[]" value="<?php echo $item['product_id'] ?>">
                           <input type="hidden" class="form-control form-control-sm" name="item_location[]" value="<?php echo $item['location_id'] ?>">
+                          <input type="hidden" class="form-control form-control-sm" name="item_store[]" value="<?php echo $item['store_id'] ?>">
                         </td>
                         <td><?php echo $item['product_name'] ?></td>
                         <td><?php echo $item['location_name'] ?></td>
+                        <td><?php echo $item['store_name'] ?></td>
                         <td class="text-center"><?php echo $item['quantity'] ?></td>
                         <td>
                           <input type="number" class="form-control form-control-sm text-center" name="item_confirm[]" value="<?php echo $item['confirm'] ?>" min="0" step="1" required>
@@ -180,7 +183,7 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
           </div>
 
           <div class="row mb-2">
-            <label class="col-xl-3 offset-xl-1 col-form-label">สถานะ</label>
+            <label class="col-xl-3 col-form-label">สถานะ</label>
             <div class="col-xl-8">
               <div class="row pb-2">
                 <div class="col-xl-4">
@@ -202,6 +205,11 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
             <div class="col-xl-3 mb-2">
               <a href="/purchase" class="btn btn-sm btn-danger btn-block">
                 <i class="fa fa-arrow-left pr-2"></i>กลับ
+              </a>
+            </div>
+            <div class="col-xl-3 mb-2">
+              <a href="/purchase/print/<?php echo $uuid ?>" class="btn btn-sm btn-primary btn-block">
+                <i class="fa fa-print pr-2"></i>พิมพ์
               </a>
             </div>
           </div>

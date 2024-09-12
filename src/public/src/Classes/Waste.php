@@ -40,7 +40,7 @@ class Waste
 
   public function waste_insert($data)
   {
-    $sql = "INSERT INTO inventory.waste(uuid,last,text,user_id) VALUES(uuid(),?,?,?)";
+    $sql = "INSERT INTO inventory.waste(uuid,last,purchase_id,text,user_id) VALUES(uuid(),?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -57,6 +57,7 @@ class Waste
     $sql = "SELECT a.id,a.uuid,a.text,a.user_id,a.status,
     b.firstname,b.lastname,
     CONCAT(b.firstname,' ',b.lastname) fullname,
+    e.uuid purchase_uuid,CONCAT('PO',YEAR(e.created),LPAD(e.last,5,'0')) purchase_ticket,
     CONCAT('WA',YEAR(a.created),LPAD(a.last,5,'0')) ticket,a.status,
     (
       CASE
@@ -85,6 +86,8 @@ class Waste
     ON a.id = c.waste_id
     LEFT JOIN inventory.user d
     ON c.user_id = d.id
+    LEFT JOIN inventory.purchase e
+    ON a.purchase_id = e.id
     WHERE a.uuid = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
@@ -581,6 +584,20 @@ class Waste
       $sql .= " AND (a.firstname LIKE '%{$keyword}%' OR a.lastname LIKE '%{$keyword}%' OR a.email LIKE '%{$keyword}%' OR a.contact LIKE '%{$keyword}%') ";
     }
     $sql .= " ORDER BY a.firstname ASC LIMIT 50";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
+  public function purchase_select($keyword)
+  {
+    $sql = "SELECT a.id,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) `text`
+    FROM inventory.purchase a
+    WHERE a.status NOT IN (5)  ";
+    if (!empty($keyword)) {
+      $sql .= " AND (CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) LIKE '%{$keyword}%') ";
+    }
+    $sql .= " ORDER BY a.created ASC LIMIT 50";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll();

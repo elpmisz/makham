@@ -19,10 +19,11 @@ $param2 = (isset($param[2]) ? $param[2] : "");
 if ($action === "create") {
   try {
     $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
+    $purchase_id = (isset($_POST['purchase_id']) ? $VALIDATION->input($_POST['purchase_id']) : "");
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
     $last = $WASTE->waste_last();
 
-    $WASTE->waste_insert([$last, $text, $user_id]);
+    $WASTE->waste_insert([$last, $purchase_id, $text, $user_id]);
     $WASTE_id = $WASTE->last_insert_id();
 
     foreach ($_POST['item_product'] as $key => $value) {
@@ -112,11 +113,11 @@ if ($action === "auth") {
 
     $count = $WASTE->auth_count([$user_id, $type]);
     if (intval($count) > 0) {
-      $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/purchase/waste");
+      $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/waste/auth");
     }
 
     $WASTE->auth_insert([$user_id, $type]);
-    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/purchase/waste");
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/waste/auth");
   } catch (PDOException $e) {
     die($e->getMessage());
   }
@@ -278,6 +279,17 @@ if ($action === "user-select") {
   try {
     $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
     $result = $WASTE->user_select($keyword);
+
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "purchase-select") {
+  try {
+    $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
+    $result = $WASTE->purchase_select($keyword);
 
     echo json_encode($result);
   } catch (PDOException $e) {

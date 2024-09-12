@@ -138,6 +138,29 @@ class Product
     return $stmt->execute($data);
   }
 
+  public function product_upload_update($data)
+  {
+    $sql = "UPDATE inventory.product SET
+    cost = ?,
+    price = ?,
+    min = ?,
+    max = ?,
+    per = ?,
+    bom_id = ?,
+    supplier = ?,
+    unit = ?,
+    brand = ?,
+    category = ?,
+    store = ?,
+    text = ?,
+    status = ?,
+    updated = NOW()
+    WHERE code = ?
+    AND name = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    return $stmt->execute($data);
+  }
+
   public function image_insert($data)
   {
     $sql = "INSERT INTO inventory.product_image(product,name) VALUES(?,?)";
@@ -332,7 +355,7 @@ class Product
 
   public function download()
   {
-    $sql = "SELECT a.uuid,a.code,a.name product_name,a.cost,a.price,a.min,a.max,
+    $sql = "SELECT a.code,a.name product_name,a.cost,a.price,a.min,a.max,a.per,
     (
       SELECT 
       FORMAT((
@@ -348,8 +371,6 @@ class Product
     b.name supplier_name,
     c.name unit_name,
     d.name brand_name,
-    e.name category_name,
-    CONCAT(f.room,f.floor,f.zone) store_name,
     (
       CASE
         WHEN a.status = 1 THEN 'ใช้งาน'
@@ -365,10 +386,6 @@ class Product
     ON a.unit = c.id
     LEFT JOIN inventory.brand d
     ON a.brand = d.id
-    LEFT JOIN inventory.category e
-    ON a.category = e.id
-    LEFT JOIN inventory.store f
-    ON a.store = f.id
     ORDER BY a.code";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
@@ -422,9 +439,9 @@ class Product
       "a.min",
       "
       (
-        SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) -
-        SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0))
-      )
+        SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0)) -
+        SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0))
+      ) 
       ",
       "e.name"
     ];
@@ -441,13 +458,15 @@ class Product
 
     $sql = "SELECT a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
     a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
-    SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) income,
-    FORMAT(
-      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(b.unit_id = 1,b.quantity,(b.quantity*a.per)),IF(b.unit_id = 1,b.confirm,(b.confirm*a.per))),0))
-    ,0) outcome,
     (
-      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,b.quantity,b.confirm),0)) -
-      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(b.unit_id = 1,b.quantity,(b.quantity*a.per)),IF(b.unit_id = 1,b.confirm,(b.confirm*a.per))),0))
+      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0))
+    ) income,
+    (
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0))
+    ) outcome,
+    (
+      SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0)) -
+      SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0))
     ) remain,
     a.supplier,d.name supplier_name,
     a.unit,e.name unit_name,

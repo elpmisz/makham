@@ -173,13 +173,13 @@ if ($action === "upload") {
 
     foreach ($data as $key => $value) {
       if (!in_array($key, [0])) {
-        $uuid = (isset($value[0]) ? $value[0] : "");
-        $code = (isset($value[1]) ? $value[1] : "");
-        $name = (isset($value[2]) ? $value[2] : "");
-        $cost = (isset($value[3]) ? $value[3] : "");
-        $price = (isset($value[4]) ? $value[4] : "");
-        $min = (isset($value[5]) ? $value[5] : "");
-        $max = (isset($value[6]) ? $value[6] : "");
+        $code = (isset($value[0]) ? $value[0] : "");
+        $name = (isset($value[1]) ? $value[1] : "");
+        $cost = (isset($value[2]) ? $value[2] : "");
+        $price = (isset($value[3]) ? $value[3] : "");
+        $min = (isset($value[4]) ? $value[4] : "");
+        $max = (isset($value[5]) ? $value[5] : "");
+        $per = (isset($value[6]) ? $value[6] : "");
         $text = (isset($value[8]) ? $value[8] : "");
         $supplier = (isset($value[9]) ? $value[9] : "");
         $supplier = (!empty($supplier) ? $PRODUCT->supplier_id([$supplier]) : "");
@@ -195,12 +195,12 @@ if ($action === "upload") {
         $status = ($status === "ใช้งาน" ? 1 : 2);
         $bom = "";
 
-        $count = $PRODUCT->uuid_count([$uuid]);
+        $count = $PRODUCT->product_count([$code, $name]);
 
         if (intval($count) > 0) {
-          $PRODUCT->product_update([$code, $name, $cost, $price, $min, $max, $bom, $supplier, $unit, $brand, $category, $store, $text, $status, $uuid]);
+          $PRODUCT->product_update([$code, $name, $cost, $price, $min, $max, $per, $bom, $supplier, $unit, $brand, $category, $store, $text, $status, $code, $name]);
         } else {
-          $PRODUCT->product_insert([$code, $name, $cost, $price, $min, $max, $bom, $supplier, $unit, $brand, $category, $store, $text]);
+          $PRODUCT->product_insert([$code, $name, $cost, $price, $min, $max, $per, $bom, $supplier, $unit, $brand, $category, $store, $text]);
         }
       }
     }

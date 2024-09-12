@@ -55,7 +55,7 @@ class Issue
 
   public function issue_purchase($data)
   {
-    $sql = "INSERT INTO inventory.issue(uuid,last,type,text,user_id,status) VALUES(uuid(),?,1,?,?,2)";
+    $sql = "INSERT INTO inventory.issue(uuid,last,type,date,text,user_id,status) VALUES(uuid(),?,1,NOW(),?,?,2)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
