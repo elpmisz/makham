@@ -50,6 +50,8 @@ include_once(__DIR__ . "/../layout/header.php");
                     <th width="10%">รหัส</th>
                     <th width="20%">ชื่อ</th>
                     <th width="10%">MIN</th>
+                    <th width="10%">นำเข้า</th>
+                    <th width="10%">นำออก</th>
                     <th width="10%">คงเหลือ</th>
                     <th width="10%">หน่วยนับ</th>
                   </tr>
@@ -127,10 +129,10 @@ include_once(__DIR__ . "/../layout/header.php");
         }
       },
       columnDefs: [{
-        targets: [0, 1, 5],
+        targets: [0, 1, 7],
         className: "text-center",
       }, {
-        targets: [3, 4],
+        targets: [3, 4, 5, 6],
         className: "text-right",
       }, {
         targets: [2],
@@ -152,10 +154,10 @@ include_once(__DIR__ . "/../layout/header.php");
       },
       "rowCallback": function(row, data, index) {
 
-        let min = parseInt(data[7]);
-        let remain = parseInt(data[8]);
+        let min = parseInt(data[3]);
+        let remain = parseInt(data[6]);
 
-        let comma = [4]
+        let comma = [4, 5, 6]
         for (i = 0; i <= comma.length; i++) {
           let value = (parseInt(data[comma[i]]) !== 0 ? parseFloat(data[comma[i]]).toFixed(2) : 0);
           value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

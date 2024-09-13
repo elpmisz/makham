@@ -10,7 +10,7 @@ use App\Classes\Issue;
 $ISSUE = new Issue();
 
 $row = $ISSUE->issue_view([$uuid]);
-$items = (intval($row['type']) === 3 ? $ISSUE->exchange_view([$uuid]) : $ISSUE->item_view([$uuid]));
+$items = (intval($row['type']) === 3 ? $ISSUE->exchange_view($uuid) : $ISSUE->item_view([$uuid]));
 $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
@@ -126,26 +126,36 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                   <?php if ($type === 3) : ?>
                     <thead>
                       <tr>
-                        <th width="10%">#</th>
-                        <th width="30%">วัตถุดิบ</th>
-                        <th width="20%">สถานที่ (ต้นทาง)</th>
-                        <th width="20%">สถานที่ (ปลายทาง)</th>
+                        <th width="5%">#</th>
+                        <th width="20%">วัตถุดิบ</th>
+                        <th width="10%">คลัง (ต้นทาง)</th>
+                        <th width="10%">ห้อง (ต้นทาง)</th>
+                        <th width="10%">คลัง (ปลายทาง)</th>
+                        <th width="10%">ห้อง (ปลายทาง)</th>
                         <th width="10%">ปริมาณ (โอนย้าย)</th>
                         <th width="10%">ปริมาณ (ตรวจสอบ)</th>
                         <th width="10%">หน่วยนับ</th>
                       </tr>
                     </thead>
-                    <?php foreach ($items as $key => $item) : $key++; ?>
+                    <?php
+                    foreach ($items as $key => $item) :
+                      $key++;
+                    ?>
                       <tr>
                         <td class="text-center">
                           <?php echo $key ?>
-                          <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $item['item_id'] ?>" readonly>
                         </td>
                         <td><?php echo $item['product_name'] ?></td>
-                        <td><?php echo $item['send'] ?></td>
-                        <td><?php echo $item['receive'] ?></td>
-                        <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
-                        <td class="text-right"><?php echo number_format($item['confirm'], 0, '.', ',') ?></td>
+                        <td><?php echo $item['send_location'] ?></td>
+                        <td><?php echo $item['send_store'] ?></td>
+                        <td><?php echo $item['receive_location'] ?></td>
+                        <td><?php echo $item['receive_store'] ?></td>
+                        <td class="text-right">
+                          <?php echo number_format($item['quantity'], 0) . ($item['unit_id'] === $item['unit'] ? "" : " ({$item['product_quantity']} {$item['product_unit']})") ?>
+                        </td>
+                        <td class="text-right">
+                          <?php echo number_format($item['confirm'], 0) . ($item['unit_id'] === $item['unit'] ? "" : " ({$item['product_confirm']} {$item['product_unit']})") ?>
+                        </td>
                         <td class="text-center"><?php echo $item['unit_name'] ?></td>
                       </tr>
                     <?php endforeach; ?>

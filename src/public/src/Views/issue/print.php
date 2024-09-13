@@ -9,7 +9,7 @@ use App\Classes\Issue;
 $ISSUE = new Issue();
 
 $row = $ISSUE->issue_view([$uuid]);
-$items = $ISSUE->item_view([$uuid]);
+$items = (intval($row['type']) === 3 ? $ISSUE->exchange_view($uuid) : $ISSUE->item_view([$uuid]));
 
 use Spipu\Html2Pdf\Html2Pdf;
 
@@ -29,8 +29,14 @@ ob_start();
       font-size: 75%;
     }
 
-    td,
     th {
+      font-size: 90%;
+      border: 1px solid #000;
+      padding: 5px 5px 5px 10px;
+    }
+
+    td {
+      font-size: 90%;
       border: 1px solid #000;
       padding: 5px 5px 5px 10px;
     }
@@ -134,36 +140,75 @@ ob_start();
     </tr>
   </table>
 
-  <table style="margin-top: 20px;">
-    <tr>
-      <th width="5%">#</th>
-      <th width="20%">วัตถุดิบ</th>
-      <th width="30%">คลัง</th>
-      <th width="20%">ห้อง</th>
-      <th width="10%">ปริมาณ <?php echo "({$row['type_name']})" ?></th>
-      <th width="12%">ปริมาณ (ตรวจสอบ)</th>
-      <th width="10%">หน่วยนับ</th>
-    </tr>
-    <?php
-    foreach ($items as $key => $item) :
-      $key++;
-    ?>
+  <?php if (intval($row['type']) === 3) : ?>
+    <table style="margin-top: 20px;">
       <tr>
-        <td class="text-center">
-          <?php echo $key ?>
-        </td>
-        <td><?php echo $item['product_name'] ?></td>
-        <td><?php echo $item['location_name'] ?></td>
-        <td><?php echo $item['store_name'] ?></td>
-        <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
-        <td class="text-right"><?php echo number_format($item['confirm'], 0, '.', ',') ?></td>
-        <td class="text-center"><?php echo $item['unit_name'] ?></td>
+        <th width="5%">#</th>
+        <th width="20%">วัตถุดิบ</th>
+        <th width="15%">คลัง<br>(ต้นทาง)</th>
+        <th width="15%">ห้อง<br>(ต้นทาง)</th>
+        <th width="15%">คลัง<br>(ปลายทาง)</th>
+        <th width="15%">ห้อง<br>(ปลายทาง)</th>
+        <th width="10%">ปริมาณ<br>(โอนย้าย)</th>
+        <th width="10%">ปริมาณ<br>(ตรวจสอบ)</th>
+        <th width="10%">หน่วยนับ</th>
       </tr>
-    <?php
-    endforeach;
-    ?>
-  </table>
-
+      <?php
+      foreach ($items as $key => $item) :
+        $key++;
+      ?>
+        <tr>
+          <td class="text-center">
+            <?php echo $key ?>
+          </td>
+          <td><?php echo $item['product_name'] ?></td>
+          <td><?php echo str_replace("(", "<br>(", $item['send_location']) ?></td>
+          <td><?php echo str_replace("(", "<br>(", $item['send_store']) ?></td>
+          <td><?php echo str_replace("(", "<br>(", $item['receive_location']) ?></td>
+          <td><?php echo str_replace("(", "<br>(", $item['receive_store']) ?></td>
+          <td class="text-right">
+            <?php echo number_format($item['quantity'], 0) . ($item['unit_id'] === $item['unit'] ? "" : " <br>({$item['product_quantity']} {$item['product_unit']})") ?>
+          </td>
+          <td class="text-right">
+            <?php echo number_format($item['confirm'], 0) . ($item['unit_id'] === $item['unit'] ? "" : " <br>({$item['product_confirm']} {$item['product_unit']})") ?>
+          </td>
+          <td class="text-center"><?php echo $item['unit_name'] ?></td>
+        </tr>
+      <?php
+      endforeach;
+      ?>
+    </table>
+  <?php else : ?>
+    <table style="margin-top: 20px;">
+      <tr>
+        <th width="5%">#</th>
+        <th width="20%">วัตถุดิบ</th>
+        <th width="30%">คลัง</th>
+        <th width="20%">ห้อง</th>
+        <th width="10%">ปริมาณ <?php echo "({$row['type_name']})" ?></th>
+        <th width="12%">ปริมาณ<br>(ตรวจสอบ)</th>
+        <th width="10%">หน่วยนับ</th>
+      </tr>
+      <?php
+      foreach ($items as $key => $item) :
+        $key++;
+      ?>
+        <tr>
+          <td class="text-center">
+            <?php echo $key ?>
+          </td>
+          <td><?php echo $item['product_name'] ?></td>
+          <td><?php echo $item['location_name'] ?></td>
+          <td><?php echo $item['store_name'] ?></td>
+          <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
+          <td class="text-right"><?php echo number_format($item['confirm'], 0, '.', ',') ?></td>
+          <td class="text-center"><?php echo $item['unit_name'] ?></td>
+        </tr>
+      <?php
+      endforeach;
+      ?>
+    </table>
+  <?php endif; ?>
 </body>
 
 </html>

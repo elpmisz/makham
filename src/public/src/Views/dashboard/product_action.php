@@ -18,7 +18,7 @@ $param2 = (isset($param[2]) ? $param[2] : "");
 
 if ($action === "product-data") {
   try {
-    $result = $DASHBOARD->issue_data();
+    $result = $DASHBOARD->product_data();
     echo json_encode($result);
   } catch (PDOException $e) {
     die($e->getMessage());

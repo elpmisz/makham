@@ -103,41 +103,6 @@ $card = $DASHBOARD->issue_card();
           </div>
         </div>
 
-        <div class="row mb-2">
-          <div class="col-xl-6 mb-2">
-            <div class="card shadow">
-              <div class="card-header">
-                <h5>ยอดรวมสินค้านำเข้า</h5>
-              </div>
-              <div class="card-body">
-                <div class="col-xl-12 mb-2">
-                  <canvas id="income-chart"></canvas>
-                </div>
-                <div class="table-responsive">
-                  <table class="table table-sm table-hover income-table"></table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-xl-6 mb-2">
-            <div class="card shadow">
-              <div class="card-header">
-                <h5>ยอดรวมสินค้าเบิกออก</h5>
-              </div>
-              <div class="card-body">
-                <div class="col-xl-12 mb-2">
-                  <canvas id="outcome-chart"></canvas>
-                </div>
-                <div class="table-responsive">
-                  <table class="table table-sm table-hover outcome-table"></table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
       </div>
     </div>
   </div>

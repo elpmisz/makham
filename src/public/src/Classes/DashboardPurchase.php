@@ -33,23 +33,7 @@ class DashboardPurchase
     return $stmt->fetch();
   }
 
-  public function bom_purchase()
-  {
-    $sql = "SELECT a.bom,b.name bom_name,
-    FORMAT(SUM(IF(DATE(a.created) = DATE(NOW()),a.confirm,0)),2) dd,
-    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()) AND MONTH(a.created) = MONTH(NOW()),a.confirm,0)),2) mm,
-    FORMAT(SUM(IF(YEAR(a.created) = YEAR(NOW()),a.confirm,0)),2) yy,
-    FORMAT(SUM(a.confirm ),2) total
-    FROM inventory.purchase a
-    LEFT JOIN inventory.bom b
-    ON a.bom = b.id
-    GROUP BY a.bom";
-    $stmt = $this->dbcon->prepare($sql);
-    $stmt->execute();
-    return $stmt->fetchAll();
-  }
-
-  public function purchase_data($bom, $start, $end)
+  public function purchase_data()
   {
     $sql = "SELECT COUNT(*) FROM inventory.purchase";
     $stmt = $this->dbcon->prepare($sql);
@@ -66,64 +50,64 @@ class DashboardPurchase
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.id,a.uuid,CONCAT('PR',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
-    CONCAT(b.firstname,' ',b.lastname) fullname,
-    a.bom,c.name bom_name,a.machine,
-    a.amount,a.confirm,a.date,a.text,
+    $sql = "SELECT a.id,a.`uuid`,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    CONCAT(c.firstname,' ',c.lastname) fullname,
+    a.customer_id,CONCAT('คุณ',d.name) customer_name,
+    a.amount,a.machine,a.per,
+    DATE_FORMAT(a.date_produce,'%d/%m/%Y') produce,
+    DATE_FORMAT(a.date_delivery,'%d/%m/%Y') delivery,
+    GROUP_CONCAT(e.name) products, 
+    a.`text`,
     (
-      CASE
-        WHEN a.status = 1 THEN 'edit'
-        WHEN a.status = 3 THEN 'process'
-        ELSE 'complete'
-      END
+    CASE 
+      WHEN a.status = 1 THEN 'view'
+      WHEN a.status = 2 THEN 'process'
+      WHEN a.status IN (3,4,5) THEN 'complete'
+      ELSE NULL
+    END
     ) page,
     (
-      CASE
-        WHEN a.status = 1 THEN 'รอการอนุมัติ'
-        WHEN a.status = 2 THEN 'รอเบิกวัตถุดิบ'
-        WHEN a.status = 3 THEN 'กำลังผลิต'
-        WHEN a.status = 4 THEN 'รอตรวจสอบ'
-        WHEN a.status = 5 THEN 'ผ่านการตรวจสอบ'
-        WHEN a.status = 6 THEN 'รายการถูกยกเลิก'
-        ELSE NULL
-      END
+    CASE 
+      WHEN a.status = 1 THEN 'รอเบิกวัถุดิบ'
+      WHEN a.status = 2 THEN 'กำลังผลิต'
+      WHEN a.status = 3 THEN 'รอตรวจสอบ'
+      WHEN a.status = 4 THEN 'ดำเนินการเรียบร้อย'
+      WHEN a.status = 5 THEN 'รายการถูกยกเลิก'
+      ELSE NULL
+    END
     ) status_name,
     (
-      CASE
-        WHEN a.status = 1 THEN 'primary'
-        WHEN a.status = 2 THEN 'info'
-        WHEN a.status = 3 THEN 'warning'
-        WHEN a.status = 4 THEN 'primary'
-        WHEN a.status = 5 THEN 'success'
-        WHEN a.status = 6 THEN 'danger'
-        ELSE NULL
-      END
+    CASE 
+      WHEN a.status = 1 THEN 'info'
+      WHEN a.status = 2 THEN 'primary'
+      WHEN a.status = 3 THEN 'warning'
+      WHEN a.status = 4 THEN 'success'
+      WHEN a.status = 5 THEN 'danger'
+      ELSE NULL
+    END
     ) status_color,
-    DATE_FORMAT(a.date, '%d/%m/%Y') date,
-    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
-    FROM inventory.purchase a
-    LEFT JOIN inventory.user b
-    ON a.user_id = b.id
-    LEFT JOIN inventory.bom c
-    ON a.bom = c.id
-    WHERE a.id != '' ";
+    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created 
+    FROM inventory.purchase a 
+    LEFT JOIN inventory.purchase_item b 
+    ON a.id  = b.purchase_id  
+    LEFT JOIN inventory.`user` c 
+    ON a.user_id = c.login 
+    LEFT JOIN inventory.customer d 
+    ON a.customer_id = d.id 
+    LEFT JOIN inventory.product e 
+    ON b.product_id = e.id
+    WHERE b.status = 1 ";
 
     if (!empty($keyword)) {
       $sql .= " AND a.name LIKE '%{$keyword}%' ";
     }
 
-    if (!empty($bom)) {
-      $sql .= " AND a.bom = '{$bom}' ";
-    }
-
-    if (!empty($start)) {
-      $sql .= " AND DATE(a.date) BETWEEN STR_TO_DATE('{$start}','%d/%m/%Y') AND STR_TO_DATE('{$end}','%d/%m/%Y') ";
-    }
+    $sql .= " GROUP BY a.id ";
 
     if ($filter_order) {
       $sql .= " ORDER BY {$column[$order_column]} {$order_dir} ";
     } else {
-      $sql .= " ORDER BY a.status ASC, a.date ASC ";
+      $sql .= " ORDER BY a.status ASC, a.date_produce DESC ";
     }
 
     $sql2 = "";
@@ -144,10 +128,11 @@ class DashboardPurchase
       $data[] = [
         $status,
         $row['ticket'],
-        $row['bom_name'],
-        $row['machine'],
+        $row['customer_name'],
         $row['amount'],
-        $row['confirm'],
+        $row['produce'],
+        $row['delivery'],
+        str_replace(",", "<br>", $row['products']),
         str_replace("\n", "<br>", $row['text']),
         $row['created'],
       ];

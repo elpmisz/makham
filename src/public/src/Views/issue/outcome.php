@@ -164,93 +164,40 @@ include_once(__DIR__ . "/../layout/header.php");
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
 <script>
-  $(".item-decrease").hide();
-  $(document).on("click", ".item-increase", function() {
-    $(".item-select, .location-select").select2('destroy');
-    let row = $(".item-tr:last");
-    let clone = row.clone();
-    clone.find("input, select").val("").empty();
-    clone.find("span").text("");
-    clone.find(".item-increase").hide();
-    clone.find(".item-decrease").show();
-    clone.find(".item-decrease").on("click", function() {
-      $(this).closest("tr").remove();
-    });
-    row.after(clone);
-    clone.show();
-
-    $(".item-select").select2({
-      placeholder: "-- วัตถุดิบ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/item-remain-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
-
-    $(".location-select").select2({
-      placeholder: "-- คลัง --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/location-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
-
-    $(".store-select").select2({
-      placeholder: "-- ห้อง --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/store-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
-
-    $(".unit-select").select2({
-      placeholder: "-- หน่วยนับ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/unit-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
+  $("form").on("submit", function(event) {
+    $(".store-select").each(function() {
+      if ($(this).val() === null || $(this).val() === "") {
+        $(this).after('<input type="hidden" name="' + $(this).prop('name') + '" value="0">');
       }
     });
   });
+
+  $(".item-decrease").hide();
+  $(document).on("click", ".item-increase", function() {
+    let row = $(".item-tr:last");
+    let clone = row.clone();
+    clone.find("input, select").val("");
+    clone.find("span").text("");
+    clone.find(".item-increase").hide();
+    clone.find(".item-decrease").show();
+    clone.find(".item-decrease").off("click").on("click", function() {
+      $(this).closest("tr").remove();
+    });
+
+    row.after(clone);
+
+    clone.find(".store-select").val("0");
+
+    initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/issue/item-all-select");
+    initializeSelect2($(".location-select"), "-- คลัง --", "/issue/location-select");
+    initializeSelect2($(".store-select"), "-- ห้อง --", "/issue/store-select");
+    initializeSelect2($(".unit-select"), "-- หน่วยนับ --", "/issue/unit-select");
+  });
+
+  initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/issue/item-all-select");
+  initializeSelect2($(".location-select"), "-- คลัง --", "/issue/location-select");
+  initializeSelect2($(".store-select"), "-- ห้อง --", "/issue/store-select");
+  initializeSelect2($(".unit-select"), "-- หน่วยนับ --", "/issue/unit-select");
 
   $(document).on("change", ".item-select, .location-select, .store-select", function() {
     $(".unit-select").empty();
@@ -271,7 +218,7 @@ include_once(__DIR__ . "/../layout/header.php");
             row.find(".item-remain").text(parseFloat(result.remain).toLocaleString("en-US", {
               minimumFractionDigits: 2
             }));
-            row.find(".item-quantity").prop("max", result.remain)
+
             let selected = new Option(result.unit_name, result.unit, true, true);
             row.find(".unit-select").append(selected).trigger("change");
 
@@ -280,78 +227,6 @@ include_once(__DIR__ . "/../layout/header.php");
           });
       }
     });
-  });
-
-  $(".item-select").select2({
-    placeholder: "-- วัตถุดิบ --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/item-remain-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".location-select").select2({
-    placeholder: "-- คลัง --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/location-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".store-select").select2({
-    placeholder: "-- ห้อง --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/store-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".unit-select").select2({
-    placeholder: "-- หน่วยนับ --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/unit-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
   });
 
   $(".date-select").daterangepicker({

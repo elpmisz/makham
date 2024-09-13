@@ -439,6 +439,16 @@ class Product
       "a.min",
       "
       (
+        SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0))
+      )
+      ",
+      "
+      (
+        SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0))
+      )
+      ",
+      "
+      (
         SUM(IF(c.status IN (1,2) AND b.type = 1 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0)) -
         SUM(IF(c.status IN (1,2) AND b.type = 2 AND b.status = 1,IF(c.status = 1,IF(a.unit = b.unit_id,b.quantity,(b.quantity/a.per)),IF(a.unit = b.unit_id,b.confirm,(b.confirm/a.per))),0))
       ) 
@@ -531,6 +541,8 @@ class Product
         $row['product_code'],
         $row['product_name'],
         $row['product_min'],
+        $row['income'],
+        $row['outcome'],
         $row['remain'],
         $row['unit_name'],
       ];

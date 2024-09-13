@@ -10,7 +10,7 @@ use App\Classes\Issue;
 $ISSUE = new Issue();
 
 $row = $ISSUE->issue_view([$uuid]);
-$items = (intval($row['type']) === 3 ? $ISSUE->exchange_view([$uuid]) : $ISSUE->item_view([$uuid]));
+$items = (intval($row['type']) === 3 ? $ISSUE->exchange_view($uuid) : $ISSUE->item_view([$uuid]));
 $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
@@ -202,11 +202,13 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                   <?php if ($type === 3) : ?>
                     <thead>
                       <tr>
-                        <th width="10%">#</th>
+                        <th width="5%">#</th>
                         <th width="20%">วัตถุดิบ</th>
-                        <th width="20%">สถานที่ (ต้นทาง)</th>
-                        <th width="20%">สถานที่ (ปลายทาง)</th>
+                        <th width="10%">คลัง (ต้นทาง)</th>
+                        <th width="10%">ห้อง (ต้นทาง)</th>
                         <th width="10%">ปริมาณ (คงเหลือ)</th>
+                        <th width="10%">คลัง (ปลายทาง)</th>
+                        <th width="10%">ห้อง (ปลายทาง)</th>
                         <th width="10%">ปริมาณ (โอนย้าย)</th>
                         <th width="10%">หน่วยนับ</th>
                       </tr>
@@ -214,16 +216,18 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                     <tbody>
                       <?php
                       foreach ($items as $item) :
-                        $quantity_remain = $ISSUE->item_quantity_remain([$item['item_id'], $item['location_id'], $item['store_id']]);
+                        $item_id = (intval($item['item_id']) + 1);
                       ?>
                         <tr>
                           <td class="text-center">
-                            <a href="javascript:void(0)" class="badge badge-danger font-weight-light item-delete" id="<?php echo $item['item_id'] ?>">ลบ</a>
+                            <a href="javascript:void(0)" class="badge badge-danger font-weight-light item-delete" id="<?php echo $item['item_id'] . "-" . $item_id ?>">ลบ</a>
                           </td>
                           <td><?php echo $item['product_name'] ?></td>
-                          <td><?php echo $item['send'] ?></td>
-                          <td><?php echo $item['receive'] ?></td>
-                          <td class="text-right"><?php echo $quantity_remain ?></td>
+                          <td><?php echo $item['send_location'] ?></td>
+                          <td><?php echo $item['send_store'] ?></td>
+                          <td class="text-right"></td>
+                          <td><?php echo $item['receive_location'] ?></td>
+                          <td><?php echo $item['receive_store'] ?></td>
                           <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
                           <td class="text-center"><?php echo $item['unit_name'] ?></td>
                         </tr>
@@ -240,18 +244,30 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           </div>
                         </td>
                         <td class="text-left">
-                          <select class="form-control form-control-sm location-select" name="item_send[]"></select>
+                          <select class="form-control form-control-sm location-select" name="item_send_location[]"></select>
                           <div class="invalid-feedback">
                             กรุณาเลือกข้อมูล!
                           </div>
                         </td>
                         <td class="text-left">
-                          <select class="form-control form-control-sm location-select" name="item_receive[]"></select>
+                          <select class="form-control form-control-sm store-select" name="item_send_store[]"></select>
                           <div class="invalid-feedback">
                             กรุณาเลือกข้อมูล!
                           </div>
                         </td>
-                        <td class="text-right"><span class="item-remain"></span></td>
+                        <td class="text-center"><span class="item-remain"></span></td>
+                        <td class="text-left">
+                          <select class="form-control form-control-sm location-select" name="item_receive_location[]"></select>
+                          <div class="invalid-feedback">
+                            กรุณาเลือกข้อมูล!
+                          </div>
+                        </td>
+                        <td class="text-left">
+                          <select class="form-control form-control-sm store-select" name="item_receive_store[]"></select>
+                          <div class="invalid-feedback">
+                            กรุณาเลือกข้อมูล!
+                          </div>
+                        </td>
                         <td>
                           <input type="number" class="form-control form-control-sm text-center item-quantity" name="item_quantity[]" min="0" step="0.01">
                           <div class="invalid-feedback">
@@ -259,7 +275,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                           </div>
                         </td>
                         <td class="text-left">
-                          <select class="form-control form-control-sm unit-select" name="item_unit[]" required></select>
+                          <select class="form-control form-control-sm unit-select" name="item_unit[]"></select>
                           <div class="invalid-feedback">
                             กรุณาเลือกข้อมูล!
                           </div>
@@ -296,207 +312,52 @@ $created = (!empty($row['created']) ? $row['created'] : "");
 <script>
   let type = ($("input[name='type']").val() ? parseInt($("input[name='type']").val()) : "");
 
+  $("form").on("submit", function(event) {
+    $(".store-select").each(function() {
+      if ($(this).val() === null || $(this).val() === "") {
+        $(this).after('<input type="hidden" name="' + $(this).prop('name') + '" value="0">');
+      }
+    });
+  });
+
   $(".item-decrease").hide();
   $(document).on("click", ".item-increase", function() {
-    $(".item-select").select2('destroy');
     let row = $(".item-tr:last");
     let clone = row.clone();
-    clone.find("input, select, span").val("").empty();
+    clone.find("input, select").val("");
+    clone.find("span").text("");
     clone.find(".item-increase").hide();
     clone.find(".item-decrease").show();
-    clone.find(".item-decrease").on("click", function() {
+    clone.find(".item-decrease").off("click").on("click", function() {
       $(this).closest("tr").remove();
     });
+
     row.after(clone);
-    clone.show();
+
+    clone.find(".store-select").val("0");
 
     if (type === 1) {
-      $(".item-select").select2({
-        placeholder: "-- วัตถุดิบ --",
-        allowClear: true,
-        width: "100%",
-        ajax: {
-          url: "/issue/item-all-select",
-          method: "POST",
-          dataType: "json",
-          delay: 100,
-          processResults: function(data) {
-            return {
-              results: data
-            };
-          },
-          cache: true
-        }
-      });
+      initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/issue/item-all-select");
     } else {
-      $(".item-select").select2({
-        placeholder: "-- วัตถุดิบ --",
-        allowClear: true,
-        width: "100%",
-        ajax: {
-          url: "/issue/item-remain-select",
-          method: "POST",
-          dataType: "json",
-          delay: 100,
-          processResults: function(data) {
-            return {
-              results: data
-            };
-          },
-          cache: true
-        }
-      });
+      initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/issue/item-remain-select");
     }
 
-    $(".location-select").select2({
-      placeholder: "-- คลัง --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/location-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
-
-    $(".store-select").select2({
-      placeholder: "-- ห้อง --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/store-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
-
-    $(".unit-select").select2({
-      placeholder: "-- หน่วยนับ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/unit-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
+    initializeSelect2($(".location-select"), "-- คลัง --", "/issue/location-select");
+    initializeSelect2($(".store-select"), "-- ห้อง --", "/issue/store-select");
+    initializeSelect2($(".unit-select"), "-- หน่วยนับ --", "/issue/unit-select");
   });
 
   if (type === 1) {
-    $(".item-select").select2({
-      placeholder: "-- วัตถุดิบ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/item-all-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
+    initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/issue/item-all-select");
   } else {
-    $(".item-select").select2({
-      placeholder: "-- วัตถุดิบ --",
-      allowClear: true,
-      width: "100%",
-      ajax: {
-        url: "/issue/item-remain-select",
-        method: "POST",
-        dataType: "json",
-        delay: 100,
-        processResults: function(data) {
-          return {
-            results: data
-          };
-        },
-        cache: true
-      }
-    });
+    initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/issue/item-remain-select");
   }
 
-  $(".location-select").select2({
-    placeholder: "-- คลัง --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/location-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".store-select").select2({
-    placeholder: "-- ห้อง --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/store-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
-
-  $(".unit-select").select2({
-    placeholder: "-- หน่วยนับ --",
-    allowClear: true,
-    width: "100%",
-    ajax: {
-      url: "/issue/unit-select",
-      method: "POST",
-      dataType: "json",
-      delay: 100,
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
+  initializeSelect2($(".location-select"), "-- คลัง --", "/issue/location-select");
+  initializeSelect2($(".store-select"), "-- ห้อง --", "/issue/store-select");
+  initializeSelect2($(".unit-select"), "-- หน่วยนับ --", "/issue/unit-select");
 
   $(document).on("change", ".item-select, .location-select, .store-select", function() {
-    let type = parseInt($("input[name='type']").val());
     $(".unit-select").empty();
     $(".item-select").each(function() {
       let row = $(this).closest("tr");
@@ -515,9 +376,7 @@ $created = (!empty($row['created']) ? $row['created'] : "");
             row.find(".item-remain").text(parseFloat(result.remain).toLocaleString("en-US", {
               minimumFractionDigits: 2
             }));
-            if (type === 2) {
-              row.find(".item-quantity").prop("max", result.remain)
-            }
+
             let selected = new Option(result.unit_name, result.unit, true, true);
             row.find(".unit-select").append(selected).trigger("change");
 
@@ -526,6 +385,32 @@ $created = (!empty($row['created']) ? $row['created'] : "");
           });
       }
     });
+  });
+
+  $(".date-select").daterangepicker({
+    singleDatePicker: true,
+    showDropdowns: true,
+    minDate: new Date(),
+    locale: {
+      "format": "DD/MM/YYYY",
+      "daysOfWeek": [
+        "อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"
+      ],
+      "monthNames": [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ]
+    },
+    "applyButtonClasses": "btn-success",
+    "cancelClass": "btn-danger"
+  });
+
+  $(".date-select").on("apply.daterangepicker", function(ev, picker) {
+    $(this).val(picker.startDate.format('DD/MM/YYYY'));
+  });
+
+  $(".date-select").on("keydown paste", function(e) {
+    e.preventDefault();
   });
 
   $(document).on("click", ".item-delete", function(e) {
@@ -557,31 +442,5 @@ $created = (!empty($row['created']) ? $row['created'] : "");
         return false;
       }
     })
-  });
-
-  $(".date-select").daterangepicker({
-    singleDatePicker: true,
-    showDropdowns: true,
-    minDate: new Date(),
-    locale: {
-      "format": "DD/MM/YYYY",
-      "daysOfWeek": [
-        "อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"
-      ],
-      "monthNames": [
-        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-      ]
-    },
-    "applyButtonClasses": "btn-success",
-    "cancelClass": "btn-danger"
-  });
-
-  $(".date-select").on("apply.daterangepicker", function(ev, picker) {
-    $(this).val(picker.startDate.format('DD/MM/YYYY'));
-  });
-
-  $(".date-select").on("keydown paste", function(e) {
-    e.preventDefault();
   });
 </script>

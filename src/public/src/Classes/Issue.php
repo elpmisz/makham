@@ -76,7 +76,7 @@ class Issue
 
   public function item_insert($data)
   {
-    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,location_id,store_id,quantity,unit_id) VALUES(?,?,?,?,?,?,?)";
+    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,`group`,location_id,store_id,quantity,unit_id) VALUES(?,?,?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -229,56 +229,86 @@ class Issue
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
-  public function exchange_view($data)
+  public function exchange_view($uuid)
   {
-    $sql = "SELECT IF(c.type = 3,CONCAT(b.issue_id,'-',b.product_id),b.id) item_id,
-    a.id product_id,a.uuid product_uuid,a.code product_code,a.name product_name,
-    IF(b.unit_id != 1,b.quantity,(b.quantity*a.per)) quantity,
-    IF(b.unit_id != 1,b.confirm,(b.confirm*a.per)) confirm,
-    MIN(i.name) send,MAX(i.name) receive,
-    a.cost product_cost,a.price product_price,a.min product_min,a.max product_max,
-    a.supplier,d.name supplier_name,
-    b.unit_id,e.name unit_name,
-    a.brand,f.name brand_name,
-    a.category,g.name category_name,
-    a.store,CONCAT(h.room,h.floor,h.zone) store_name,
-    IF(a.status = 1,'ใช้งาน','ระงับการใช้งาน') status_name,
-    IF(a.status = 1,'success','danger') status_color,
-    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created
-    FROM inventory.product a
-    LEFT JOIN inventory.issue_item b
-    ON a.id = b.product_id
-    LEFT JOIN inventory.issue c
-    ON b.issue_id = c.id
-    LEFT JOIN inventory.customer d
-    ON a.supplier = d.id
-    LEFT JOIN inventory.unit e
-    ON b.unit_id = e.id
-    LEFT JOIN inventory.brand f
-    ON a.brand = f.id 
-    LEFT JOIN inventory.category g
-    ON a.category = g.id 
-    LEFT JOIN inventory.store h
-    ON a.store = h.id
-    LEFT JOIN inventory.location i
-    ON b.location_id = i.id
-    WHERE c.uuid = ?
-    AND b.status = 1
-    GROUP BY a.id";
+    $sql = "SELECT x.issue_id,x.item_id,x.product_id,x.product_name,
+    x.send_location_id,x.send_location,x.send_store_id,x.send_store,
+    y.receive_location_id,y.receive_location,y.receive_store_id,y.receive_store,
+    x.quantity,x.confirm,x.product_quantity,x.product_confirm,
+    x.unit_name,x.unit_id,x.unit,x.product_unit
+    FROM
+    (
+      SELECT a.id issue_id, b.id item_id,b.product_id,c.`name` product_name,
+      b.location_id send_location_id,d.`name` send_location,
+      b.store_id send_store_id,CONCAT('ห้อง ',e.room,' ชั้น ',e.floor,' โซน ',e.zone) send_store,
+      b.quantity,b.confirm,
+      IF(b.unit_id != c.unit,FORMAT((b.quantity/c.per),0),FORMAT(b.quantity,0)) product_quantity,
+      IF(b.unit_id != c.unit,FORMAT((b.confirm/c.per),0),FORMAT(b.confirm,0)) product_confirm,
+      b.unit_id,c.unit,f.`name` unit_name,
+      g.name product_unit,b.`group`
+      FROM inventory.issue a
+      LEFT JOIN inventory.issue_item b
+      ON a.id = b.issue_id
+      LEFT JOIN inventory.product c
+      ON b.product_id = c.id
+      LEFT JOIN inventory.location d
+      ON b.location_id = d.id
+      LEFT JOIN inventory.store e
+      ON b.store_id = e.id
+      LEFT JOIN inventory.unit f
+      ON b.unit_id = f.id
+      LEFT JOIN inventory.unit g
+      ON c.unit = g.id
+      WHERE a.`uuid` = '{$uuid}'
+      AND b.`status` = 1
+      AND b.`type` = 2
+    ) x 
+    LEFT JOIN 
+    (
+      SELECT a.id issue_id, b.id item_id,b.product_id,c.`name` product_name,
+      b.location_id receive_location_id,d.`name` receive_location,
+      b.store_id receive_store_id,CONCAT('ห้อง ',e.room,' ชั้น ',e.floor,' โซน ',e.zone) receive_store,
+      b.quantity,b.confirm,
+      IF(b.unit_id != c.unit,FORMAT((b.quantity/c.per),0),FORMAT(b.quantity,0)) product_quantity,
+      IF(b.unit_id != c.unit,FORMAT((b.confirm/c.per),0),FORMAT(b.confirm,0)) product_confirm,
+      f.`name` unit_name,
+      g.name product_unit,b.`group`
+      FROM inventory.issue a
+      LEFT JOIN inventory.issue_item b
+      ON a.id = b.issue_id
+      LEFT JOIN inventory.product c
+      ON b.product_id = c.id
+      LEFT JOIN inventory.location d
+      ON b.location_id = d.id
+      LEFT JOIN inventory.store e
+      ON b.store_id = e.id
+      LEFT JOIN inventory.unit f
+      ON b.unit_id = f.id
+      LEFT JOIN inventory.unit g
+      ON c.unit = g.id
+      WHERE a.`uuid` = '{$uuid}'
+      AND b.`status` = 1
+      AND b.`type` = 1
+    ) y
+    ON x.issue_id = y.issue_id
+    AND x.group = y.group
+    GROUP BY x.item_id";
     $stmt = $this->dbcon->prepare($sql);
-    $stmt->execute($data);
+    $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
-  public function exchange_delete($data)
+  public function exchange_key($data)
   {
-    $sql = "UPDATE inventory.issue_item SET
-    status = 2,
-    updated = NOW()
-    WHERE issue_id = ?
-    AND product_id = ?";
+    $sql = "SELECT MAX(b.`group` ) `group`
+    FROM inventory.issue a
+    LEFT JOIN inventory.issue_item b
+    ON a.id = b.issue_id
+    WHERE a.`uuid` = ?";
     $stmt = $this->dbcon->prepare($sql);
-    return $stmt->execute($data);
+    $stmt->execute($data);
+    $row = $stmt->fetch();
+    return (isset($row['group']) ? $row['group'] : "");
   }
 
   public function exchange_confirm($data)
@@ -286,8 +316,7 @@ class Issue
     $sql = "UPDATE inventory.issue_item SET
     confirm = ?,
     updated = NOW()
-    WHERE issue_id = ?
-    AND product_id = ?";
+    WHERE id = ?";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -380,7 +409,7 @@ class Issue
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     $row = $stmt->fetch();
-    return (empty($row['qty_remain']) ? "0 ลัง" : "{$row['qty_remain']} {$row['unit_name']}");
+    return (empty($row['qty_remain']) && intval($row['qty_remain']) === 0 ? "0 ลัง" : "{$row['qty_remain']} {$row['unit_name']}");
   }
 
   public function item_confirm_remain($data)
@@ -411,7 +440,7 @@ class Issue
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     $row = $stmt->fetch();
-    return (empty($row['cf_remain']) ? "0 ลัง" : "{$row['cf_remain']} {$row['unit_name']}");
+    return (empty($row['cf_remain']) && intval($row['cf_remain']) === 0 ? "0 ลัง" : "{$row['cf_remain']} {$row['unit_name']}");
   }
 
   public function issue_update($data)

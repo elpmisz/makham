@@ -10,7 +10,7 @@ use App\Classes\Issue;
 $ISSUE = new Issue();
 
 $row = $ISSUE->issue_view([$uuid]);
-$items = (intval($row['type']) === 3 ? $ISSUE->exchange_view([$uuid]) : $ISSUE->item_view([$uuid]));
+$items = (intval($row['type']) === 3 ? $ISSUE->exchange_view($uuid) : $ISSUE->item_view([$uuid]));
 $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
@@ -144,25 +144,41 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                   <?php if ($type === 3) : ?>
                     <thead>
                       <tr>
-                        <th width="10%">#</th>
-                        <th width="30%">วัตถุดิบ</th>
-                        <th width="20%">สถานที่ (ต้นทาง)</th>
-                        <th width="20%">สถานที่ (ปลายทาง)</th>
+                        <th width="5%">#</th>
+                        <th width="20%">วัตถุดิบ</th>
+                        <th width="10%">คลัง (ต้นทาง)</th>
+                        <th width="10%">ห้อง (ต้นทาง)</th>
+                        <th width="10%">ปริมาณ (รอตรวจสอบ)</th>
+                        <th width="10%">ปริมาณ (คงเหลือ)</th>
+                        <th width="10%">คลัง (ปลายทาง)</th>
+                        <th width="10%">ห้อง (ปลายทาง)</th>
                         <th width="10%">ปริมาณ (โอนย้าย)</th>
                         <th width="10%">ปริมาณ (ตรวจสอบ)</th>
                         <th width="10%">หน่วยนับ</th>
                       </tr>
                     </thead>
-                    <?php foreach ($items as $key => $item) : $key++; ?>
+                    <?php
+                    foreach ($items as $key => $item) :
+                      $item_id = (intval($item['item_id']) + 1);
+                      $key++;
+                      $quantity_remain = $ISSUE->item_quantity_remain([$item['product_id'], $item['receive_location_id'], $item['receive_store_id'], $item_id]);
+                      $confirm_remain = $ISSUE->item_confirm_remain([$item['product_id'], $item['receive_location_id'], $item['receive_store_id'], $item_id]);
+                    ?>
                       <tr>
                         <td class="text-center">
                           <?php echo $key ?>
-                          <input type="hidden" class="form-control form-control-sm text-center" name="item_id[]" value="<?php echo $item['item_id'] ?>" readonly>
+                          <input type="hidden" class="form-control form-control-sm text-center" name="item_id[]" value="<?php echo $item['item_id'] . "-" . $item_id ?>" readonly>
                         </td>
                         <td><?php echo $item['product_name'] ?></td>
-                        <td><?php echo $item['send'] ?></td>
-                        <td><?php echo $item['receive'] ?></td>
-                        <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
+                        <td><?php echo $item['send_location'] ?></td>
+                        <td><?php echo $item['send_store'] ?></td>
+                        <td class="text-right"><?php echo $quantity_remain ?></td>
+                        <td class="text-right"><?php echo $confirm_remain ?></td>
+                        <td><?php echo $item['receive_location'] ?></td>
+                        <td><?php echo $item['receive_store'] ?></td>
+                        <td class="text-right">
+                          <?php echo number_format($item['quantity'], 0) . ($item['unit_id'] === $item['unit'] ? "" : " ({$item['product_quantity']} {$item['product_unit']})") ?>
+                        </td>
                         <td>
                           <input type="number" class="form-control form-control-sm text-right" name="item_confirm[]" value="<?php echo intval($item['quantity']) ?>" min="0" step="0.01" required>
                           <div class="invalid-feedback">
