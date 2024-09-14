@@ -167,13 +167,13 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
           </div>
 
           <div class="row mb-2">
-            <label class="col-xl-3 col-form-label">สถานะ</label>
+            <label class="col-xl-2 col-form-label">สถานะ</label>
             <div class="col-xl-8">
               <div class="row pb-2">
                 <div class="col-xl-4">
                   <label class="form-check-label px-3 py-2">
                     <input class="form-check-input" type="radio" name="status" value="3" required>
-                    <span class="text-info">ดำเนินการเรียบร้อย</span>
+                    <span class="text-info">ผลิตเสร็จเรียบร้อย</span>
                   </label>
                 </div>
               </div>

@@ -25,11 +25,9 @@ $approver = (!empty($row['approver_firstname']) ? $row['approver_firstname'] : "
 $approved = (!empty($row['approved']) ? $row['approved'] : "");
 $approve_text = (!empty($row['approve_text']) ? str_replace("\n", "<br>", $row['approve_text']) : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
-$status = (!empty($row['status']) ? $row['status'] : "");
 
 $items = $WASTE->item_view([$uuid, 1]);
 $wastes = $WASTE->item_view([$uuid, 2]);
-$texts = $WASTE->text_view([$uuid]);
 ?>
 
 <div class="row">
@@ -39,7 +37,7 @@ $texts = $WASTE->text_view([$uuid]);
         <h4 class="text-center">ใบสรุปของเสีย</h4>
       </div>
       <div class="card-body">
-        <form action="/waste/manage-update" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="/waste/approve" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
           <div class="row mb-2" style="display: none;">
             <label class="col-xl-3 offset-xl-1 col-form-label">USER ID</label>
@@ -150,78 +148,33 @@ $texts = $WASTE->text_view([$uuid]);
               <?php echo $text ?>
             </div>
           </div>
-
-          <?php if (COUNT($texts) > 0) : ?>
-            <div class="row justify-content-center mb-2">
-              <div class="col-sm-12">
-                <h5>การดำเนินการ</h5>
-                <div class="table-responsive">
-                  <table class="table table-bordered table-sm item-table">
-                    <thead>
-                      <tr>
-                        <th width="10%">#</th>
-                        <th width="10%">สถานะ</th>
-                        <th width="20%">ผู้ดำเนินการ</th>
-                        <th width="50%">รายละเอียด</th>
-                        <th width="10%">วันที่</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php foreach ($texts as $i => $text) : $i++ ?>
-                        <tr>
-                          <td class="text-center"><?php echo $i ?></td>
-                          <td class="text-center">
-                            <span class="badge badge-<?php echo $text['status_color'] ?> font-weight-light"><?php echo $text['status_name'] ?></span>
-                          </td>
-                          <td class="text-left"><?php echo $text['username'] ?></td>
-                          <td><?php echo str_replace("\n", "<br>", $text['text']) ?></td>
-                          <td><?php echo $text['created'] ?></td>
-                        </tr>
-                      <?php endforeach ?>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          <?php endif ?>
-
           <div class="row mb-2">
-            <label class="col-xl-2 col-form-label">สถานะ</label>
-            <div class="col-xl-8">
-              <div class="row pb-2">
-                <div class="col-xl-4">
-                  <label class="form-check-label px-3 py-2">
-                    <input class="form-check-input" type="radio" name="status" value="2" <?php echo (intval($status) === 2 ? "checked" : "") ?> required>
-                    <span class="text-success">ผ่านการตรวจสอบ</span>
-                  </label>
-                </div>
-                <div class="col-xl-4">
-                  <label class="form-check-label px-3 py-2">
-                    <input class="form-check-input" type="radio" name="status" value="3" <?php echo (intval($status) === 3 ? "checked" : "") ?> required>
-                    <span class="text-danger">ไม่ผ่านการตรวจสอบ</span>
-                  </label>
-                </div>
-              </div>
+            <label class="col-xl-2 col-form-label">ผลการตรวจสอบ</label>
+            <div class="col-xl-4 text-underline">
+              <?php echo "<span class='text-{$status_color}'>{$status_name}</span>" ?>
             </div>
           </div>
-          <div class="row mb-2">
-            <label class="col-xl-2 col-form-label">รายละเอียดเพิ่มเติม</label>
-            <div class="col-xl-6">
-              <textarea class="form-control form-control-sm" name="remark" rows="4" required></textarea>
-              <div class="invalid-feedback">
-                กรุณากรอกข้อมูล!
+
+          <?php if ($row['status'] != 1) : ?>
+            <div class="row mb-2">
+              <label class="col-xl-2 col-form-label">ผู้ดำเนินการ</label>
+              <div class="col-xl-4 text-underline">
+                <?php echo "<span class='text-primary'>{$approver} - {$approved}</span>" ?>
               </div>
             </div>
-          </div>
+          <?php endif; ?>
+          <?php if (!empty($approve_text)) : ?>
+            <div class="row mb-2">
+              <label class="col-xl-2 col-form-label">หมายเหตุ</label>
+              <div class="col-xl-6 text-underline">
+                <?php echo $approve_text ?>
+              </div>
+            </div>
+          <?php endif; ?>
 
           <div class="row justify-content-center mb-2">
             <div class="col-xl-3 mb-2">
-              <button type="submit" class="btn btn-sm btn-success btn-block">
-                <i class="fas fa-check pr-2"></i>ตกลง
-              </button>
-            </div>
-            <div class="col-xl-3 mb-2">
-              <a href="/waste/manage" class="btn btn-sm btn-danger btn-block">
+              <a href="/waste" class="btn btn-sm btn-danger btn-block">
                 <i class="fa fa-arrow-left pr-2"></i>กลับ
               </a>
             </div>
@@ -240,3 +193,6 @@ $texts = $WASTE->text_view([$uuid]);
 
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
+<script>
+
+</script>

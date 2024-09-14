@@ -1,6 +1,6 @@
 <?php
 $menu = "service";
-$page = "service-purchase";
+$page = "service-waste";
 include_once(__DIR__ . "/../layout/header.php");
 ?>
 
@@ -21,25 +21,12 @@ include_once(__DIR__ . "/../layout/header.php");
                     <th width="10%">สถานะ</th>
                     <th width="10%">เลขที่เอกสาร</th>
                     <th width="10%">ผู้ทำรายการ</th>
-                    <th width="10%">ลูกค้า</th>
-                    <th width="10%">เป้าหมาย</th>
-                    <th width="10%">วันที่ผลิต</th>
-                    <th width="10%">วันที่เสร็จ</th>
-                    <th width="10%">สินค้า</th>
-                    <th width="20%">รายละเอียด</th>
+                    <th width="40%">รายละเอียด</th>
                     <th width="10%">วันที่</th>
                   </tr>
                 </thead>
               </table>
             </div>
-          </div>
-        </div>
-
-        <div class="row justify-content-center mb-2">
-          <div class="col-xl-3 mb-2">
-            <a href="/purchase" class="btn btn-sm btn-danger btn-block">
-              <i class="fa fa-arrow-left pr-2"></i>กลับ
-            </a>
           </div>
         </div>
 
@@ -59,11 +46,11 @@ include_once(__DIR__ . "/../layout/header.php");
       scrollX: true,
       order: [],
       ajax: {
-        url: "/purchase/manage-data",
+        url: "/waste/manage-data",
         type: "POST",
       },
       columnDefs: [{
-        targets: [0, 4, 5, 6],
+        targets: [0],
         className: "text-center",
       }],
       "oLanguage": {
@@ -97,7 +84,7 @@ include_once(__DIR__ . "/../layout/header.php");
       cancelButtonText: "ปิด",
     }).then((result) => {
       if (result.value) {
-        axios.post("/purchase/purchase-delete", {
+        axios.post("/waste/waste-delete", {
           id: id
         }).then((res) => {
           let result = res.data;

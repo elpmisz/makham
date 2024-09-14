@@ -26,14 +26,21 @@ $approver_count = $WASTE->approver_count();
               </a>
             </div>
           <?php endif; ?>
-          <div class="col-xl-3 mb-2">
-            <a href="/waste/manage" class="btn btn-success btn-sm btn-block">
-              <i class="fas fa-list pr-2"></i>จัดการ
-            </a>
-          </div>
+          <?php if (intval($approver) > 0 && intval($user['level']) === 9) : ?>
+            <div class="col-xl-3 mb-2">
+              <a href="/waste/manage" class="btn btn-success btn-sm btn-block">
+                <i class="fas fa-list pr-2"></i>จัดการ
+              </a>
+            </div>
+          <?php endif; ?>
           <div class="col-xl-3 mb-2">
             <a href="/waste/download" class="btn btn-danger btn-sm btn-block">
               <i class="fas fa-download pr-2"></i>นำข้อมูลออก
+            </a>
+          </div>
+          <div class="col-xl-3 mb-2">
+            <a href="/waste/other" class="btn btn-primary btn-sm btn-block">
+              <i class="fas fa-plus pr-2"></i>สิ่งแปลกปลอม
             </a>
           </div>
           <div class="col-xl-3 mb-2">
@@ -46,7 +53,7 @@ $approver_count = $WASTE->approver_count();
         <?php if (intval($approver) > 0 && intval($approver_count) > 0) : ?>
           <div class="row mb-2">
             <div class="col-xl-12">
-              <div class="card shadows">
+              <div class="card shadow">
                 <div class="card-header">
                   <h5 class="text-center">รายการรอดำเนินการ</h5>
                 </div>

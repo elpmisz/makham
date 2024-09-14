@@ -26,6 +26,13 @@ $approver_count = $PURCHASE->approver_count();
               </a>
             </div>
           <?php endif; ?>
+          <?php if (intval($approver) > 0 && intval($user['level']) === 9) : ?>
+            <div class="col-xl-3 mb-2">
+              <a href="/purchase/manage" class="btn btn-success btn-sm btn-block">
+                <i class="fas fa-list pr-2"></i>จัดการ
+              </a>
+            </div>
+          <?php endif; ?>
           <div class="col-xl-3 mb-2">
             <a href="/purchase/download" class="btn btn-danger btn-sm btn-block">
               <i class="fas fa-download pr-2"></i>นำข้อมูลออก
@@ -37,6 +44,38 @@ $approver_count = $PURCHASE->approver_count();
             </a>
           </div>
         </div>
+
+        <?php if (intval($approver) > 0 && intval($approver_count) > 0) : ?>
+          <div class="row mb-2">
+            <div class="col-xl-12">
+              <div class="card shadow">
+                <div class="card-header">
+                  <h5 class="text-center">รายการรอดำเนินการ</h5>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-bordered table-hover approve-data">
+                      <thead>
+                        <tr>
+                          <th width="10%">สถานะ</th>
+                          <th width="10%">เลขที่เอกสาร</th>
+                          <th width="10%">ผู้ทำรายการ</th>
+                          <th width="10%">ลูกค้า</th>
+                          <th width="10%">เป้าหมาย</th>
+                          <th width="10%">วันที่ผลิต</th>
+                          <th width="10%">วันที่เสร็จ</th>
+                          <th width="10%">สินค้า</th>
+                          <th width="20%">รายละเอียด</th>
+                          <th width="10%">วันที่</th>
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <?php endif; ?>
 
         <div class="row mb-2">
           <div class="col-xl-12">
@@ -51,6 +90,7 @@ $approver_count = $PURCHASE->approver_count();
                       <tr>
                         <th width="10%">สถานะ</th>
                         <th width="10%">เลขที่เอกสาร</th>
+                        <th width="10%">ผู้ทำรายการ</th>
                         <th width="10%">ลูกค้า</th>
                         <th width="10%">เป้าหมาย</th>
                         <th width="10%">วันที่ผลิต</th>
@@ -119,7 +159,7 @@ $approver_count = $PURCHASE->approver_count();
         type: "POST",
       },
       columnDefs: [{
-        targets: [0, 3, 4, 5],
+        targets: [0, 4, 5, 6],
         className: "text-center",
       }],
       "oLanguage": {
@@ -148,7 +188,7 @@ $approver_count = $PURCHASE->approver_count();
         type: "POST",
       },
       columnDefs: [{
-        targets: [0, 3, 4, 5],
+        targets: [0, 4, 5, 6],
         className: "text-center",
       }],
       "oLanguage": {

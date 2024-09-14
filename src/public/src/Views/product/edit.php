@@ -253,7 +253,7 @@ $url = (!empty($_SERVER['HTTP_REFERER']) ? "{$_SERVER['HTTP_REFERER']}/complete/
 
           <?php if (intval($issue_count) > 0) : ?>
             <div class="row mb-2">
-              <div class="col-xl-10">
+              <div class="col-xl-12">
                 <div class="card shadow">
                   <div class="card-header">
                     <h5>รายการสินค้าคงเหลือ</h5>

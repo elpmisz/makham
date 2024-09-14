@@ -146,6 +146,8 @@ if ($action === "check") {
     }
 
     $PURCHASE->purchase_process([$status, $uuid]);
+    $PURCHASE->text_insert([$id, $user_id, "ผ่านการตรวจสอบ", $status]);
+
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/purchase");
   } catch (PDOException $e) {
     die($e->getMessage());
@@ -154,17 +156,14 @@ if ($action === "check") {
 
 if ($action === "manage-update") {
   try {
-    $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
     $id = (isset($_POST['id']) ? $VALIDATION->input($_POST['id']) : "");
     $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
-    $amount = (isset($_POST['amount']) ? $VALIDATION->input($_POST['amount']) : "");
-    $confirm = (isset($_POST['confirm']) ? $VALIDATION->input($_POST['confirm']) : "");
-    $machine = (isset($_POST['machine']) ? $VALIDATION->input($_POST['machine']) : "");
-    $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
+    $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
     $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
     $remark = (isset($_POST['remark']) ? $VALIDATION->input($_POST['remark']) : "");
 
-    $PURCHASE->purchase_process([$confirm, $status, $uuid]);
+    $PURCHASE->purchase_process([$status, $uuid]);
+    $PURCHASE->text_insert([$id, $user_id, $remark, $status]);
 
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/purchase/manage");
   } catch (PDOException $e) {

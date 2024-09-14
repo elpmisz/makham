@@ -28,7 +28,7 @@ ob_start();
       width: 100%;
       vertical-align: middle;
       border-collapse: collapse;
-      font-size: 90%;
+      font-size: 75%;
     }
 
     td,
@@ -126,7 +126,7 @@ ob_start();
     </tr>
   </table>
 
-  <span>วัตถุดิบ</span>
+  <h6>วัตถุดิบ</h6>
   <table>
     <tr>
       <th width="5%">#</th>
@@ -149,7 +149,7 @@ ob_start();
     ?>
   </table>
 
-  <span>สิ่งแปลกปลอม</span>
+  <h6>สิ่งแปลกปลอม</h6>
   <table>
     <tr>
       <th width="5%">#</th>

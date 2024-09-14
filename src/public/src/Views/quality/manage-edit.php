@@ -13,10 +13,8 @@ $row = $WASTE->waste_view([$uuid]);
 $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
-$purchase_uuid = (!empty($row['purchase_uuid']) ? $row['purchase_uuid'] : "");
-$purchase_ticket = (!empty($row['purchase_ticket']) ? $row['purchase_ticket'] : "");
 $fullname = (!empty($row['firstname']) ? $row['firstname'] : "");
-$text = (!empty($row['text']) ? str_replace("\n", "<br>", $row['text']) : "");
+$text = (!empty($row['text']) ? $row['text'] : "");
 $active = (intval($row['status']) === 1 ? "checked" : "");
 $inactive = (intval($row['status']) === 2 ? "checked" : "");
 $status_name = (!empty($row['status_name']) ? $row['status_name'] : "");
@@ -29,7 +27,6 @@ $status = (!empty($row['status']) ? $row['status'] : "");
 
 $items = $WASTE->item_view([$uuid, 1]);
 $wastes = $WASTE->item_view([$uuid, 2]);
-$texts = $WASTE->text_view([$uuid]);
 ?>
 
 <div class="row">
@@ -59,41 +56,21 @@ $texts = $WASTE->text_view([$uuid]);
               <input type="text" class="form-control form-control-sm" name="uuid" value="<?php echo $uuid ?>" readonly>
             </div>
           </div>
-
-          <div class="row">
-            <div class="col-xl-6">
-              <div class="row mb-2">
-                <label class="col-xl-3 col-form label">ผู้ทำรายการ</label>
-                <div class="col-xl-8 text-underline">
-                  <?php echo $fullname ?>
-                </div>
-              </div>
-              <div class="row mb-2">
-                <label class="col-xl-3 col-form-label">เลขที่ใบสั่งผลิต</label>
-                <div class="col-xl-4 text-underline">
-                  <a href="/purchase/complete/<?php echo $purchase_uuid ?>" target="_blank"><?php echo $purchase_ticket ?></a>
-                </div>
-              </div>
+          <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">เลขที่ใบ</label>
+            <div class="col-xl-4 text-underline">
+              <?php echo $ticket ?>
             </div>
-
-            <div class="col-xl-6">
-              <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">เลขที่เอกสาร</label>
-                <div class="col-xl-6 text-underline">
-                  <?php echo $ticket ?>
-                </div>
-              </div>
-              <div class="row mb-2">
-                <label class="col-xl-3 offset-xl-1 col-form-label">วันที่</label>
-                <div class="col-xl-6 text-underline">
-                  <?php echo $created ?>
-                </div>
-              </div>
+          </div>
+          <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ทำรายการ</label>
+            <div class="col-xl-4 text-underline">
+              <?php echo $fullname . " - " . $created ?>
             </div>
           </div>
 
           <div class="row justify-content-center mb-2">
-            <div class="col-sm-12">
+            <div class="col-sm-10">
               <h6>วัตถุดิบ</h6>
               <div class="table-responsive">
                 <table class="table table-bordered table-sm item-table">
@@ -145,67 +122,38 @@ $texts = $WASTE->text_view([$uuid]);
           </div>
 
           <div class="row mb-2">
-            <label class="col-xl-2 col-form-label">รายละเอียด</label>
-            <div class="col-xl-6 text-underline">
-              <?php echo $text ?>
+            <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
+            <div class="col-xl-6">
+              <textarea class="form-control form-control-sm" name="text" rows="5"><?php echo $text ?></textarea>
             </div>
           </div>
-
-          <?php if (COUNT($texts) > 0) : ?>
-            <div class="row justify-content-center mb-2">
-              <div class="col-sm-12">
-                <h5>การดำเนินการ</h5>
-                <div class="table-responsive">
-                  <table class="table table-bordered table-sm item-table">
-                    <thead>
-                      <tr>
-                        <th width="10%">#</th>
-                        <th width="10%">สถานะ</th>
-                        <th width="20%">ผู้ดำเนินการ</th>
-                        <th width="50%">รายละเอียด</th>
-                        <th width="10%">วันที่</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php foreach ($texts as $i => $text) : $i++ ?>
-                        <tr>
-                          <td class="text-center"><?php echo $i ?></td>
-                          <td class="text-center">
-                            <span class="badge badge-<?php echo $text['status_color'] ?> font-weight-light"><?php echo $text['status_name'] ?></span>
-                          </td>
-                          <td class="text-left"><?php echo $text['username'] ?></td>
-                          <td><?php echo str_replace("\n", "<br>", $text['text']) ?></td>
-                          <td><?php echo $text['created'] ?></td>
-                        </tr>
-                      <?php endforeach ?>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          <?php endif ?>
-
           <div class="row mb-2">
-            <label class="col-xl-2 col-form-label">สถานะ</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">ผู้ดำเนินการ</label>
+            <div class="col-xl-4 text-underline">
+              <?php echo "<span class='text-primary'>{$approver} - {$approved}</span>" ?>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <label class="col-xl-3 offset-xl-1 col-form-label">สถานะ</label>
             <div class="col-xl-8">
               <div class="row pb-2">
-                <div class="col-xl-4">
+                <div class="col-xl-3">
                   <label class="form-check-label px-3 py-2">
                     <input class="form-check-input" type="radio" name="status" value="2" <?php echo (intval($status) === 2 ? "checked" : "") ?> required>
                     <span class="text-success">ผ่านการตรวจสอบ</span>
                   </label>
                 </div>
-                <div class="col-xl-4">
+                <div class="col-xl-3">
                   <label class="form-check-label px-3 py-2">
                     <input class="form-check-input" type="radio" name="status" value="3" <?php echo (intval($status) === 3 ? "checked" : "") ?> required>
-                    <span class="text-danger">ไม่ผ่านการตรวจสอบ</span>
+                    <span class="text-danger">ระงับการใช้งาน</span>
                   </label>
                 </div>
               </div>
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 col-form-label">รายละเอียดเพิ่มเติม</label>
+            <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียดเพิ่มเติม</label>
             <div class="col-xl-6">
               <textarea class="form-control form-control-sm" name="remark" rows="4" required></textarea>
               <div class="invalid-feedback">
@@ -225,11 +173,6 @@ $texts = $WASTE->text_view([$uuid]);
                 <i class="fa fa-arrow-left pr-2"></i>กลับ
               </a>
             </div>
-            <div class="col-xl-3 mb-2">
-              <a href="/waste/print/<?php echo $uuid ?>" class="btn btn-sm btn-primary btn-block">
-                <i class="fa fa-print pr-2"></i>พิมพ์
-              </a>
-            </div>
           </div>
 
         </form>
@@ -240,3 +183,6 @@ $texts = $WASTE->text_view([$uuid]);
 
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
+<script>
+
+</script>

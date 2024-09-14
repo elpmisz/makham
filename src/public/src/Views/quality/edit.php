@@ -21,7 +21,7 @@ $inactive = (intval($row['status']) === 2 ? "checked" : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
 
 $items = $WASTE->item_view([$uuid, 1]);
-$others = $WASTE->item_view([$uuid, 2]);
+$wastes = $WASTE->item_view([$uuid, 2]);
 ?>
 
 <div class="row">
@@ -128,35 +128,35 @@ $others = $WASTE->item_view([$uuid, 2]);
                     </tr>
                   </thead>
                   <tbody>
-                    <?php foreach ($others as $key => $other) : $key++; ?>
+                    <?php foreach ($wastes as $key => $waste) : $key++; ?>
                       <tr>
                         <td class="text-center">
-                          <a href="javascript:void(0)" class="badge badge-danger font-weight-light item-delete" id="<?php echo $other['id'] ?>">ลบ</a>
+                          <a href="javascript:void(0)" class="badge badge-danger font-weight-light item-delete" id="<?php echo $waste['id'] ?>">ลบ</a>
                         </td>
-                        <td class="text-left"><?php echo $other['item'] ?></td>
-                        <td class="text-center"><?php echo $other['quantity'] ?></td>
-                        <td class="text-left"><?php echo $other['remark'] ?></td>
+                        <td class="text-left"><?php echo $waste['item'] ?></td>
+                        <td class="text-center"><?php echo $waste['quantity'] ?></td>
+                        <td class="text-left"><?php echo $waste['remark'] ?></td>
                       </tr>
                     <?php endforeach; ?>
-                    <tr class="other-tr">
+                    <tr class="waste-tr">
                       <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-success other-increase">+</button>
-                        <button type="button" class="btn btn-sm btn-danger other-decrease">-</button>
+                        <button type="button" class="btn btn-sm btn-success waste-increase">+</button>
+                        <button type="button" class="btn btn-sm btn-danger waste-decrease">-</button>
                       </td>
                       <td>
-                        <select class="form-control form-control-sm other-select" name="other_product[]" required></select>
-                        <div class="invalid-feedback">
-                          กรุณาเลือกข้อมูล!
-                        </div>
-                      </td>
-                      <td>
-                        <input type="number" class="form-control form-control-sm text-center" name="other_quantity[]" min="0" step="0.01">
+                        <input type="text" class="form-control form-control-sm text-left" name="waste_product[]">
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
                       </td>
                       <td>
-                        <input type="text" class="form-control form-control-sm text-left" name="other_remark[]">
+                        <input type="number" class="form-control form-control-sm text-center" name="waste_quantity[]" min="0" step="0.01">
+                        <div class="invalid-feedback">
+                          กรุณากรอกข้อมูล!
+                        </div>
+                      </td>
+                      <td>
+                        <input type="text" class="form-control form-control-sm text-left" name="waste_remark[]">
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
@@ -197,8 +197,9 @@ $others = $WASTE->item_view([$uuid, 2]);
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
 <script>
-  $(".item-decrease, .other-decrease").hide();
+  $(".item-decrease, .waste-decrease").hide();
   $(document).on("click", ".item-increase", function() {
+    $(".item-select").select2('destroy');
     let row = $(".item-tr:last");
     let clone = row.clone();
     clone.find("input, select, span").val("").empty();
@@ -210,26 +211,55 @@ $others = $WASTE->item_view([$uuid, 2]);
     row.after(clone);
     clone.show();
 
-    initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/bom/item-select");
+    $(".item-select").select2({
+      placeholder: "-- วัตถุดิบ --",
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: "/bom/item-select",
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
   });
 
-  $(document).on("click", ".other-increase", function() {
-    let row = $(".other-tr:last");
+  $(document).on("click", ".waste-increase", function() {
+    let row = $(".waste-tr:last");
     let clone = row.clone();
     clone.find("input, select, span").val("").empty();
-    clone.find(".other-increase").hide();
-    clone.find(".other-decrease").show();
-    clone.find(".other-decrease").on("click", function() {
+    clone.find(".waste-increase").hide();
+    clone.find(".waste-decrease").show();
+    clone.find(".waste-decrease").on("click", function() {
       $(this).closest("tr").remove();
     });
     row.after(clone);
     clone.show();
-
-    initializeSelect2($(".other-select"), "-- สิ่งแปลกปลอม --", "/waste/other-select");
   });
 
-  initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/bom/item-select");
-  initializeSelect2($(".other-select"), "-- สิ่งแปลกปลอม --", "/waste/other-select");
+  $(".item-select").select2({
+    placeholder: "-- วัตถุดิบ --",
+    allowClear: true,
+    width: "100%",
+    ajax: {
+      url: "/bom/item-select",
+      method: "POST",
+      dataType: "json",
+      delay: 100,
+      processResults: function(data) {
+        return {
+          results: data
+        };
+      },
+      cache: true
+    }
+  });
 
   $(document).on("click", ".item-delete", function(e) {
     let id = $(this).prop("id");

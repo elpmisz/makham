@@ -24,25 +24,27 @@ if ($action === "create") {
     $last = $WASTE->waste_last();
 
     $WASTE->waste_insert([$last, $purchase_id, $text, $user_id]);
-    $WASTE_id = $WASTE->last_insert_id();
+    $waste_id = $WASTE->last_insert_id();
 
     foreach ($_POST['item_product'] as $key => $value) {
       $item_product = (isset($_POST['item_product'][$key]) ? $VALIDATION->input($_POST['item_product'][$key]) : "");
       $item_quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
       $item_remark = (isset($_POST['item_remark'][$key]) ? $VALIDATION->input($_POST['item_remark'][$key]) : "");
 
-      if (!empty($item_product)) {
-        $WASTE->item_insert([$WASTE_id, 1, $item_product, $item_quantity, $item_remark]);
+      $count = $WASTE->item_count([$id, 1, $item_product]);
+      if (!empty($item_product) && $count === 0) {
+        $WASTE->item_insert([$waste_id, 1, $item_product, $item_quantity, $item_remark]);
       }
     }
 
-    foreach ($_POST['waste_product'] as $key => $value) {
-      $WASTE_product = (isset($_POST['waste_product'][$key]) ? $VALIDATION->input($_POST['waste_product'][$key]) : "");
-      $WASTE_quantity = (isset($_POST['waste_quantity'][$key]) ? $VALIDATION->input($_POST['waste_quantity'][$key]) : "");
-      $WASTE_remark = (isset($_POST['waste_remark'][$key]) ? $VALIDATION->input($_POST['waste_remark'][$key]) : "");
+    foreach ($_POST['other_product'] as $key => $value) {
+      $other_product = (isset($_POST['other_product'][$key]) ? $VALIDATION->input($_POST['other_product'][$key]) : "");
+      $other_quantity = (isset($_POST['other_quantity'][$key]) ? $VALIDATION->input($_POST['other_quantity'][$key]) : "");
+      $other_remark = (isset($_POST['other_remark'][$key]) ? $VALIDATION->input($_POST['other_remark'][$key]) : "");
 
-      if (!empty($WASTE_product)) {
-        $WASTE->item_insert([$WASTE_id, 2, $WASTE_product, $WASTE_quantity, $WASTE_remark]);
+      $count = $WASTE->item_count([$id, 2, $item_product]);
+      if (!empty($other_product) && $count === 0) {
+        $WASTE->item_insert([$waste_id, 2, $other_product, $other_quantity, $other_remark]);
       }
     }
 
@@ -59,6 +61,7 @@ if ($action === "update") {
     $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
     $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
     $item_product = (!empty($_POST['item_product']) ? $_POST['item_product'] : "");
+    $other_product = (!empty($_POST['other_product']) ? $_POST['other_product'] : "");
 
     if (!empty($item_product)) {
       foreach ($_POST['item_product'] as $key => $value) {
@@ -66,19 +69,23 @@ if ($action === "update") {
         $item_quantity = (isset($_POST['item_quantity'][$key]) ? $VALIDATION->input($_POST['item_quantity'][$key]) : "");
         $item_remark = (isset($_POST['item_remark'][$key]) ? $VALIDATION->input($_POST['item_remark'][$key]) : "");
 
-        if (!empty($item_product)) {
-          $WASTE->item_insert([$WASTE_id, 1, $item_product, $item_quantity, $item_remark]);
+        $count = $WASTE->item_count([$id, 1, $item_product]);
+        if (!empty($item_product) && $count === 0) {
+          $WASTE->item_insert([$id, 1, $item_product, $item_quantity, $item_remark]);
         }
       }
     }
 
-    foreach ($_POST['waste_product'] as $key => $value) {
-      $WASTE_product = (isset($_POST['waste_product'][$key]) ? $VALIDATION->input($_POST['waste_product'][$key]) : "");
-      $WASTE_quantity = (isset($_POST['waste_quantity'][$key]) ? $VALIDATION->input($_POST['waste_quantity'][$key]) : "");
-      $WASTE_remark = (isset($_POST['waste_remark'][$key]) ? $VALIDATION->input($_POST['waste_remark'][$key]) : "");
+    if (!empty($other_product)) {
+      foreach ($_POST['other_product'] as $key => $value) {
+        $other_product = (isset($_POST['other_product'][$key]) ? $VALIDATION->input($_POST['other_product'][$key]) : "");
+        $other_quantity = (isset($_POST['other_quantity'][$key]) ? $VALIDATION->input($_POST['other_quantity'][$key]) : "");
+        $other_remark = (isset($_POST['other_remark'][$key]) ? $VALIDATION->input($_POST['other_remark'][$key]) : "");
 
-      if (!empty($WASTE_product)) {
-        $WASTE->item_insert([$id, 2, $WASTE_product, $WASTE_quantity, $WASTE_remark]);
+        $count = $WASTE->item_count([$id, 2, $item_product]);
+        if (!empty($other_product) && $count === 0) {
+          $WASTE->item_insert([$id, 2, $other_product, $other_quantity, $other_remark]);
+        }
       }
     }
 
@@ -106,6 +113,23 @@ if ($action === "approve") {
   }
 }
 
+if ($action === "manage-update") {
+  try {
+    $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
+    $id = (isset($_POST['id']) ? $VALIDATION->input($_POST['id']) : "");
+    $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
+    $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
+    $remark = (isset($_POST['remark']) ? $VALIDATION->input($_POST['remark']) : "");
+
+    $WASTE->waste_approve([$status, $uuid]);
+    $WASTE->text_insert([$id, $user_id, $remark, $status]);
+
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/waste/manage");
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
 if ($action === "auth") {
   try {
     $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
@@ -118,24 +142,6 @@ if ($action === "auth") {
 
     $WASTE->auth_insert([$user_id, $type]);
     $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/waste/auth");
-  } catch (PDOException $e) {
-    die($e->getMessage());
-  }
-}
-
-if ($action === "manage-update") {
-  try {
-    $user_id = (isset($_POST['user_id']) ? $VALIDATION->input($_POST['user_id']) : "");
-    $id = (isset($_POST['id']) ? $VALIDATION->input($_POST['id']) : "");
-    $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
-    $text = (isset($_POST['text']) ? $VALIDATION->input($_POST['text']) : "");
-    $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
-    $remark = (isset($_POST['remark']) ? $VALIDATION->input($_POST['remark']) : "");
-
-    $WASTE->waste_approve([$status, $uuid]);
-    $WASTE->text_insert([$id, $user_id, $remark, $status]);
-
-    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/waste/manage");
   } catch (PDOException $e) {
     die($e->getMessage());
   }
@@ -164,6 +170,38 @@ if ($action === "waste-delete") {
 
     if (!empty($id)) {
       $WASTE->waste_delete([$id]);
+      echo json_encode(200);
+    } else {
+      echo json_encode(500);
+    }
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "other") {
+  try {
+    $name = (isset($_POST['name']) ? $VALIDATION->input($_POST['name']) : "");
+
+    $count = $WASTE->other_count([$name]);
+    if (intval($count) > 0) {
+      $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/waste/other");
+    }
+
+    $WASTE->other_insert([$name]);
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/waste/other");
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "other-delete") {
+  try {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $id = $data['id'];
+
+    if (!empty($id)) {
+      $WASTE->other_delete([$id]);
       echo json_encode(200);
     } else {
       echo json_encode(500);
@@ -260,6 +298,15 @@ if ($action === "auth-data") {
   }
 }
 
+if ($action === "other-data") {
+  try {
+    $result = $WASTE->other_data();
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
 if ($action === "item-delete") {
   try {
     $data = json_decode(file_get_contents("php://input"), true);
@@ -290,6 +337,17 @@ if ($action === "purchase-select") {
   try {
     $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
     $result = $WASTE->purchase_select($keyword);
+
+    echo json_encode($result);
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "other-select") {
+  try {
+    $keyword = (isset($_POST['q']) ? $VALIDATION->input($_POST['q']) : "");
+    $result = $WASTE->other_select($keyword);
 
     echo json_encode($result);
   } catch (PDOException $e) {

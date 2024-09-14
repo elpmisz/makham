@@ -26,6 +26,7 @@ $issue_ticket = (!empty($row['issue_ticket']) ? $row['issue_ticket'] : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
 
 $items = $PURCHASE->purchase_item_view([$uuid]);
+$texts = $PURCHASE->text_view([$uuid]);
 ?>
 
 <div class="row">
@@ -126,7 +127,8 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
           </div>
 
           <div class="row justify-content-center mb-2">
-            <div class="col-sm-11">
+            <div class="col-sm-12">
+              <h5>รายการสินค้า</h5>
               <div class="table-responsive">
                 <table class="table table-bordered table-sm item-table">
                   <thead>
@@ -144,7 +146,9 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
                     <?php foreach ($items as $i => $item) : $i++ ?>
                       <tr>
                         <td class="text-center"><?php echo $i ?></td>
-                        <td><?php echo $item['product_name'] ?></td>
+                        <td>
+                          <a href="/product/edit/<?php echo $item['uuid'] ?>" target="_blank"><?php echo $item['product_name'] ?></a>
+                        </td>
                         <td><?php echo $item['location_name'] ?></td>
                         <td><?php echo $item['store_name'] ?></td>
                         <td class="text-center"><?php echo $item['quantity'] ?></td>
@@ -157,6 +161,40 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
               </div>
             </div>
           </div>
+
+          <?php if (COUNT($texts) > 0) : ?>
+            <div class="row justify-content-center mb-2">
+              <div class="col-sm-12">
+                <h5>การดำเนินการ</h5>
+                <div class="table-responsive">
+                  <table class="table table-bordered table-sm item-table">
+                    <thead>
+                      <tr>
+                        <th width="10%">#</th>
+                        <th width="10%">สถานะ</th>
+                        <th width="20%">ผู้ดำเนินการ</th>
+                        <th width="50%">รายละเอียด</th>
+                        <th width="10%">วันที่</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($texts as $i => $text) : $i++ ?>
+                        <tr>
+                          <td class="text-center"><?php echo $i ?></td>
+                          <td class="text-center">
+                            <span class="badge badge-<?php echo $text['status_color'] ?> font-weight-light"><?php echo $text['status_name'] ?></span>
+                          </td>
+                          <td class="text-left"><?php echo $text['username'] ?></td>
+                          <td><?php echo str_replace("\n", "<br>", $text['text']) ?></td>
+                          <td><?php echo $text['created'] ?></td>
+                        </tr>
+                      <?php endforeach ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          <?php endif ?>
 
           <div class="row justify-content-center mb-2">
             <div class="col-xl-3 mb-2">

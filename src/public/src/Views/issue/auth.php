@@ -69,12 +69,6 @@ include_once(__DIR__ . "/../layout/header.php");
               <div class="row pb-2">
                 <div class="col-xl-4">
                   <label class="form-check-label px-3 py-2">
-                    <input class="form-check-input" type="radio" name="type" value="1" required>
-                    <span class="text-success">จัดการระบบ</span>
-                  </label>
-                </div>
-                <div class="col-xl-4">
-                  <label class="form-check-label px-3 py-2">
                     <input class="form-check-input" type="radio" name="type" value="2" required>
                     <span class="text-danger">ผู้อนุมัติ</span>
                   </label>

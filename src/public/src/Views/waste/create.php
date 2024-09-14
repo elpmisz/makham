@@ -83,25 +83,25 @@ include_once(__DIR__ . "/../layout/header.php");
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="waste-tr">
+                    <tr class="other-tr">
                       <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-success waste-increase">+</button>
-                        <button type="button" class="btn btn-sm btn-danger waste-decrease">-</button>
+                        <button type="button" class="btn btn-sm btn-success other-increase">+</button>
+                        <button type="button" class="btn btn-sm btn-danger other-decrease">-</button>
                       </td>
                       <td>
-                        <input type="text" class="form-control form-control-sm text-left" name="waste_product[]">
+                        <select class="form-control form-control-sm other-select" name="other_product[]" required></select>
+                        <div class="invalid-feedback">
+                          กรุณาเลือกข้อมูล!
+                        </div>
+                      </td>
+                      <td>
+                        <input type="number" class="form-control form-control-sm text-center" name="other_quantity[]" min="0" step="0.01">
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
                       </td>
                       <td>
-                        <input type="number" class="form-control form-control-sm text-center" name="waste_quantity[]" min="0" step="0.01">
-                        <div class="invalid-feedback">
-                          กรุณากรอกข้อมูล!
-                        </div>
-                      </td>
-                      <td>
-                        <input type="text" class="form-control form-control-sm text-left" name="waste_remark[]">
+                        <input type="text" class="form-control form-control-sm text-left" name="other_remark[]">
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
@@ -142,9 +142,8 @@ include_once(__DIR__ . "/../layout/header.php");
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
 <script>
-  $(".item-decrease, .waste-decrease").hide();
+  $(".item-decrease, .other-decrease").hide();
   $(document).on("click", ".item-increase", function() {
-    $(".item-select").select2('destroy');
     let row = $(".item-tr:last");
     let clone = row.clone();
     clone.find("input, select, span").val("").empty();
@@ -159,19 +158,22 @@ include_once(__DIR__ . "/../layout/header.php");
     initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/bom/item-select");
   });
 
-  $(document).on("click", ".waste-increase", function() {
-    let row = $(".waste-tr:last");
+  $(document).on("click", ".other-increase", function() {
+    let row = $(".other-tr:last");
     let clone = row.clone();
     clone.find("input, select, span").val("").empty();
-    clone.find(".waste-increase").hide();
-    clone.find(".waste-decrease").show();
-    clone.find(".waste-decrease").on("click", function() {
+    clone.find(".other-increase").hide();
+    clone.find(".other-decrease").show();
+    clone.find(".other-decrease").on("click", function() {
       $(this).closest("tr").remove();
     });
     row.after(clone);
     clone.show();
+
+    initializeSelect2($(".other-select"), "-- สิ่งแปลกปลอม --", "/waste/other-select");
   });
 
   initializeSelect2($(".item-select"), "-- วัตถุดิบ --", "/bom/item-select");
+  initializeSelect2($(".other-select"), "-- สิ่งแปลกปลอม --", "/waste/other-select");
   initializeSelect2($(".purchase-select"), "-- ใบสั่งผลิต --", "/waste/purchase-select");
 </script>

@@ -15,6 +15,7 @@ $service_purchase = ($page === "service-purchase" ? 'class="active"' : "");
 $service_sale = ($page === "service-sale" ? 'class="active"' : "");
 $service_issue = ($page === "service-issue" ? 'class="active"' : "");
 $service_waste = ($page === "service-waste" ? 'class="active"' : "");
+$service_quality = ($page === "service-quality" ? 'class="active"' : "");
 
 $setting_menu = (isset($menu) && ($menu === "setting") ? "show" : "");
 $setting_system = ($page === "setting-system" ? 'class="active"' : "");
@@ -35,6 +36,7 @@ $setting_brand = ($page === "setting-brand" ? 'class="active"' : "");
 $auth_perchase = (isset($user_auth[0]) ? intval($user_auth[0]) : "");
 $auth_issue = (isset($user_auth[1]) ? intval($user_auth[1]) : "");
 $auth_waste = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
+$auth_quality = (isset($user_auth[3]) ? intval($user_auth[3]) : "");
 ?>
 <nav id="sidebar">
   <ul class="list-unstyled">
@@ -62,6 +64,14 @@ $auth_waste = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
             <a href="/dashboard/waste">
               <i class="fa fa-chart-line pr-2"></i>
               รายงานสรุปของเสีย
+            </a>
+          </li>
+        <?php endif ?>
+        <?php if ($auth_quality === 1) : ?>
+          <li <?php echo $dashboard_waste ?>>
+            <a href="/dashboard/quality">
+              <i class="fa fa-chart-line pr-2"></i>
+              ใบตรวจสอบคุณภาพ
             </a>
           </li>
         <?php endif ?>
@@ -116,6 +126,14 @@ $auth_waste = (isset($user_auth[2]) ? intval($user_auth[2]) : "");
             <a href="/waste">
               <i class="fa fa-bars pr-2"></i>
               ใบสรุปของเสีย
+            </a>
+          </li>
+        <?php endif ?>
+        <?php if ($auth_quality === 1) : ?>
+          <li <?php echo $service_quality ?>>
+            <a href="/quality">
+              <i class="fa fa-bars pr-2"></i>
+              ใบตรวจสอบคุณภาพ
             </a>
           </li>
         <?php endif ?>

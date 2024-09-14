@@ -83,7 +83,7 @@ class Purchase
     DATE_FORMAT(a.date_produce,'%d/%m/%Y') produce,
     DATE_FORMAT(a.date_delivery,'%d/%m/%Y') delivery, 
     a.`text`,b.uuid issue_uuid,CONCAT('RE',YEAR(b.created),LPAD(b.last,5,'0')) issue_ticket,
-    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created 
+    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created ,a.status
     FROM inventory.purchase a  
     LEFT JOIN inventory.issue b 
     ON a.issue_id = b.id 
@@ -135,7 +135,7 @@ class Purchase
 
   public function purchase_item_view($data)
   {
-    $sql = "SELECT b.id,b.product_id,c.name product_name,
+    $sql = "SELECT b.id,c.uuid,b.product_id,c.name product_name,
     b.location_id,d.name location_name,b.store_id,
     CONCAT('ห้อง ',f.room,' ชั้น ',f.floor,' โซน ',f.zone) store_name,
     b.quantity,b.confirm,e.name unit_name
@@ -215,6 +215,48 @@ class Purchase
     return $stmt->execute($data);
   }
 
+  public function text_insert($data)
+  {
+    $sql = "INSERT INTO inventory.purchase_text(purchase_id,user_id,text,status) VALUES(?,?,?,?)";
+    $stmt = $this->dbcon->prepare($sql);
+    return $stmt->execute($data);
+  }
+
+  public function text_view($data)
+  {
+    $sql = "SELECT CONCAT('คุณ',c.firstname,' ',c.lastname) username,b.text,
+    (
+    CASE 
+      WHEN b.status = 1 THEN 'รอเบิกวัถุดิบ'
+      WHEN b.status = 2 THEN 'กำลังผลิต'
+      WHEN b.status = 3 THEN 'รอตรวจสอบ'
+      WHEN b.status = 4 THEN 'ดำเนินการเรียบร้อย'
+      WHEN b.status = 5 THEN 'ระงับการใช้งาน'
+      ELSE NULL
+    END
+    ) status_name,
+    (
+    CASE 
+      WHEN b.status = 1 THEN 'info'
+      WHEN b.status = 2 THEN 'primary'
+      WHEN b.status = 3 THEN 'warning'
+      WHEN b.status = 4 THEN 'success'
+      WHEN b.status = 5 THEN 'danger'
+      ELSE NULL
+    END
+    ) status_color,
+    DATE_FORMAT(b.created,'%d/%m/%Y, %H:%i น.') created
+    FROM inventory.purchase a
+    LEFT JOIN inventory.purchase_text b
+    ON a.id = b.purchase_id
+    LEFT JOIN inventory.`user` c
+    ON b.user_id = c.login
+    WHERE a.`uuid` = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    return $stmt->fetchAll();
+  }
+
   public function uuid_count($data)
   {
     $sql = "SELECT COUNT(*) FROM inventory.purchase WHERE uuid = ?";
@@ -235,7 +277,7 @@ class Purchase
       WHEN a.status = 3 THEN 'กำลังผลิต'
       WHEN a.status = 4 THEN 'รอตรวจสอบ'
       WHEN a.status = 5 THEN 'ผ่านการตรวจสอบ'
-      WHEN a.status = 6 THEN 'รายการถูกยกเลิก'
+      WHEN a.status = 6 THEN 'ระงับการใช้งาน'
       ELSE NULL
     END
     ) status_name,
@@ -334,7 +376,7 @@ class Purchase
       WHEN a.status = 2 THEN 'กำลังผลิต'
       WHEN a.status = 3 THEN 'รอตรวจสอบ'
       WHEN a.status = 4 THEN 'ดำเนินการเรียบร้อย'
-      WHEN a.status = 5 THEN 'รายการถูกยกเลิก'
+      WHEN a.status = 5 THEN 'ระงับการใช้งาน'
       ELSE NULL
     END
     ) status_name,
@@ -358,7 +400,8 @@ class Purchase
     ON a.customer_id = d.id 
     LEFT JOIN inventory.product e 
     ON b.product_id = e.id
-    WHERE b.status = 1 ";
+    WHERE b.status = 1
+    AND a.status IN (1,2,3,4,5) ";
 
     if (!empty($keyword)) {
       $sql .= " AND a.name LIKE '%{$keyword}%' ";
@@ -390,6 +433,7 @@ class Purchase
       $data[] = [
         $status,
         $row['ticket'],
+        $row['fullname'],
         $row['customer_name'],
         $row['amount'],
         $row['produce'],
@@ -477,6 +521,7 @@ class Purchase
       $data[] = [
         $status,
         $row['ticket'],
+        $row['fullname'],
         $row['customer_name'],
         $row['amount'],
         $row['produce'],
@@ -513,56 +558,57 @@ class Purchase
     $limit_length = (isset($_POST['length']) ? $_POST['length'] : "");
     $draw = (isset($_POST['draw']) ? $_POST['draw'] : "");
 
-    $sql = "SELECT a.id,a.uuid,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
-    CONCAT(b.firstname,' ',b.lastname) fullname,
-    a.bom,c.name bom_name,a.machine,
-    a.amount,a.date,a.text,
+    $sql = "SELECT a.id,a.`uuid`,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    CONCAT(c.firstname,' ',c.lastname) fullname,
+    a.customer_id,CONCAT('คุณ',d.name) customer_name,
+    a.amount,a.machine,a.per,
+    DATE_FORMAT(a.date_produce,'%d/%m/%Y') produce,
+    DATE_FORMAT(a.date_delivery,'%d/%m/%Y') delivery,
+    GROUP_CONCAT(e.name) products, 
+    a.`text`,
     (
-      CASE
-        WHEN a.status = 1 THEN 'edit'
-        WHEN a.status = 3 THEN 'process'
-        ELSE 'complete'
-      END
-    ) page,
-    (
-      CASE
-        WHEN a.status = 1 THEN 'รอการอนุมัติ'
-        WHEN a.status = 2 THEN 'รอเบิกวัตถุดิบ'
-        WHEN a.status = 3 THEN 'กำลังผลิต'
-        WHEN a.status = 4 THEN 'รอตรวจสอบ'
-        WHEN a.status = 5 THEN 'ผ่านการตรวจสอบ'
-        WHEN a.status = 6 THEN 'รายการถูกยกเลิก'
-        ELSE NULL
-      END
+    CASE 
+      WHEN a.status = 1 THEN 'รอเบิกวัถุดิบ'
+      WHEN a.status = 2 THEN 'กำลังผลิต'
+      WHEN a.status = 3 THEN 'รอตรวจสอบ'
+      WHEN a.status = 4 THEN 'ดำเนินการเรียบร้อย'
+      WHEN a.status = 5 THEN 'ระงับการใช้งาน'
+      ELSE NULL
+    END
     ) status_name,
     (
-      CASE
-        WHEN a.status = 1 THEN 'primary'
-        WHEN a.status = 2 THEN 'info'
-        WHEN a.status = 3 THEN 'warning'
-        WHEN a.status = 4 THEN 'primary'
-        WHEN a.status = 5 THEN 'success'
-        WHEN a.status = 6 THEN 'danger'
-        ELSE NULL
-      END
+    CASE 
+      WHEN a.status = 1 THEN 'info'
+      WHEN a.status = 2 THEN 'primary'
+      WHEN a.status = 3 THEN 'warning'
+      WHEN a.status = 4 THEN 'success'
+      WHEN a.status = 5 THEN 'danger'
+      ELSE NULL
+    END
     ) status_color,
-    DATE_FORMAT(a.date, '%d/%m/%Y') date,
-    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
-    FROM inventory.purchase a
-    LEFT JOIN inventory.user b
-    ON a.user_id = b.id
-    LEFT JOIN inventory.bom c
-    ON a.bom = c.id
-    WHERE a.status != 0 ";
+    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created 
+    FROM inventory.purchase a 
+    LEFT JOIN inventory.purchase_item b 
+    ON a.id  = b.purchase_id  
+    LEFT JOIN inventory.`user` c 
+    ON a.user_id = c.login 
+    LEFT JOIN inventory.customer d 
+    ON a.customer_id = d.id 
+    LEFT JOIN inventory.product e 
+    ON b.product_id = e.id
+    WHERE b.status = 1
+    AND a.status IN (1,2,3,4,5) ";
 
     if (!empty($keyword)) {
       $sql .= " AND a.name LIKE '%{$keyword}%' ";
     }
 
+    $sql .= " GROUP BY a.id ";
+
     if ($filter_order) {
       $sql .= " ORDER BY {$column[$order_column]} {$order_dir} ";
     } else {
-      $sql .= " ORDER BY a.status ASC, a.date DESC ";
+      $sql .= " ORDER BY a.status ASC, a.date_produce DESC ";
     }
 
     $sql2 = "";
@@ -583,10 +629,12 @@ class Purchase
       $data[] = [
         $status,
         $row['ticket'],
-        $row['bom_name'],
-        $row['machine'],
-        $row['amount'],
-        $row['confirm'],
+        $row['fullname'],
+        $row['customer_name'],
+        number_format($row['amount'], 0),
+        $row['produce'],
+        $row['delivery'],
+        str_replace(",", "<br>", $row['products']),
         str_replace("\n", "<br>", $row['text']),
         $row['created'],
       ];

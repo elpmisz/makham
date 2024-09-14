@@ -25,15 +25,6 @@ include_once(__DIR__ . "/../layout/header.php");
               <?php echo $user['fullname'] ?>
             </div>
           </div>
-          <div class="row mb-2">
-            <label class="col-xl-3 offset-xl-1 col-form-label">วันที่</label>
-            <div class="col-xl-3">
-              <input type="text" class="form-control form-control-sm date-select" name="date" required>
-              <div class="invalid-feedback">
-                กรุณากรอกข้อมูล!
-              </div>
-            </div>
-          </div>
           <div class="row mb-2" style="display: none;">
             <label class="col-xl-3 offset-xl-1 col-form-label">TYPE</label>
             <div class="col-xl-4">
@@ -108,7 +99,7 @@ include_once(__DIR__ . "/../layout/header.php");
                         </div>
                       </td>
                       <td class="text-left">
-                        <select class="form-control form-control-sm store-select" name="item_receive_store[]" required></select>
+                        <select class="form-control form-control-sm store-select" name="item_receive_store[]"></select>
                         <div class="invalid-feedback">
                           กรุณาเลือกข้อมูล!
                         </div>

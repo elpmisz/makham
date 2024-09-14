@@ -1,6 +1,6 @@
 <?php
 $menu = "service";
-$page = "service-purchase";
+$page = "service-waste";
 include_once(__DIR__ . "/../layout/header.php");
 ?>
 
@@ -8,26 +8,26 @@ include_once(__DIR__ . "/../layout/header.php");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">จัดการ</h4>
+        <h4 class="text-center">สิ่งแปลกปลอม</h4>
       </div>
       <div class="card-body">
+
+        <div class="row justify-content-end mb-2">
+          <div class="col-xl-3 mb-2">
+            <button class="btn btn-success btn-sm btn-block" data-toggle="modal" data-target="#modal-other">
+              <i class="fas fa-plus pr-2"></i>เพิ่ม
+            </button>
+          </div>
+        </div>
 
         <div class="row mb-2">
           <div class="col-xl-12">
             <div class="table-responsive">
-              <table class="table table-bordered table-hover manage-data">
+              <table class="table table-bordered table-hover other-data">
                 <thead>
                   <tr>
-                    <th width="10%">สถานะ</th>
-                    <th width="10%">เลขที่เอกสาร</th>
-                    <th width="10%">ผู้ทำรายการ</th>
-                    <th width="10%">ลูกค้า</th>
-                    <th width="10%">เป้าหมาย</th>
-                    <th width="10%">วันที่ผลิต</th>
-                    <th width="10%">วันที่เสร็จ</th>
-                    <th width="10%">สินค้า</th>
-                    <th width="20%">รายละเอียด</th>
-                    <th width="10%">วันที่</th>
+                    <th width="10%">#</th>
+                    <th width="50%">ชื่อ</th>
                   </tr>
                 </thead>
               </table>
@@ -37,7 +37,7 @@ include_once(__DIR__ . "/../layout/header.php");
 
         <div class="row justify-content-center mb-2">
           <div class="col-xl-3 mb-2">
-            <a href="/purchase" class="btn btn-sm btn-danger btn-block">
+            <a href="/waste" class="btn btn-sm btn-danger btn-block">
               <i class="fa fa-arrow-left pr-2"></i>กลับ
             </a>
           </div>
@@ -48,22 +48,54 @@ include_once(__DIR__ . "/../layout/header.php");
   </div>
 </div>
 
+<div class="modal fade" id="modal-other" data-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-body mt-4">
+        <form action="/waste/other" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+          <div class="row mb-2">
+            <label class="col-xl-3 col-form-label text-right">ชื่อ</label>
+            <div class="col-xl-6">
+              <input type="text" class="form-control form-control-sm" name="name" required>
+              <div class="invalid-feedback">
+                กรุณาเลือกข้อมูล!
+              </div>
+            </div>
+          </div>
+          <div class="row justify-content-center mb-2">
+            <div class="col-xl-4 mb-2">
+              <button type="submit" class="btn btn-success btn-sm btn-block btn-submit">
+                <i class="fas fa-check pr-2"></i>ยืนยัน
+              </button>
+            </div>
+            <div class="col-xl-4 mb-2">
+              <button class="btn btn-danger btn-sm btn-block" data-dismiss="modal">
+                <i class="fa fa-times mr-2"></i>ปิด
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
 <script>
   filter_datatable();
 
   function filter_datatable() {
-    $(".manage-data").DataTable({
+    $(".other-data").DataTable({
       serverSide: true,
       searching: true,
       scrollX: true,
       order: [],
       ajax: {
-        url: "/purchase/manage-data",
+        url: "/waste/other-data",
         type: "POST",
       },
       columnDefs: [{
-        targets: [0, 4, 5, 6],
+        targets: [0],
         className: "text-center",
       }],
       "oLanguage": {
@@ -83,9 +115,8 @@ include_once(__DIR__ . "/../layout/header.php");
     });
   };
 
-  $(document).on("click", ".btn-delete", function(e) {
-    let id = ($(this).prop("id") ? $(this).prop("id") : "");
-
+  $(document).on("click", ".other-delete", function(e) {
+    let id = $(this).prop("id");
     e.preventDefault();
     Swal.fire({
       title: "ยืนยันที่จะทำรายการ?",
@@ -93,27 +124,18 @@ include_once(__DIR__ . "/../layout/header.php");
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "ยืนยัน",
+      confirmButtonText: "ตกลง",
       cancelButtonText: "ปิด",
     }).then((result) => {
       if (result.value) {
-        axios.post("/purchase/purchase-delete", {
+        axios.post("/waste/other-delete", {
           id: id
         }).then((res) => {
           let result = res.data;
-          if (parseInt(result) === 200) {
-            Swal.fire({
-              title: "ดำเนินการเรียบร้อย!",
-              icon: "success"
-            }).then((result) => {
-              if (result.value) {
-                location.reload();
-              } else {
-                return false;
-              }
-            })
+          if (result === 200) {
+            location.reload()
           } else {
-            location.reload();
+            location.reload()
           }
         }).catch((error) => {
           console.log(error);

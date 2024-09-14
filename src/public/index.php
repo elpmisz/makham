@@ -123,6 +123,9 @@ $ROUTER->map("GET", "/waste/create", function () {
 $ROUTER->map("GET", "/waste/auth", function () {
   require(__DIR__ . "/src/Views/waste/auth.php");
 });
+$ROUTER->map("GET", "/waste/other", function () {
+  require(__DIR__ . "/src/Views/waste/other.php");
+});
 $ROUTER->map("GET", "/waste/manage", function () {
   require(__DIR__ . "/src/Views/waste/manage.php");
 });
@@ -146,6 +149,44 @@ $ROUTER->map("GET", "/waste/download", function () {
 });
 $ROUTER->map("POST", "/waste/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/waste/action.php");
+});
+
+##################### QUALITY #####################
+$ROUTER->map("GET", "/quality", function () {
+  require(__DIR__ . "/src/Views/quality/index.php");
+});
+$ROUTER->map("GET", "/quality/create", function () {
+  require(__DIR__ . "/src/Views/quality/create.php");
+});
+$ROUTER->map("GET", "/quality/auth", function () {
+  require(__DIR__ . "/src/Views/quality/auth.php");
+});
+$ROUTER->map("GET", "/quality/manage", function () {
+  require(__DIR__ . "/src/Views/quality/manage.php");
+});
+$ROUTER->map("GET", "/quality/subject", function () {
+  require(__DIR__ . "/src/Views/quality/subject.php");
+});
+$ROUTER->map("GET", "/quality/manage-edit/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/quality/manage-edit.php");
+});
+$ROUTER->map("GET", "/quality/edit/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/quality/edit.php");
+});
+$ROUTER->map("GET", "/quality/print/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/quality/print.php");
+});
+$ROUTER->map("GET", "/quality/approve/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/quality/approve.php");
+});
+$ROUTER->map("GET", "/quality/complete/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/quality/complete.php");
+});
+$ROUTER->map("GET", "/quality/download", function () {
+  require(__DIR__ . "/src/Views/quality/download.php");
+});
+$ROUTER->map("POST", "/quality/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/quality/action.php");
 });
 
 ##################### BOM #####################

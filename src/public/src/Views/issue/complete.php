@@ -113,7 +113,9 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                             <?php echo $key ?>
                             <input type="hidden" class="form-control form-control-sm text-center" name="product[]" value="<?php echo $item['item_id'] ?>" readonly>
                           </td>
-                          <td><?php echo $item['product_name'] ?></td>
+                          <td>
+                            <a href="/product/edit/<?php echo $item['uuid'] ?>" target="_blank"><?php echo $item['product_name'] ?></a>
+                          </td>
                           <td><?php echo $item['location_name'] ?></td>
                           <td><?php echo $item['store_name'] ?></td>
                           <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
@@ -145,7 +147,9 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                         <td class="text-center">
                           <?php echo $key ?>
                         </td>
-                        <td><?php echo $item['product_name'] ?></td>
+                        <td>
+                          <a href="/product/edit/<?php echo $item['uuid'] ?>" target="_blank"><?php echo $item['product_name'] ?></a>
+                        </td>
                         <td><?php echo $item['send_location'] ?></td>
                         <td><?php echo $item['send_store'] ?></td>
                         <td><?php echo $item['receive_location'] ?></td>

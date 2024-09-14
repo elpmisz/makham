@@ -48,7 +48,7 @@ class Issue
 
   public function issue_insert($data)
   {
-    $sql = "INSERT INTO inventory.issue(uuid,last,type,`group`,date,text,user_id) VALUES(uuid(),?,?,?,?,?,?)";
+    $sql = "INSERT INTO inventory.issue(`uuid`, `last`, `type`, `group`, `date`, `text`, `user_id`) VALUES(uuid(),?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -202,7 +202,7 @@ class Issue
 
   public function item_view($data)
   {
-    $sql = "SELECT b.id item_id,b.product_id,c.`name` product_name,b.location_id,d.`name` location_name,
+    $sql = "SELECT b.id item_id,c.uuid,b.product_id,c.`name` product_name,b.location_id,d.`name` location_name,
     b.store_id,CONCAT('ห้อง ',e.room,' ชั้น ',e.floor,' โซน ',e.zone) store_name,
     b.quantity,b.confirm,
     IF(b.unit_id != c.unit,FORMAT((b.quantity/c.per),0),FORMAT(b.quantity,0)) product_quantity,
@@ -231,14 +231,14 @@ class Issue
 
   public function exchange_view($uuid)
   {
-    $sql = "SELECT x.issue_id,x.item_id,x.product_id,x.product_name,
+    $sql = "SELECT x.issue_id,x.item_id,x.uuid,x.product_id,x.product_name,
     x.send_location_id,x.send_location,x.send_store_id,x.send_store,
     y.receive_location_id,y.receive_location,y.receive_store_id,y.receive_store,
     x.quantity,x.confirm,x.product_quantity,x.product_confirm,
     x.unit_name,x.unit_id,x.unit,x.product_unit
     FROM
     (
-      SELECT a.id issue_id, b.id item_id,b.product_id,c.`name` product_name,
+      SELECT a.id issue_id,c.uuid, b.id item_id,b.product_id,c.`name` product_name,
       b.location_id send_location_id,d.`name` send_location,
       b.store_id send_store_id,CONCAT('ห้อง ',e.room,' ชั้น ',e.floor,' โซน ',e.zone) send_store,
       b.quantity,b.confirm,

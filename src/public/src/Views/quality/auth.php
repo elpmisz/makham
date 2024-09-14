@@ -1,6 +1,6 @@
 <?php
 $menu = "service";
-$page = "service-waste";
+$page = "service-quality";
 include_once(__DIR__ . "/../layout/header.php");
 ?>
 
@@ -38,7 +38,7 @@ include_once(__DIR__ . "/../layout/header.php");
 
         <div class="row justify-content-center mb-2">
           <div class="col-xl-3 mb-2">
-            <a href="/waste" class="btn btn-sm btn-danger btn-block">
+            <a href="/quality" class="btn btn-sm btn-danger btn-block">
               <i class="fa fa-arrow-left pr-2"></i>กลับ
             </a>
           </div>
@@ -53,7 +53,7 @@ include_once(__DIR__ . "/../layout/header.php");
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-body">
-        <form action="/waste/auth" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="/quality/auth" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
           <div class="row mb-2">
             <label class="col-xl-3 col-form-label text-right">รายชื่อ</label>
             <div class="col-xl-6">
@@ -105,7 +105,7 @@ include_once(__DIR__ . "/../layout/header.php");
       scrollX: true,
       order: [],
       ajax: {
-        url: "/waste/auth-data",
+        url: "/quality/auth-data",
         type: "POST",
       },
       columnDefs: [{
@@ -134,7 +134,7 @@ include_once(__DIR__ . "/../layout/header.php");
     allowClear: true,
     width: "100%",
     ajax: {
-      url: "/waste/user-select",
+      url: "/quality/user-select",
       method: "POST",
       dataType: "json",
       delay: 100,
@@ -160,7 +160,7 @@ include_once(__DIR__ . "/../layout/header.php");
       cancelButtonText: "ปิด",
     }).then((result) => {
       if (result.value) {
-        axios.post("/waste/auth-delete", {
+        axios.post("/quality/auth-delete", {
           id: id
         }).then((res) => {
           let result = res.data;

@@ -53,7 +53,7 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
           <div class="row mb-2" style="display: none;">
             <label class="col-xl-3 offset-xl-1 col-form-label">USER ID</label>
             <div class="col-xl-4">
-              <input type="text" class="form-control form-control-sm" name="user_id" value="<?php echo $row['user_id'] ?>" readonly>
+              <input type="text" class="form-control form-control-sm" name="user_id" value="<?php echo $user['id'] ?>" readonly>
             </div>
           </div>
           <div class="row mb-2" style="display: none;">
@@ -183,7 +183,7 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
           </div>
 
           <div class="row mb-2">
-            <label class="col-xl-3 col-form-label">สถานะ</label>
+            <label class="col-xl-2 col-form-label">สถานะ</label>
             <div class="col-xl-8">
               <div class="row pb-2">
                 <div class="col-xl-4">

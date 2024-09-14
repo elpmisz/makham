@@ -131,7 +131,7 @@ $items = $PURCHASE->purchase_item_view([$uuid]);
           <div class="row mb-2">
             <label class="col-xl-3 offset-xl-1 col-form-label">เลขที่ใบเบิก</label>
             <div class="col-xl-4">
-              <select class="form-control form-control-sm issue-select" name="issue_id"></select>
+              <select class="form-control form-control-sm issue-select" name="issue_id" required></select>
               <div class="invalid-feedback">
                 กรุณาเลือกข้อมูล!
               </div>
