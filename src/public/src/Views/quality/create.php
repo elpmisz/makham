@@ -20,7 +20,7 @@ $subject = $QUALITY->subject_view();
         <h4 class="text-center">ใบตรวจสอบคุณภาพ</h4>
       </div>
       <div class="card-body">
-        <form action="/waste/create" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="/quality/create" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
           <div class="row mb-2" style="display: none;">
             <label class="col-xl-2 offset-xl-1 col-form-label">USER ID</label>
@@ -29,12 +29,36 @@ $subject = $QUALITY->subject_view();
             </div>
           </div>
           <div class="row mb-2">
-            <label class="col-xl-2 offset-xl-1 col-form-label">วันที่</label>
+            <label class="col-xl-2 offset-xl-1 col-form-label">วันที่คัดมะขาม</label>
             <div class="col-xl-3">
               <input type="text" class="form-control form-control-sm date-select" name="date" required>
               <div class="invalid-feedback">
                 กรุณากรอกข้อมูล!
               </div>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <label class="col-xl-2 offset-xl-1 col-form-label">วันที่รับเข้า</label>
+            <div class="col-xl-3">
+              <input type="text" class="form-control form-control-sm date-select" name="receive" required>
+              <div class="invalid-feedback">
+                กรุณากรอกข้อมูล!
+              </div>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <label class="col-xl-2 offset-xl-1 col-form-label">วัตถุดิบ</label>
+            <div class="col-xl-4">
+              <select class="form-control form-control-sm product-select" name="product_id"></select>
+              <div class="invalid-feedback">
+                กรุณาเลือกข้อมูล!
+              </div>
+            </div>
+          </div>
+          <div class="row mb-2" style="display: none;">
+            <label class="col-xl-2 offset-xl-1 col-form-label">TOTAL</label>
+            <div class="col-xl-3">
+              <input type="text" class="form-control form-control-sm subject-total" value="<?php echo COUNT($subject) ?>" readonly>
             </div>
           </div>
           <div class="row justify-content-center mb-2">
@@ -72,46 +96,46 @@ $subject = $QUALITY->subject_view();
                         <button type="button" class="btn btn-sm btn-danger item-decrease">-</button>
                       </td>
                       <td>
-                        <input type="number" class="form-control form-control-sm text-center weight-start" name="item_quantity[]" min="0" step="0.01" required>
+                        <input type="number" class="form-control form-control-sm text-center weight-start" name="item_start[]" min="0" step="0.01" required>
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
                       </td>
                       <td>
-                        <input type="text" class="form-control form-control-sm text-left" name="item_remark[]">
+                        <input type="text" class="form-control form-control-sm text-left" name="item_user[]">
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
                       </td>
                       <td>
-                        <input type="text" class="form-control form-control-sm text-left" name="item_remark[]">
+                        <select class="form-control form-control-sm sup-select" name="item_sup[]" required></select>
                         <div class="invalid-feedback">
-                          กรุณากรอกข้อมูล!
+                          กรุณาเลือกข้อมูล!
                         </div>
                       </td>
                       <?php
-                      foreach ($subject as $sub) :
+                      foreach ($subject as $k => $sub) :
                       ?>
                         <td>
-                          <input type="number" class="form-control form-control-sm text-center kg-<?php echo $sub['id'] ?>" name="item_quantity[]" min="0" step="0.01" required>
+                          <input type="number" class="form-control form-control-sm text-center kg-<?php echo $sub['id'] ?>" name="item_quantity[<?php echo $k ?>][]" min="0" step="0.01" required>
                           <div class="invalid-feedback">
                             กรุณากรอกข้อมูล!
                           </div>
                         </td>
-                        <td>
+                        <td class="text-center">
                           <span class="yield-<?php echo $sub['id'] ?>"></span>
                         </td>
                       <?php endforeach; ?>
                       <td>
-                        <input type="number" class="form-control form-control-sm text-center kg-end" name="item_quantity[]" min="0" step="0.01" required>
+                        <input type="number" class="form-control form-control-sm text-center kg-end" name="item_end[]" min="0" step="0.01" required>
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
                       </td>
-                      <td>
+                      <td class="text-center">
                         <span class="weight-total"></span>
                       </td>
-                      <td>
+                      <td class="text-center">
                         <span class="yield-total"></span>
                       </td>
                     </tr>
@@ -123,7 +147,7 @@ $subject = $QUALITY->subject_view();
           </div>
 
           <div class="row mb-2">
-            <label class="col-xl-3 offset-xl-1 col-form-label">รายละเอียด</label>
+            <label class="col-xl-2 offset-xl-1 col-form-label">รายละเอียด</label>
             <div class="col-xl-6">
               <textarea class="form-control form-control-sm" name="text" rows="5"></textarea>
             </div>
@@ -151,25 +175,10 @@ $subject = $QUALITY->subject_view();
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
 <script>
-  $(".item-decrease, .waste-decrease").hide();
-  $(document).on("click", ".item-increase", function() {
-    $(".item-select").select2('destroy');
-    let row = $(".item-tr:last");
-    let clone = row.clone();
-    clone.find("input, select, span").val("").empty();
-    clone.find(".item-increase").hide();
-    clone.find(".item-decrease").show();
-    clone.find(".item-decrease").on("click", function() {
-      $(this).closest("tr").remove();
-    });
-    row.after(clone);
-    clone.show();
-  });
-
   $(".date-select").daterangepicker({
     singleDatePicker: true,
     showDropdowns: true,
-    minDate: new Date(),
+    //minDate: new Date(),
     locale: {
       "format": "DD/MM/YYYY",
       "daysOfWeek": [
@@ -191,4 +200,83 @@ $subject = $QUALITY->subject_view();
   $(".date-select").on("keydown paste", function(e) {
     e.preventDefault();
   });
+
+  function calculateYieldsAndTotals() {
+    document.querySelectorAll('.item-tr').forEach(row => {
+      const weightStart = parseFloat(row.querySelector('.weight-start').value) || 0;
+
+      let weightTotal = 0;
+      let yieldTotal = 0;
+
+      const subject = parseInt(document.querySelector('.subject-total').value, 10) || 0;
+
+      for (let i = 1; i <= subject; i++) {
+        const kgField = row.querySelector(`.kg-${i}`);
+        const yieldField = row.querySelector(`.yield-${i}`);
+
+        if (kgField) {
+          const kgValue = parseFloat(kgField.value) || 0;
+          const yieldValue = weightStart ? (kgValue * 100 / weightStart).toFixed(2) : 0;
+
+          if (yieldField) {
+            yieldField.textContent = yieldValue;
+          }
+
+          weightTotal += kgValue;
+          yieldTotal += kgValue;
+        }
+      }
+
+      const kgEndField = row.querySelector('.kg-end');
+      const kgEndValue = parseFloat(kgEndField.value) || 0;
+      weightTotal += kgEndValue;
+
+      const finalYieldTotal = weightStart ? ((yieldTotal + kgEndValue) * 100 / weightStart).toFixed(2) : 0;
+
+      row.querySelector('.weight-total').textContent = weightTotal.toFixed(2);
+      row.querySelector('.yield-total').textContent = finalYieldTotal;
+    });
+  }
+
+  function bindInputEvents() {
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', calculateYieldsAndTotals);
+    });
+  }
+
+  window.addEventListener('load', () => {
+    calculateYieldsAndTotals();
+    bindInputEvents();
+  });
+
+  document.querySelectorAll('.item-decrease').forEach(element => {
+    element.style.display = 'none';
+  });
+  document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('item-increase')) {
+      const row = document.querySelector('.item-tr:last-of-type');
+      const clone = row.cloneNode(true);
+      clone.querySelectorAll('input, select, span').forEach(element => {
+        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+          element.value = '';
+        } else if (element.tagName === 'SPAN') {
+          element.textContent = '';
+        }
+      });
+      clone.querySelector('.item-increase').style.display = 'none';
+      clone.querySelector('.item-decrease').style.display = 'inline';
+      clone.querySelector('.item-decrease').addEventListener('click', function() {
+        this.closest('tr').remove();
+        calculateYieldsAndTotals();
+      });
+
+      row.parentNode.insertBefore(clone, row.nextSibling);
+      bindInputEvents();
+      calculateYieldsAndTotals();
+      initializeSelect2($(".sup-select"), "-- ผู้จัดจำหน่าย --", "/quality/sup-select");
+    }
+  });
+
+  initializeSelect2($(".sup-select"), "-- ผู้จัดจำหน่าย --", "/quality/sup-select");
+  initializeSelect2($(".product-select"), "-- วัตถุดิบ --", "/quality/product-select");
 </script>

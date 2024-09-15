@@ -35,7 +35,7 @@ if ($action === "create") {
 
     $count = $PRODUCT->product_count([$code, $name]);
     if (intval($count) > 0) {
-      $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/unit");
+      $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/product");
     }
 
     $PRODUCT->product_insert([$code, $name, $cost, $price, $min, $max, $per, $bom, $supplier, $unit, $brand, $category, $store, $text]);

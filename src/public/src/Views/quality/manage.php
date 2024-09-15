@@ -1,6 +1,6 @@
 <?php
 $menu = "service";
-$page = "service-waste";
+$page = "service-quality";
 include_once(__DIR__ . "/../layout/header.php");
 ?>
 
@@ -21,8 +21,10 @@ include_once(__DIR__ . "/../layout/header.php");
                     <th width="10%">สถานะ</th>
                     <th width="10%">เลขที่เอกสาร</th>
                     <th width="10%">ผู้ทำรายการ</th>
-                    <th width="40%">รายละเอียด</th>
-                    <th width="10%">วันที่</th>
+                    <th width="20%">วัตถุดิบ</th>
+                    <th width="10%">วันที่คัดมะขาม</th>
+                    <th width="10%">วันที่รับเข้า</th>
+                    <th width="20%">รายละเอียด</th>
                   </tr>
                 </thead>
               </table>
@@ -46,7 +48,7 @@ include_once(__DIR__ . "/../layout/header.php");
       scrollX: true,
       order: [],
       ajax: {
-        url: "/waste/manage-data",
+        url: "/quality/manage-data",
         type: "POST",
       },
       columnDefs: [{
@@ -84,7 +86,7 @@ include_once(__DIR__ . "/../layout/header.php");
       cancelButtonText: "ปิด",
     }).then((result) => {
       if (result.value) {
-        axios.post("/waste/waste-delete", {
+        axios.post("/quality/quality-delete", {
           id: id
         }).then((res) => {
           let result = res.data;

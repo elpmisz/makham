@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: database
--- Generation Time: Sep 14, 2024 at 12:57 PM
+-- Generation Time: Sep 15, 2024 at 03:42 PM
 -- Server version: 11.5.2-MariaDB-ubu2404
 -- PHP Version: 8.2.23
 
@@ -1994,6 +1994,33 @@ INSERT INTO `purchase_text` (`id`, `purchase_id`, `user_id`, `text`, `status`, `
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `quality`
+--
+
+CREATE TABLE `quality` (
+  `id` int(11) NOT NULL,
+  `uuid` binary(20) NOT NULL,
+  `last` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `receive` date NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `text` text NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 1,
+  `updated` datetime DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `quality`
+--
+
+INSERT INTO `quality` (`id`, `uuid`, `last`, `user_id`, `date`, `receive`, `product_id`, `text`, `status`, `updated`, `created`) VALUES
+(1, 0x64303863383232662d373335662d313165662d61, 1, 1, '2024-09-09', '2024-09-09', 50, 'ใบตรวจสอบคุณภาพ\r\nใบตรวจสอบคุณภาพ', 2, '2024-09-15 22:33:32', '2024-09-15 19:41:22');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `quality_auth`
 --
 
@@ -2012,6 +2039,35 @@ CREATE TABLE `quality_auth` (
 
 INSERT INTO `quality_auth` (`id`, `user_id`, `type`, `status`, `updated`, `created`) VALUES
 (1, 1, 2, 1, '2024-09-14 13:30:13', '2024-09-12 14:21:34');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `quality_item`
+--
+
+CREATE TABLE `quality_item` (
+  `id` int(11) NOT NULL,
+  `quality_id` int(11) NOT NULL,
+  `start` decimal(20,2) NOT NULL,
+  `user` varchar(100) NOT NULL,
+  `supplier_id` int(11) NOT NULL,
+  `quantity` varchar(100) NOT NULL,
+  `end` decimal(20,2) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 1,
+  `updated` datetime DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `quality_item`
+--
+
+INSERT INTO `quality_item` (`id`, `quality_id`, `start`, `user`, `supplier_id`, `quantity`, `end`, `status`, `updated`, `created`) VALUES
+(1, 1, 7.06, 'ใหม่', 1, '0.17,3.31,1.42,1.11,0.4,0.16,0.04', 0.43, 1, NULL, '2024-09-15 19:41:40'),
+(2, 1, 8.68, 'แดง', 1, '0.6,4.58,0,1.22,0.76,0.31,0.01', 1.19, 1, NULL, '2024-09-15 19:41:40'),
+(3, 1, 5.17, 'แฟ้ม', 1, '0.18,2.42,0.48,1.13,0.57,0.14,0.24', 0.00, 1, NULL, '2024-09-15 21:30:50'),
+(4, 1, 7.52, 'ฮาย', 1, '0.3,3.96,0.12,1.01,0.69,0.08,0.20', 1.15, 1, '2024-09-15 21:36:08', '2024-09-15 21:30:50');
 
 -- --------------------------------------------------------
 
@@ -2039,6 +2095,30 @@ INSERT INTO `quality_subject` (`id`, `name`, `status`, `updated`, `created`) VAL
 (5, 'เบอร์ 6', 1, NULL, '2024-09-14 16:45:46'),
 (6, 'หลังแข็ง', 1, NULL, '2024-09-14 16:45:53'),
 (7, 'เบอร์ 7', 1, '2024-09-14 16:49:54', '2024-09-14 16:46:01');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `quality_text`
+--
+
+CREATE TABLE `quality_text` (
+  `id` int(11) NOT NULL,
+  `quality_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `text` mediumtext NOT NULL,
+  `status` int(1) NOT NULL,
+  `created` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `quality_text`
+--
+
+INSERT INTO `quality_text` (`id`, `quality_id`, `user_id`, `text`, `status`, `created`) VALUES
+(1, 1, 1, '', 2, '2024-09-15 21:49:33'),
+(2, 1, 1, 'TTT', 3, '2024-09-15 22:30:48'),
+(3, 1, 1, 'FFFF', 2, '2024-09-15 22:30:53');
 
 -- --------------------------------------------------------
 
@@ -9928,15 +10008,33 @@ ALTER TABLE `purchase_text`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `quality`
+--
+ALTER TABLE `quality`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `quality_auth`
 --
 ALTER TABLE `quality_auth`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `quality_item`
+--
+ALTER TABLE `quality_item`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `quality_subject`
 --
 ALTER TABLE `quality_subject`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `quality_text`
+--
+ALTER TABLE `quality_text`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -10137,16 +10235,34 @@ ALTER TABLE `purchase_text`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `quality`
+--
+ALTER TABLE `quality`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `quality_auth`
 --
 ALTER TABLE `quality_auth`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `quality_item`
+--
+ALTER TABLE `quality_item`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `quality_subject`
 --
 ALTER TABLE `quality_subject`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `quality_text`
+--
+ALTER TABLE `quality_text`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `sale`

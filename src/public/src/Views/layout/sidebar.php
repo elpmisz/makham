@@ -4,6 +4,7 @@ $dashboard_purchase = ($page === "dashboard-purchase" ? 'class="active"' : "");
 $dashboard_issue = ($page === "dashboard-issue" ? 'class="active"' : "");
 $dashboard_waste = ($page === "dashboard-waste" ? 'class="active"' : "");
 $dashboard_product = ($page === "dashboard-product" ? 'class="active"' : "");
+$dashboard_quality = ($page === "dashboard-quality" ? 'class="active"' : "");
 
 $user_menu = (isset($menu) && ($menu === "user") ? "show" : "");
 $user_profile = ($page === "user-profile" ? 'class="active"' : "");
@@ -68,10 +69,10 @@ $auth_quality = (isset($user_auth[3]) ? intval($user_auth[3]) : "");
           </li>
         <?php endif ?>
         <?php if ($auth_quality === 1) : ?>
-          <li <?php echo $dashboard_waste ?>>
+          <li <?php echo $dashboard_quality ?>>
             <a href="/dashboard/quality">
               <i class="fa fa-chart-line pr-2"></i>
-              ใบตรวจสอบคุณภาพ
+              รายงานตรวจสอบคุณภาพ
             </a>
           </li>
         <?php endif ?>

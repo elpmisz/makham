@@ -1,50 +1,43 @@
 <?php
 $menu = "service";
-$page = "service-waste";
+$page = "service-quality";
 include_once(__DIR__ . "/../layout/header.php");
 $param = (isset($params) ? explode("/", $params) : die(header("Location: /error")));
 $uuid = (isset($param[0]) ? $param[0] : die(header("Location: /error")));
 
-use App\Classes\Waste;
+use App\Classes\Quality;
 
-$WASTE = new Waste();
-
-$row = $WASTE->waste_view([$uuid]);
+$QUALITY = new Quality();
+$subject = $QUALITY->subject_view();
+$row = $QUALITY->quality_view([$uuid]);
 $id = (!empty($row['id']) ? $row['id'] : "");
 $uuid = (!empty($row['uuid']) ? $row['uuid'] : "");
+$user_id = (!empty($row['user_id']) ? $row['user_id'] : "");
 $ticket = (!empty($row['ticket']) ? $row['ticket'] : "");
-$purchase_uuid = (!empty($row['purchase_uuid']) ? $row['purchase_uuid'] : "");
-$purchase_ticket = (!empty($row['purchase_ticket']) ? $row['purchase_ticket'] : "");
-$fullname = (!empty($row['firstname']) ? $row['firstname'] : "");
+$date = (!empty($row['date']) ? $row['date'] : "");
+$receive = (!empty($row['receive']) ? $row['receive'] : "");
+$fullname = (!empty($row['fullname']) ? $row['fullname'] : "");
+$product_id = (!empty($row['product_id']) ? $row['product_id'] : "");
+$product_name = (!empty($row['product_name']) ? $row['product_name'] : "");
 $text = (!empty($row['text']) ? str_replace("\n", "<br>", $row['text']) : "");
-$active = (intval($row['status']) === 1 ? "checked" : "");
-$inactive = (intval($row['status']) === 2 ? "checked" : "");
-$status_name = (!empty($row['status_name']) ? $row['status_name'] : "");
-$status_color = (!empty($row['status_color']) ? $row['status_color'] : "");
-$approver = (!empty($row['approver_firstname']) ? $row['approver_firstname'] : "");
-$approved = (!empty($row['approved']) ? $row['approved'] : "");
-$approve_text = (!empty($row['approve_text']) ? str_replace("\n", "<br>", $row['approve_text']) : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
 
-$items = $WASTE->item_view([$uuid, 1]);
-$wastes = $WASTE->item_view([$uuid, 2]);
+$items = $QUALITY->item_view([$uuid]);
 ?>
-
+<style>
+  .th-100 {
+    min-width: 100px !important;
+  }
+</style>
 <div class="row">
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">ใบสรุปของเสีย</h4>
+        <h4 class="text-center">ใบตรวจสอบคุณภาพ</h4>
       </div>
       <div class="card-body">
-        <form action="/waste/approve" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="/quality/approve" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
-          <div class="row mb-2" style="display: none;">
-            <label class="col-xl-3 offset-xl-1 col-form-label">USER ID</label>
-            <div class="col-xl-4">
-              <input type="text" class="form-control form-control-sm" name="user_id" value="<?php echo $user['id'] ?>" readonly>
-            </div>
-          </div>
           <div class="row mb-2" style="display: none;">
             <label class="col-xl-3 offset-xl-1 col-form-label">ID</label>
             <div class="col-xl-4">
@@ -57,6 +50,12 @@ $wastes = $WASTE->item_view([$uuid, 2]);
               <input type="text" class="form-control form-control-sm" name="uuid" value="<?php echo $uuid ?>" readonly>
             </div>
           </div>
+          <div class="row mb-2" style="display: none;">
+            <label class="col-xl-3 offset-xl-1 col-form-label">USER</label>
+            <div class="col-xl-4">
+              <input type="text" class="form-control form-control-sm" name="user_id" value="<?php echo $user['id'] ?>" readonly>
+            </div>
+          </div>
 
           <div class="row">
             <div class="col-xl-6">
@@ -67,9 +66,21 @@ $wastes = $WASTE->item_view([$uuid, 2]);
                 </div>
               </div>
               <div class="row mb-2">
-                <label class="col-xl-3 col-form-label">เลขที่ใบสั่งผลิต</label>
+                <label class="col-xl-3 col-form-label">วันที่คัดมะขาม</label>
                 <div class="col-xl-4 text-underline">
-                  <a href="/purchase/complete/<?php echo $purchase_uuid ?>" target="_blank"><?php echo $purchase_ticket ?></a>
+                  <?php echo $date ?>
+                </div>
+              </div>
+              <div class="row mb-2">
+                <label class="col-xl-3 col-form-label">วันที่รับเข้า</label>
+                <div class="col-xl-6 text-underline">
+                  <?php echo $receive ?>
+                </div>
+              </div>
+              <div class="row mb-2">
+                <label class="col-xl-3 col-form-label">วัตถุดิบ</label>
+                <div class="col-xl-6 text-underline">
+                  <?php echo $product_name ?>
                 </div>
               </div>
             </div>
@@ -92,53 +103,64 @@ $wastes = $WASTE->item_view([$uuid, 2]);
 
           <div class="row justify-content-center mb-2">
             <div class="col-sm-12">
-              <h6>วัตถุดิบ</h6>
               <div class="table-responsive">
                 <table class="table table-bordered table-sm item-table">
                   <thead>
                     <tr>
-                      <th width="10%">#</th>
-                      <th width="40%">วัตถุดิบ</th>
-                      <th width="20%">ปริมาณ</th>
-                      <th width="30%">หมายเหตุ</th>
+                      <th width="10%" rowspan="2" class="th-100">#</th>
+                      <th width="10%" rowspan="2" class="th-100">นน.ก่อนคัด<br> (kg)</th>
+                      <th width="10%" rowspan="2" class="th-100">ผู้คัด</th>
+                      <th width="10%" rowspan="2" class="th-100">ที่มาวัตถุดิบ</th>
+                      <?php
+                      foreach ($subject as $sub) :
+                      ?>
+                        <th width="10%" colspan="2"><?php echo $sub['name'] ?></th>
+                      <?php endforeach; ?>
+                      <th width="10%" rowspan="2" class="th-100">คลุก</th>
+                      <th width="10%" rowspan="2" class="th-100">น้ำหนักรวม<br>ทั้งหมด (kg)</th>
+                      <th width="10%" rowspan="2" class="th-100">%Yield รวม</th>
+                    </tr>
+                    <tr>
+                      <?php
+                      foreach ($subject as $sub) :
+                      ?>
+                        <th width="10%" class="th-100">kg</th>
+                        <th width="10%" class="th-100">%Yield</th>
+                      <?php endforeach; ?>
                     </tr>
                   </thead>
                   <tbody>
-                    <?php foreach ($items as $key => $item) : $key++; ?>
+                    <?php
+                    foreach ($items as $key => $item) :
+                      $key++;
+                      $quantity = explode(",", $item['quantity']);
+                    ?>
                       <tr>
                         <td class="text-center"><?php echo $key ?></td>
-                        <td class="text-left"><?php echo $item['item'] ?></td>
-                        <td class="text-center"><?php echo $item['quantity'] ?></td>
-                        <td class="text-left"><?php echo $item['remark'] ?></td>
+                        <td class="text-center"><?php echo $item['start'] ?></td>
+                        <td class="text-center"><?php echo $item['user'] ?></td>
+                        <td class="text-center"><?php echo $item['supplier_name'] ?></td>
+                        <?php
+                        $total = 0;
+                        foreach ($quantity as $qty) {
+                          $yield = (($qty * 100) / $item['start']);
+                          $yield = (!empty($yield) ? round($yield, 2) : "");
+                          $total += $qty;
+                          echo "<td class='text-center'>{$qty}</td> <td class='text-center'>{$yield}</td>";
+                        }
+                        $kg_total = ($total + $item['end']);
+                        $yield_total = (($kg_total * 100) / $item['start']);
+                        $yield_total = (!empty($yield_total) ? round($yield_total, 2) : "");
+                        ?>
+                        <td class="text-center"><?php echo $item['end'] ?></td>
+                        <td class="text-center"><?php echo $kg_total  ?></td>
+                        <td class="text-center"><?php echo $yield_total  ?></td>
                       </tr>
                     <?php endforeach; ?>
                   </tbody>
                 </table>
               </div>
 
-              <h6>สิ่งแปลกปลอม</h6>
-              <div class="table-responsive">
-                <table class="table table-bordered table-sm item-table">
-                  <thead>
-                    <tr>
-                      <th width="10%">#</th>
-                      <th width="40%">สิ่งแปลกปลอม</th>
-                      <th width="20%">ปริมาณ</th>
-                      <th width="30%">หมายเหตุ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php foreach ($wastes as $key => $waste) : $key++; ?>
-                      <tr>
-                        <td class="text-center"><?php echo $key ?></td>
-                        <td class="text-left"><?php echo $waste['item'] ?></td>
-                        <td class="text-center"><?php echo $waste['quantity'] ?></td>
-                        <td class="text-left"><?php echo $waste['remark'] ?></td>
-                      </tr>
-                    <?php endforeach; ?>
-                  </tbody>
-                </table>
-              </div>
             </div>
           </div>
 
@@ -151,35 +173,24 @@ $wastes = $WASTE->item_view([$uuid, 2]);
           <div class="row mb-2">
             <label class="col-xl-2 col-form-label">ผลการตรวจสอบ</label>
             <div class="col-xl-4 text-underline">
-              <?php echo "<span class='text-{$status_color}'>{$status_name}</span>" ?>
+              <span class="text-<?php echo $row['status_color'] ?>"><?php echo $row['status_name'] ?></span>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <label class="col-xl-2 col-form-label">ผู้ดำเนินการ</label>
+            <div class="col-xl-4 text-underline">
+              <span class="text-primary"><?php echo $row['approver_firstname'] . " - " . $row['approved'] ?></span>
             </div>
           </div>
 
-          <?php if ($row['status'] != 1) : ?>
-            <div class="row mb-2">
-              <label class="col-xl-2 col-form-label">ผู้ดำเนินการ</label>
-              <div class="col-xl-4 text-underline">
-                <?php echo "<span class='text-primary'>{$approver} - {$approved}</span>" ?>
-              </div>
-            </div>
-          <?php endif; ?>
-          <?php if (!empty($approve_text)) : ?>
-            <div class="row mb-2">
-              <label class="col-xl-2 col-form-label">หมายเหตุ</label>
-              <div class="col-xl-6 text-underline">
-                <?php echo $approve_text ?>
-              </div>
-            </div>
-          <?php endif; ?>
-
           <div class="row justify-content-center mb-2">
             <div class="col-xl-3 mb-2">
-              <a href="/waste" class="btn btn-sm btn-danger btn-block">
+              <a href="/quality" class="btn btn-sm btn-danger btn-block">
                 <i class="fa fa-arrow-left pr-2"></i>กลับ
               </a>
             </div>
             <div class="col-xl-3 mb-2">
-              <a href="/waste/print/<?php echo $uuid ?>" class="btn btn-sm btn-primary btn-block">
+              <a href="/quality/print/<?php echo $uuid ?>" class="btn btn-sm btn-primary btn-block">
                 <i class="fa fa-print pr-2"></i>พิมพ์
               </a>
             </div>
@@ -193,6 +204,3 @@ $wastes = $WASTE->item_view([$uuid, 2]);
 
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
-<script>
-
-</script>

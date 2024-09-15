@@ -445,6 +445,12 @@ $ROUTER->map("GET", "/dashboard/waste/[**:params]", function ($params) {
 $ROUTER->map("POST", "/dashboard/waste/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/dashboard/waste_action.php");
 });
+$ROUTER->map("GET", "/dashboard/quality", function () {
+  require(__DIR__ . "/src/Views/dashboard/quality.php");
+});
+$ROUTER->map("GET", "/dashboard/quality/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/dashboard/quality_download.php");
+});
 
 ##################### AUTH #####################
 $ROUTER->map("GET", "/", function () {

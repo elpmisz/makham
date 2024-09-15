@@ -203,16 +203,3 @@ $created = (!empty($row['created']) ? $row['created'] : "");
 
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
-<script>
-  $(".text-div").hide();
-  $(document).on("click", "input[name='status']:checked", function() {
-    let status = parseInt($(this).val());
-    if (status === 3) {
-      $(".text-div").show();
-      $("textarea[name='remark']").prop("required", true);
-    } else {
-      $(".text-div").hide();
-      $("textarea[name='remark']").prop("required", false);
-    }
-  });
-</script>
