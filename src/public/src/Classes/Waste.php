@@ -47,41 +47,47 @@ class Waste
 
   public function waste_view($data)
   {
-    $sql = "SELECT a.id,a.uuid,a.text,a.user_id,a.status,
-    b.firstname,b.lastname,
-    CONCAT(b.firstname,' ',b.lastname) fullname,
-    e.uuid purchase_uuid,CONCAT('PO',YEAR(e.created),LPAD(e.last,5,'0')) purchase_ticket,
-    CONCAT('WA',YEAR(a.created),LPAD(a.last,5,'0')) ticket,a.status,
+    $sql = "SELECT *
+    FROM
     (
-      CASE
-        WHEN a.status = 1 THEN 'รอตรวจสอบ'
-        WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
-        WHEN a.status = 3 THEN 'รายการถูกยกเลิก'
-        ELSE NULL
-      END
-    ) status_name,
-    (
-      CASE
-        WHEN a.status = 1 THEN 'primary'
-        WHEN a.status = 2 THEN 'success'
-        WHEN a.status = 3 THEN 'danger'
-        ELSE NULL
-      END
-    ) status_color,
-    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created,
-    d.firstname approver_firstname,' ',d.lastname approver_lastname,
-    CONCAT(d.firstname,' ',d.lastname) approver,c.text approve_text,
-    DATE_FORMAT(c.created, '%d/%m/%Y, %H:%i น.') approved
-    FROM inventory.waste a
-    LEFT JOIN inventory.user b
-    ON a.user_id = b.id
-    LEFT JOIN inventory.waste_text c
-    ON a.id = c.waste_id
-    LEFT JOIN inventory.user d
-    ON c.user_id = d.id
-    LEFT JOIN inventory.purchase e
-    ON a.purchase_id = e.id
-    WHERE a.uuid = ?";
+      SELECT a.id,a.uuid,a.text,a.user_id,
+      b.firstname,b.lastname,
+      CONCAT(b.firstname,' ',b.lastname) fullname,
+      e.uuid purchase_uuid,CONCAT('PO',YEAR(e.created),LPAD(e.last,5,'0')) purchase_ticket,
+      CONCAT('WA',YEAR(a.created),LPAD(a.last,5,'0')) ticket,a.status,
+      (
+        CASE
+          WHEN a.status = 1 THEN 'รอตรวจสอบ'
+          WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
+          WHEN a.status = 3 THEN 'ระงับการใช้งาน'
+          ELSE NULL
+        END
+      ) status_name,
+      (
+        CASE
+          WHEN a.status = 1 THEN 'primary'
+          WHEN a.status = 2 THEN 'success'
+          WHEN a.status = 3 THEN 'danger'
+          ELSE NULL
+        END
+      ) status_color,
+      DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created,
+      d.firstname approver_firstname,' ',d.lastname approver_lastname,
+      CONCAT(d.firstname,' - ',DATE_FORMAT(c.created, '%d/%m/%Y, %H:%i น.')) approver,c.text approve_text
+      FROM inventory.waste a
+      LEFT JOIN inventory.user b
+      ON a.user_id = b.id
+      LEFT JOIN inventory.waste_text c
+      ON a.id = c.waste_id
+      AND a.`status` = c.`status`
+      LEFT JOIN inventory.user d
+      ON c.user_id = d.id
+      LEFT JOIN inventory.purchase e
+      ON a.purchase_id = e.id
+      WHERE a.uuid = ?
+    ) a
+    ORDER BY approver DESC 
+    LIMIT 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -209,7 +215,7 @@ class Waste
     CASE
       WHEN a.status = 1 THEN 'รอตรวจสอบ'
       WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
-      WHEN a.status = 3 THEN 'รายการถูกยกเลิก'
+      WHEN a.status = 3 THEN 'ระงับการใช้งาน'
       ELSE NULL
     END
     ) status_name,
@@ -333,7 +339,7 @@ class Waste
       CASE
         WHEN a.status = 1 THEN 'รอตรวจสอบ'
         WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
-        WHEN a.status = 3 THEN 'รายการถูกยกเลิก'
+        WHEN a.status = 3 THEN 'ระงับการใช้งาน'
         ELSE NULL
       END
     ) status_name,

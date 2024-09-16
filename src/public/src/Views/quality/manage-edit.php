@@ -171,6 +171,12 @@ $items = $QUALITY->item_view([$uuid]);
               <?php echo $text ?>
             </div>
           </div>
+          <div class="row mb-2">
+            <label class="col-xl-2 col-form-label">ผู้ดำเนินการ</label>
+            <div class="col-xl-4 text-underline">
+              <span class="text-primary"><?php echo $row['approver_firstname'] . " - " . $row['approved'] ?></span>
+            </div>
+          </div>
 
           <div class="row mb-2">
             <label class="col-xl-2 col-form-label">สถานะ</label>

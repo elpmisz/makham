@@ -58,7 +58,7 @@ class Quality
       CASE
         WHEN a.status = 1 THEN 'รอตรวจสอบ'
         WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
-        WHEN a.status = 3 THEN 'รายการถูกยกเลิก'
+        WHEN a.status = 3 THEN 'ระงับการใช้งาน'
         ELSE NULL
       END
     ) status_name,
@@ -393,7 +393,7 @@ class Quality
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.last", "b.firstname", "a.text", "a.created"];
+    $column = ["a.status", "a.last", "b.firstname", "c.name", "a.date", "a.receive", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -414,7 +414,7 @@ class Quality
       CASE
         WHEN a.status = 1 THEN 'รอตรวจสอบ'
         WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
-        WHEN a.status = 3 THEN 'รายการถูกยกเลิก'
+        WHEN a.status = 3 THEN 'ระงับการใช้งาน'
         ELSE NULL
       END
     ) status_name,
@@ -485,7 +485,7 @@ class Quality
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.last", "b.firstname", "a.text", "a.created"];
+    $column = ["a.status", "a.last", "b.firstname", "c.name", "a.date", "a.receive", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -561,7 +561,7 @@ class Quality
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.last", "b.firstname", "a.text", "a.created"];
+    $column = ["a.status", "a.last", "b.firstname", "c.name", "a.date", "a.receive", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -582,7 +582,7 @@ class Quality
       CASE
         WHEN a.status = 1 THEN 'รอตรวจสอบ'
         WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
-        WHEN a.status = 3 THEN 'รายการถูกยกเลิก'
+        WHEN a.status = 3 THEN 'ระงับการใช้งาน'
         ELSE NULL
       END
     ) status_name,

@@ -31,6 +31,14 @@ include_once(__DIR__ . "/../layout/header.php");
           </div>
         </div>
 
+        <div class="row justify-content-center mb-2">
+          <div class="col-xl-3 mb-2">
+            <a href="/issue" class="btn btn-sm btn-danger btn-block">
+              <i class="fa fa-arrow-left pr-2"></i>กลับ
+            </a>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

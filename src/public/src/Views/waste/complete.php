@@ -22,7 +22,6 @@ $inactive = (intval($row['status']) === 2 ? "checked" : "");
 $status_name = (!empty($row['status_name']) ? $row['status_name'] : "");
 $status_color = (!empty($row['status_color']) ? $row['status_color'] : "");
 $approver = (!empty($row['approver_firstname']) ? $row['approver_firstname'] : "");
-$approved = (!empty($row['approved']) ? $row['approved'] : "");
 $approve_text = (!empty($row['approve_text']) ? str_replace("\n", "<br>", $row['approve_text']) : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
 
@@ -150,39 +149,18 @@ $texts = $WASTE->text_view([$uuid]);
             </div>
           </div>
 
-          <?php if (COUNT($texts) > 0) : ?>
-            <div class="row justify-content-center mb-2">
-              <div class="col-sm-12">
-                <h5>การดำเนินการ</h5>
-                <div class="table-responsive">
-                  <table class="table table-bordered table-sm item-table">
-                    <thead>
-                      <tr>
-                        <th width="10%">#</th>
-                        <th width="10%">สถานะ</th>
-                        <th width="20%">ผู้ดำเนินการ</th>
-                        <th width="50%">รายละเอียด</th>
-                        <th width="10%">วันที่</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php foreach ($texts as $i => $text) : $i++ ?>
-                        <tr>
-                          <td class="text-center"><?php echo $i ?></td>
-                          <td class="text-center">
-                            <span class="badge badge-<?php echo $text['status_color'] ?> font-weight-light"><?php echo $text['status_name'] ?></span>
-                          </td>
-                          <td class="text-left"><?php echo $text['username'] ?></td>
-                          <td><?php echo str_replace("\n", "<br>", $text['text']) ?></td>
-                          <td><?php echo $text['created'] ?></td>
-                        </tr>
-                      <?php endforeach ?>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+          <div class="row mb-2">
+            <label class="col-xl-2 col-form-label">ผลการตรวจสอบ</label>
+            <div class="col-xl-4 text-underline">
+              <span class="text-<?php echo $row['status_color'] ?>"><?php echo $row['status_name'] ?></span>
             </div>
-          <?php endif ?>
+          </div>
+          <div class="row mb-2">
+            <label class="col-xl-2 col-form-label">ผู้ดำเนินการ</label>
+            <div class="col-xl-4 text-underline">
+              <span class="text-primary"><?php echo $row['approver'] ?></span>
+            </div>
+          </div>
 
           <div class="row justify-content-center mb-2">
             <div class="col-xl-3 mb-2">

@@ -79,7 +79,7 @@ class DashboardWaste
       CASE
         WHEN a.status = 1 THEN 'รอตรวจสอบ'
         WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
-        WHEN a.status = 3 THEN 'รายการถูกยกเลิก'
+        WHEN a.status = 3 THEN 'ระงับการใช้งาน'
         ELSE NULL
       END
     ) status_name,
@@ -150,7 +150,7 @@ class DashboardWaste
     CASE
       WHEN a.status = 1 THEN 'รอตรวจสอบ'
       WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
-      WHEN a.status = 3 THEN 'รายการถูกยกเลิก'
+      WHEN a.status = 3 THEN 'ระงับการใช้งาน'
       ELSE NULL
     END
     ) status_name,

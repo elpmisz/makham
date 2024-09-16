@@ -25,18 +25,20 @@ $approver_count = $ISSUE->approver_count();
               </a>
             </div>
           <?php endif; ?>
-          <!-- <div class="col-xl-3 mb-2">
-            <a href="/issue/manage" class="btn btn-primary btn-sm btn-block">
-              <i class="fas fa-list pr-2"></i>จัดการ
-            </a>
-          </div> -->
+          <?php if (intval($approver) > 0 && intval($user['level']) === 9) : ?>
+            <div class="col-xl-3 mb-2">
+              <a href="/issue/manage" class="btn btn-success btn-sm btn-block">
+                <i class="fas fa-list pr-2"></i>จัดการ
+              </a>
+            </div>
+          <?php endif; ?>
           <div class="col-xl-3 mb-2">
-            <button class="btn btn-success btn-sm btn-block" data-toggle="modal" data-target="#modal-upload">
+            <button class="btn btn-danger btn-sm btn-block" data-toggle="modal" data-target="#modal-upload">
               <i class="fas fa-upload pr-2"></i>นำข้อมูลเข้า
             </button>
           </div>
           <div class="col-xl-3 mb-2">
-            <a href="/issue/download" class="btn btn-danger btn-sm btn-block">
+            <a href="/issue/download" class="btn btn-primary btn-sm btn-block">
               <i class="fas fa-download pr-2"></i>นำข้อมูลออก
             </a>
           </div>

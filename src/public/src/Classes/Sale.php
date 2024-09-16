@@ -187,7 +187,7 @@ class Sale
     (
       CASE
         WHEN a.status = 1 THEN 'ทำรายการเรียบร้อยแล้ว'
-        WHEN a.status = 2 THEN 'รายการถูกยกเลิก'
+        WHEN a.status = 2 THEN 'ระงับการใช้งาน'
         ELSE NULL
       END
     ) status_name,

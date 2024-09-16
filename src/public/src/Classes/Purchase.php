@@ -76,22 +76,55 @@ class Purchase
 
   public function purchase_view($data)
   {
-    $sql = "SELECT a.id,a.`uuid`,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
-    a.user_id,CONCAT(c.firstname,' ',c.lastname) fullname,
-    a.customer_id,CONCAT('คุณ',d.name) customer_name,
-    a.amount,a.machine,a.per,
-    DATE_FORMAT(a.date_produce,'%d/%m/%Y') produce,
-    DATE_FORMAT(a.date_delivery,'%d/%m/%Y') delivery, 
-    a.`text`,b.uuid issue_uuid,CONCAT('RE',YEAR(b.created),LPAD(b.last,5,'0')) issue_ticket,
-    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created ,a.status
-    FROM inventory.purchase a  
-    LEFT JOIN inventory.issue b 
-    ON a.issue_id = b.id 
-    LEFT JOIN inventory.`user` c 
-    ON a.user_id = c.login 
-    LEFT JOIN inventory.customer d 
-    ON a.customer_id = d.id
-    WHERE a.uuid = ?";
+    $sql = "SELECT *
+    FROM 
+    (
+        SELECT a.id,a.`uuid`,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+        a.user_id,CONCAT(c.firstname,' ',c.lastname) fullname,
+        a.customer_id,CONCAT('คุณ',d.name) customer_name,
+        a.amount,a.machine,a.per,
+        DATE_FORMAT(a.date_produce,'%d/%m/%Y') produce,
+        DATE_FORMAT(a.date_delivery,'%d/%m/%Y') delivery, 
+        a.`text`,b.uuid issue_uuid,CONCAT('RE',YEAR(b.created),LPAD(b.last,5,'0')) issue_ticket,
+        DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created,
+        e.text remark,CONCAT(f.firstname,' - ',DATE_FORMAT(e.created,'%d/%m/%Y, %H:%i น.')) approver,
+        a.status,
+        (
+          CASE 
+            WHEN a.status = 1 THEN 'รอเบิกวัถุดิบ'
+            WHEN a.status = 2 THEN 'กำลังผลิต'
+            WHEN a.status = 3 THEN 'รอตรวจสอบ'
+            WHEN a.status = 4 THEN 'ผ่านการตรวจสอบ'
+            WHEN a.status = 5 THEN 'ระงับการใช้งาน'
+            ELSE NULL
+          END
+        ) status_name,
+        (
+          CASE 
+            WHEN a.status = 1 THEN 'info'
+            WHEN a.status = 2 THEN 'primary'
+            WHEN a.status = 3 THEN 'warning'
+            WHEN a.status = 4 THEN 'success'
+            WHEN a.status = 5 THEN 'danger'
+            ELSE NULL
+          END
+        ) status_color
+        FROM inventory.purchase a  
+        LEFT JOIN inventory.issue b 
+        ON a.issue_id = b.id 
+        LEFT JOIN inventory.`user` c 
+        ON a.user_id = c.login 
+        LEFT JOIN inventory.customer d 
+        ON a.customer_id = d.id
+        LEFT JOIN inventory.purchase_text e
+        ON a.id = e.purchase_id
+        AND a.`status` = e.`status`
+        LEFT JOIN inventory.`user` f
+        ON e.user_id = f.login
+        WHERE a.uuid = ?
+    ) a
+    ORDER BY approver DESC 
+    LIMIT 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -230,7 +263,7 @@ class Purchase
       WHEN b.status = 1 THEN 'รอเบิกวัถุดิบ'
       WHEN b.status = 2 THEN 'กำลังผลิต'
       WHEN b.status = 3 THEN 'รอตรวจสอบ'
-      WHEN b.status = 4 THEN 'ดำเนินการเรียบร้อย'
+      WHEN b.status = 4 THEN 'ผ่านการตรวจสอบ'
       WHEN b.status = 5 THEN 'ระงับการใช้งาน'
       ELSE NULL
     END
@@ -344,7 +377,7 @@ class Purchase
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.last", "c.name", "a.machine", "a.amount", "a.confirm", "a.text", "a.created"];
+    $column = ["a.status", "a.last", "c.firstname", "d.name", "a.amount", "a.date_produce", "a.date_delivery", "e.name", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -375,7 +408,7 @@ class Purchase
       WHEN a.status = 1 THEN 'รอเบิกวัถุดิบ'
       WHEN a.status = 2 THEN 'กำลังผลิต'
       WHEN a.status = 3 THEN 'รอตรวจสอบ'
-      WHEN a.status = 4 THEN 'ดำเนินการเรียบร้อย'
+      WHEN a.status = 4 THEN 'ผ่านการตรวจสอบ'
       WHEN a.status = 5 THEN 'ระงับการใช้งาน'
       ELSE NULL
     END
@@ -460,7 +493,7 @@ class Purchase
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.last", "c.name", "a.machine", "a.amount", "a.confirm", "a.text", "a.created"];
+    $column = ["a.status", "a.last", "c.firstname", "d.name", "a.amount", "a.date_produce", "a.date_delivery", "e.name", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -548,7 +581,7 @@ class Purchase
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    $column = ["a.status", "a.last", "c.name", "a.machine", "a.amount", "a.confirm", "a.text", "a.created"];
+    $column = ["a.status", "a.last", "c.firstname", "d.name", "a.amount", "a.date_produce", "a.date_delivery", "e.name", "a.text", "a.created"];
 
     $keyword = (isset($_POST['search']['value']) ? trim($_POST['search']['value']) : '');
     $filter_order = (isset($_POST['order']) ? $_POST['order'] : "");
@@ -571,7 +604,7 @@ class Purchase
       WHEN a.status = 1 THEN 'รอเบิกวัถุดิบ'
       WHEN a.status = 2 THEN 'กำลังผลิต'
       WHEN a.status = 3 THEN 'รอตรวจสอบ'
-      WHEN a.status = 4 THEN 'ดำเนินการเรียบร้อย'
+      WHEN a.status = 4 THEN 'ผ่านการตรวจสอบ'
       WHEN a.status = 5 THEN 'ระงับการใช้งาน'
       ELSE NULL
     END

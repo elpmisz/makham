@@ -611,7 +611,7 @@ class Product
     CASE
       WHEN c.status = 1 THEN 'รอตรวจสอบ'
       WHEN c.status = 2 THEN 'ผ่านการตรวจสอบ'
-      WHEN c.status = 3 THEN 'รายการถูกยกเลิก'
+      WHEN c.status = 3 THEN 'ระงับการใช้งาน'
       ELSE NULL
     END
     ) status_name,

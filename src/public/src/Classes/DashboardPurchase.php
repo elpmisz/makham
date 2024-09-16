@@ -71,8 +71,8 @@ class DashboardPurchase
       WHEN a.status = 1 THEN 'รอเบิกวัถุดิบ'
       WHEN a.status = 2 THEN 'กำลังผลิต'
       WHEN a.status = 3 THEN 'รอตรวจสอบ'
-      WHEN a.status = 4 THEN 'ดำเนินการเรียบร้อย'
-      WHEN a.status = 5 THEN 'รายการถูกยกเลิก'
+      WHEN a.status = 4 THEN 'ผ่านการตรวจสอบ'
+      WHEN a.status = 5 THEN 'ระงับการใช้งาน'
       ELSE NULL
     END
     ) status_name,
@@ -159,7 +159,7 @@ class DashboardPurchase
       WHEN a.status = 3 THEN 'กำลังผลิต'
       WHEN a.status = 4 THEN 'รอตรวจสอบ'
       WHEN a.status = 5 THEN 'ผ่านการตรวจสอบ'
-      WHEN a.status = 6 THEN 'รายการถูกยกเลิก'
+      WHEN a.status = 6 THEN 'ระงับการใช้งาน'
       ELSE NULL
     END
     ) status_name,
