@@ -13,8 +13,6 @@ $row = $WASTE->waste_view([$uuid]);
 $items = $WASTE->item_view([$uuid, 1]);
 $wastes = $WASTE->item_view([$uuid, 2]);
 
-use Spipu\Html2Pdf\Html2Pdf;
-
 ob_start();
 ?>
 <!DOCTYPE html>
@@ -34,14 +32,11 @@ ob_start();
     td,
     th {
       border: 1px solid #000;
-      padding: 5px 5px 5px 10px;
+      padding: 5px 10px;
     }
 
     @page {
-      margin-top: 1cm;
-      margin-bottom: 1cm;
-      margin-left: 1cm;
-      margin-right: 1cm;
+      margin: 1cm;
     }
 
     .no-border {
@@ -49,24 +44,19 @@ ob_start();
     }
 
     .bottom-border {
-      border-top: 0px;
-      border-left: 0px;
-      border-right: 0px;
+      border: 0;
       border-bottom: 1px solid #000 !important;
     }
 
     .text-center {
-      vertical-align: middle;
       text-align: center;
     }
 
     .text-left {
-      vertical-align: middle;
       text-align: left;
     }
 
     .text-right {
-      vertical-align: middle;
       text-align: right;
     }
   </style>
@@ -86,42 +76,32 @@ ob_start();
 
   <table>
     <tr>
-      <td class="no-border" width="20%">
-        ผู้ทำรายการ
-      </td>
+      <td class="no-border" width="20%">ผู้ทำรายการ</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['fullname'] ?>
+        <?php echo htmlspecialchars($row['fullname'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
-      <td class="no-border" width="20%">
-        เลขที่เอกสาร
-      </td>
+      <td class="no-border" width="20%">เลขที่เอกสาร</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['ticket'] ?>
+        <?php echo htmlspecialchars($row['ticket'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
     </tr>
     <tr>
-      <td class="no-border" width="20%">
-        เลขที่ใบสั่งผลิต
-      </td>
+      <td class="no-border" width="20%">เลขที่ใบสั่งผลิต</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['purchase_ticket'] ?>
+        <?php echo htmlspecialchars($row['purchase_ticket'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
-      <td class="no-border" width="20%">
-        วันที่
-      </td>
+      <td class="no-border" width="20%">วันที่</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['created'] ?>
+        <?php echo htmlspecialchars($row['created'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
     </tr>
   </table>
 
   <table>
     <tr>
-      <td class="no-border" width="20%">
-        รายละเอียด
-      </td>
+      <td class="no-border" width="20%">รายละเอียด</td>
       <td class="bottom-border" width="80%">
-        <?php echo str_replace("\n", "<br>", $row['text']) ?>
+        <?php echo nl2br(htmlspecialchars($row['text'], ENT_QUOTES, 'UTF-8')); ?>
       </td>
     </tr>
   </table>
@@ -134,19 +114,14 @@ ob_start();
       <th width="10%">ปริมาณ</th>
       <th width="40%">หมายเหตุ</th>
     </tr>
-    <?php
-    foreach ($items as $key => $item) :
-      $key++;
-    ?>
+    <?php foreach ($items as $key => $item): ?>
       <tr>
-        <td class="text-center"><?php echo $key ?></td>
-        <td><?php echo $item['item'] ?></td>
-        <td class="text-center"><?php echo $item['quantity'] ?></td>
-        <td><?php echo $item['remark'] ?></td>
+        <td class="text-center"><?php echo htmlspecialchars($key + 1, ENT_QUOTES, 'UTF-8'); ?></td>
+        <td><?php echo htmlspecialchars($item['item'], ENT_QUOTES, 'UTF-8'); ?></td>
+        <td class="text-center"><?php echo htmlspecialchars($item['quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
+        <td><?php echo htmlspecialchars($item['remark'], ENT_QUOTES, 'UTF-8'); ?></td>
       </tr>
-    <?php
-    endforeach;
-    ?>
+    <?php endforeach; ?>
   </table>
 
   <span>สิ่งแปลกปลอม</span>
@@ -157,25 +132,20 @@ ob_start();
       <th width="10%">ปริมาณ</th>
       <th width="40%">หมายเหตุ</th>
     </tr>
-    <?php
-    foreach ($wastes as $key => $waste) :
-      $key++;
-    ?>
+    <?php foreach ($wastes as $key => $waste): ?>
       <tr>
-        <td class="text-center"><?php echo $key ?></td>
-        <td><?php echo $waste['item'] ?></td>
-        <td class="text-center"><?php echo $waste['quantity'] ?></td>
-        <td><?php echo $waste['remark'] ?></td>
+        <td class="text-center"><?php echo htmlspecialchars($key + 1, ENT_QUOTES, 'UTF-8'); ?></td>
+        <td><?php echo htmlspecialchars($waste['item'], ENT_QUOTES, 'UTF-8'); ?></td>
+        <td class="text-center"><?php echo htmlspecialchars($waste['quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
+        <td><?php echo htmlspecialchars($waste['remark'], ENT_QUOTES, 'UTF-8'); ?></td>
       </tr>
-    <?php
-    endforeach;
-    ?>
+    <?php endforeach; ?>
   </table>
 
 </body>
 
 </html>
-<?
+<?php
 $html = ob_get_contents();
 ob_end_clean();
 

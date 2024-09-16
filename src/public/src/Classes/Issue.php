@@ -560,35 +560,53 @@ class Issue
 
   public function download()
   {
-    $sql = "SELECT a.uuid,CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
-    CONCAT(d.firstname,' ',d.lastname) username,
+    $sql = "SELECT CONCAT('RE',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    CONCAT(b.firstname,' ',b.lastname) fullname,
     (
-    CASE
-      WHEN a.type = 1 THEN 'นำเข้า'
-      WHEN a.type = 2 THEN 'เบิกออก'
-      WHEN a.type = 3 THEN 'โอนย้าย'
-      ELSE NULL
-    END
+      CASE
+        WHEN a.type = 1 THEN 'นำเข้า'
+        WHEN a.type = 2 THEN 'เบิกออก'
+        WHEN a.type = 3 THEN 'โอนย้าย'
+        ELSE NULL
+      END
     ) type_name,
-    c.name product_name,b.confirm,a.text,
     (
-    CASE
-      WHEN a.status = 1 THEN 'รอตรวจสอบ'
-      WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
-      WHEN a.status = 3 THEN 'ระงับการใช้งาน'
-      ELSE NULL
-    END
+      CASE
+        WHEN a.group = 1 THEN 'สั่งผลิต'
+        WHEN a.group = 2 THEN 'รอผลิต'
+        WHEN a.group = 3 THEN 'ขาย'
+        WHEN a.group = 4 THEN 'อื่นๆ'
+        ELSE NULL
+      END
+    ) group_name,
+    a.text,d.`name` product_name,
+    f.`name` location_name,
+    CONCAT('ห้อง ',g.room,' ชั้น ',g.floor,' โซน ',g.zone) store_name,
+    c.quantity,c.confirm,e.`name` unit_name,
+    (
+      CASE
+        WHEN a.status = 1 THEN 'รอตรวจสอบ'
+        WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
+        WHEN a.status = 3 THEN 'ระงับการใช้งาน'
+        ELSE NULL
+      END
     ) status_name,
     DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
     FROM inventory.issue a
-    LEFT JOIN inventory.issue_item b
-    ON a.id = b.issue_id
-    LEFT JOIN inventory.product c
-    ON b.product_id = c.id
-    LEFT JOIN inventory.user d
-    ON a.user_id = d.id
-    WHERE b.status = 1
-    ORDER BY a.created DESC";
+    LEFT JOIN inventory.user b
+    ON a.user_id = b.id
+    LEFT JOIN inventory.issue_item c
+    ON a.id = c.issue_id
+    LEFT JOIN inventory.product d
+    ON c.product_id = d.id
+    LEFT JOIN inventory.unit e
+    ON c.unit_id = e.id
+    LEFT JOIN inventory.location f
+    ON c.location_id = f.id
+    LEFT JOIN inventory.store g
+    ON c.store_id = g.id
+    WHERE c.`status` = 1
+    AND (a.`type` IN (1,2) OR (a.`type` = 3 AND c.`type` = 2)) ";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_NUM);

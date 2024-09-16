@@ -300,27 +300,46 @@ class Purchase
 
   public function download()
   {
-    $sql = "SELECT a.uuid,CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
-    CONCAT(b.firstname,' ',b.lastname) fullname,c.name bom_name,DATE_FORMAT(a.date, '%d/%m/%Y') date,
-    a.machine,a.amount,a.text,
+    $sql = "SELECT CONCAT('PO',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    CONCAT(c.firstname,' ',c.lastname) fullname,
+    CONCAT('คุณ',d.name) customer_name,
+    a.amount,a.machine,a.per,
+    DATE_FORMAT(a.date_produce,'%d/%m/%Y') produce,
+    DATE_FORMAT(a.date_delivery,'%d/%m/%Y') delivery, 
+    CONCAT('RE',YEAR(b.created),LPAD(b.last,5,'0')) issue_ticket,a.`text`,
+    f.`name` product_name,g.`name` location_name,
+    CONCAT('ห้อง ',h.room,' ชั้น ',h.floor,' โซน ',h.zone) store_name,
+    e.quantity,e.confirm,i.`name` unit_name,
     (
-    CASE
-      WHEN a.status = 1 THEN 'รอการอนุมัติ'
-      WHEN a.status = 2 THEN 'รอเบิกวัตถุดิบ'
-      WHEN a.status = 3 THEN 'กำลังผลิต'
-      WHEN a.status = 4 THEN 'รอตรวจสอบ'
-      WHEN a.status = 5 THEN 'ผ่านการตรวจสอบ'
-      WHEN a.status = 6 THEN 'ระงับการใช้งาน'
+    CASE 
+      WHEN a.status = 1 THEN 'รอเบิกวัถุดิบ'
+      WHEN a.status = 2 THEN 'กำลังผลิต'
+      WHEN a.status = 3 THEN 'รอตรวจสอบ'
+      WHEN a.status = 4 THEN 'ผ่านการตรวจสอบ'
+      WHEN a.status = 5 THEN 'ระงับการใช้งาน'
       ELSE NULL
     END
     ) status_name,
-    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
-    FROM inventory.purchase a
-    LEFT JOIN inventory.user b
-    ON a.user_id = b.id
-    LEFT JOIN inventory.bom c
-    ON a.bom = c.id
-    ORDER BY a.created DESC";
+    DATE_FORMAT(a.created,'%d/%m/%Y, %H:%i น.') created
+    FROM inventory.purchase a  
+    LEFT JOIN inventory.issue b 
+    ON a.issue_id = b.id 
+    LEFT JOIN inventory.`user` c 
+    ON a.user_id = c.login 
+    LEFT JOIN inventory.customer d 
+    ON a.customer_id = d.id
+    LEFT JOIN inventory.purchase_item e
+    ON a.id = e.purchase_id
+    LEFT JOIN inventory.product f
+    ON e.product_id = f.id
+    LEFT JOIN inventory.location g
+    ON e.location_id = g.id
+    LEFT JOIN inventory.store h
+    ON e.store_id = h.id
+    LEFT JOIN inventory.unit i
+    ON e.unit_id = i.id
+    WHERE e.status = 1
+    ORDER BY a.created ASC";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_NUM);

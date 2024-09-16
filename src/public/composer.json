@@ -12,23 +12,21 @@
     }
   ],
   "require": {
+    "firebase/php-jwt": "^6.10",
     "altorouter/altorouter": "^2.0",
     "twbs/bootstrap": "4.6.2",
-    "fortawesome/font-awesome": "^6.4",
+    "fortawesome/font-awesome": "^6.5",
     "components/jquery": "^3.7",
     "select2/select2": "^4.0",
     "datatables/datatables": "^1.10",
-    "phpoffice/phpspreadsheet": "^1.8",
-    "myclabs/deep-copy": "1.7.0",
-    "paragonie/random_compat": "2.0.19",
-    "mpdf/mpdf": "8.0.17",
+    "phpoffice/phpspreadsheet": "^1.29",
     "moment/moment": "2.26.0",
     "fullcalendar/fullcalendar": "3.10.2",
-    "phpmailer/phpmailer": "^6.8",
+    "phpmailer/phpmailer": "^6.9",
     "pnikolov/bootstrap-daterangepicker": "^2.1",
-    "firebase/php-jwt": "6.0.0",
     "mpdf/qrcode": "^1.2",
-    "splitbrain/php-qrcode": "^0.1.0"
+    "splitbrain/php-qrcode": "^0.1.0",
+    "mpdf/mpdf": "^8.2"
   },
   "config": {
     "allow-plugins": {

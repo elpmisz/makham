@@ -20,6 +20,9 @@ $text = (!empty($row['text']) ? str_replace("\n", "<br>", $row['text']) : "");
 $type = (!empty($row['type']) ? $row['type'] : "");
 $type_name = (!empty($row['type_name']) ? $row['type_name'] : "");
 $type_color = (!empty($row['type_color']) ? $row['type_color'] : "");
+$group = (!empty($row['group']) ? $row['group'] : "");
+$group_name = (!empty($row['group_name']) ? $row['group_name'] : "");
+$group_color = (!empty($row['group_color']) ? $row['group_color'] : "");
 $created = (!empty($row['created']) ? $row['created'] : "");
 ?>
 
@@ -59,6 +62,14 @@ $created = (!empty($row['created']) ? $row['created'] : "");
                   <?php echo $type_name ?>
                 </div>
               </div>
+              <?php if (intval($type) === 2) : ?>
+                <div class="row mb-2">
+                  <label class="col-xl-3 col-form-label">เพื่อ</label>
+                  <div class="col-xl-4 text-underline text-<?php echo $group_color ?>">
+                    <?php echo $group_name ?>
+                  </div>
+                </div>
+              <?php endif ?>
               <div class="row mb-2">
                 <label class="col-xl-3 col-form-label">วันที่<?php echo $type_name ?></label>
                 <div class="col-xl-6 text-underline">

@@ -11,6 +11,7 @@ class Database
   private $dbStmt = null;
   private $dbHost = "database";
   private $dbUser = "root";
+  // private $dbPass = "9et3J79>uYOHAGE";
   private $dbPass = "P@ssw0rd#db";
   private $dbName = "inventory";
   private $dbChar = "utf8";

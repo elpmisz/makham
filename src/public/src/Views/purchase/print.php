@@ -11,8 +11,6 @@ $PURCHASE = new Purchase();
 $row = $PURCHASE->purchase_view([$uuid]);
 $items = $PURCHASE->purchase_item_view([$uuid]);
 
-use Spipu\Html2Pdf\Html2Pdf;
-
 ob_start();
 ?>
 <!DOCTYPE html>
@@ -32,14 +30,11 @@ ob_start();
     td,
     th {
       border: 1px solid #000;
-      padding: 5px 5px 5px 10px;
+      padding: 5px 10px;
     }
 
     @page {
-      margin-top: 1cm;
-      margin-bottom: 1cm;
-      margin-left: 1cm;
-      margin-right: 1cm;
+      margin: 1cm;
     }
 
     .no-border {
@@ -47,9 +42,9 @@ ob_start();
     }
 
     .bottom-border {
-      border-top: 0px;
-      border-left: 0px;
-      border-right: 0px;
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
       border-bottom: 1px solid #000 !important;
     }
 
@@ -72,6 +67,7 @@ ob_start();
 
 <body>
 
+  <!-- Header Section -->
   <table>
     <tr>
       <td class="text-left no-border" width="10%"></td>
@@ -82,90 +78,71 @@ ob_start();
     </tr>
   </table>
 
+  <!-- Information Section -->
   <table>
     <tr>
-      <td class="no-border" width="20%">
-        รายชื่อลูกค้า
-      </td>
+      <td class="no-border" width="20%">รายชื่อลูกค้า</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['customer_name'] ?>
+        <?php echo htmlspecialchars($row['customer_name'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
-      <td class="no-border" width="20%">
-        เลขที่เอกสาร
-      </td>
+      <td class="no-border" width="20%">เลขที่เอกสาร</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['ticket'] ?>
+        <?php echo htmlspecialchars($row['ticket'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
     </tr>
     <tr>
-      <td class="no-border" width="20%">
-        จำนวนที่ผลิต
-      </td>
+      <td class="no-border" width="20%">จำนวนที่ผลิต</td>
       <td class="bottom-border" width="30%">
-        <?php echo number_format($row['amount'], 0) ?>
+        <?php echo number_format($row['amount'], 0); ?>
       </td>
-      <td class="no-border" width="20%">
-        วันที่
-      </td>
+      <td class="no-border" width="20%">วันที่</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['created'] ?>
+        <?php echo htmlspecialchars($row['created'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
     </tr>
     <tr>
-      <td class="no-border" width="20%">
-        จำนวนตู้
-      </td>
+      <td class="no-border" width="20%">จำนวนตู้</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['machine'] ?>
+        <?php echo htmlspecialchars($row['machine'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
-      <td class="no-border" width="20%">
-        ผู้ทำรายการ
-      </td>
+      <td class="no-border" width="20%">ผู้ทำรายการ</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['fullname'] ?>
+        <?php echo htmlspecialchars($row['fullname'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
     </tr>
     <tr>
-      <td class="no-border" width="20%">
-        ตู้ละ
-      </td>
+      <td class="no-border" width="20%">ตู้ละ</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['per'] ?>
+        <?php echo htmlspecialchars($row['per'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
-      <td class="no-border" width="20%">
-        วันที่ผลิต
-      </td>
+      <td class="no-border" width="20%">วันที่ผลิต</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['produce'] ?>
+        <?php echo htmlspecialchars($row['produce'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
     </tr>
     <tr>
-      <td class="no-border" width="20%">
-        เลขที่ใบเบิก
-      </td>
+      <td class="no-border" width="20%">เลขที่ใบเบิก</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['issue_ticket'] ?>
+        <?php echo htmlspecialchars($row['issue_ticket'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
-      <td class="no-border" width="20%">
-        วันที่ส่งลูกค้า
-      </td>
+      <td class="no-border" width="20%">วันที่ส่งลูกค้า</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['delivery'] ?>
+        <?php echo htmlspecialchars($row['delivery'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
     </tr>
   </table>
 
+  <!-- Purpose Section -->
   <table>
     <tr>
-      <td class="no-border" width="20%">
-        วัตถุประสงค์
-      </td>
+      <td class="no-border" width="20%">วัตถุประสงค์</td>
       <td class="bottom-border" width="80%">
-        <?php echo str_replace("\n", "<br>", $row['text']) ?>
+        <?php echo nl2br(htmlspecialchars($row['text'], ENT_QUOTES, 'UTF-8')); ?>
       </td>
     </tr>
   </table>
 
+  <!-- Items Section -->
   <table style="margin-top: 20px;">
     <tr>
       <th width="5%">#</th>
@@ -176,28 +153,24 @@ ob_start();
       <th width="10%">ปริมาณ (ผลิต)</th>
       <th width="10%">หน่วยนับ</th>
     </tr>
-    <?php
-    foreach ($items as $key => $item) :
-      $key++;
-    ?>
+    <?php foreach ($items as $key => $item) : ?>
       <tr>
-        <td class="text-center"><?php echo $key ?></td>
-        <td><?php echo $item['product_name'] ?></td>
-        <td><?php echo $item['location_name'] ?></td>
-        <td><?php echo $item['store_name'] ?></td>
-        <td class="text-center"><?php echo $item['quantity'] ?></td>
-        <td class="text-center"><?php echo $item['confirm'] ?></td>
-        <td class="text-center"><?php echo $item['unit_name'] ?></td>
+        <td class="text-center"><?php echo htmlspecialchars($key + 1, ENT_QUOTES, 'UTF-8'); ?></td>
+        <td><?php echo htmlspecialchars($item['product_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+        <td><?php echo htmlspecialchars($item['location_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+        <td><?php echo htmlspecialchars($item['store_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+        <td class="text-center"><?php echo htmlspecialchars($item['quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
+        <td class="text-center"><?php echo htmlspecialchars($item['confirm'], ENT_QUOTES, 'UTF-8'); ?></td>
+        <td class="text-center"><?php echo htmlspecialchars($item['unit_name'], ENT_QUOTES, 'UTF-8'); ?></td>
       </tr>
-    <?php
-    endforeach;
-    ?>
+    <?php endforeach; ?>
   </table>
 
 </body>
 
 </html>
-<?
+<?php
+// รับข้อมูล HTML และล้าง buffer
 $html = ob_get_contents();
 ob_end_clean();
 

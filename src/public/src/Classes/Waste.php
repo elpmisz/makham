@@ -208,31 +208,34 @@ class Waste
 
   public function download()
   {
-    $sql = "SELECT a.uuid,CONCAT('WA',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
-    CONCAT(b.firstname,' ',b.lastname) fullname,a.text,
-    IF(e.type = 1,f.name,e.item) item,e.quantity,e.remark,
-    (
-    CASE
-      WHEN a.status = 1 THEN 'รอตรวจสอบ'
-      WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
-      WHEN a.status = 3 THEN 'ระงับการใช้งาน'
-      ELSE NULL
-    END
-    ) status_name,
-    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
-    FROM inventory.waste a
-    LEFT JOIN inventory.user b
-    ON a.user_id = b.id
-    LEFT JOIN inventory.waste_text c
-    ON a.id = c.waste_id
-    LEFT JOIN inventory.user d
-    ON c.user_id = d.id
-    LEFT JOIN inventory.waste_item e
-    ON a.id = e.waste_id
-    LEFT JOIN inventory.product f
-    ON e.item = f.id
-    WHERE e.status = 1
-    ORDER BY a.created DESC";
+    $sql = "SELECT CONCAT('WA',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+      CONCAT(b.firstname,' ',b.lastname) fullname,
+      CONCAT('PO',YEAR(c.created),LPAD(c.last,5,'0')) purchase_ticket,
+      a.text,
+      IF(d.`type` = 1,e.`name`,f.`name`) item_name,
+      d.quantity,d.remark,
+      (
+        CASE
+          WHEN a.status = 1 THEN 'รอตรวจสอบ'
+          WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
+          WHEN a.status = 3 THEN 'ระงับการใช้งาน'
+          ELSE NULL
+        END
+      ) status_name,
+      DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
+      FROM inventory.waste a
+      LEFT JOIN inventory.user b
+      ON a.user_id = b.id
+      LEFT JOIN inventory.purchase c
+      ON a.purchase_id = c.id
+      LEFT JOIN inventory.waste_item d
+      ON a.id = d.waste_id
+      LEFT JOIN inventory.product e
+      ON d.item = e.id
+      LEFT JOIN inventory.waste_other f
+      ON d.item = f.id
+      WHERE d.`status` = 1
+      ORDER BY a.id ASC";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_NUM);

@@ -1,16 +1,16 @@
 <?php
 
-use App\Classes\Waste;
+use App\Classes\Quality;
 use App\Classes\Validation;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-$WASTE = new Waste();
+$QUALITY = new Quality();
 $VALIDATION = new Validation();
 $SPREADSHEET = new Spreadsheet();
 $WRITER = new Xlsx($SPREADSHEET);
 
-$result = $WASTE->download();
+$result = $QUALITY->download();
 
 array_walk_recursive($result, "htmldecode");
 
@@ -19,7 +19,7 @@ function htmldecode(&$item, $key)
   $item = html_entity_decode($item, ENT_COMPAT, "UTF-8");
 }
 
-$columns = ["UUID", "เลขที่เอกสาร", "ผู้ใช้บริการ", "รายละเอียด", "วัตถุดิบ/สิ่งแปลกปลอม", "จำนวน", "หมายเหตุ", "สถานะ", "วันที่"];
+$columns = ["เลขที่เอกสาร", "ผู้ทำรายการ", "วันที่คัดมะขาม", "วันที่รับเข้า", "วัตถุดิบ", "รายละเอียด", "สถานะ", "วันที่"];
 
 $letters = [];
 for ($i = "A"; $i != $VALIDATION->letters(COUNT($columns) + 1); $i++) {
@@ -30,7 +30,7 @@ $columns = array_combine($letters, $columns);
 
 ob_start();
 $date = date('Ymd');
-$filename = $date . "_wastes.csv";
+$filename = $date . "_quality.csv";
 header("Content-Encoding: UTF-8");
 header("Content-Type: text/csv; charset=utf-8");
 header("Content-Disposition: attachment; filename={$filename}");

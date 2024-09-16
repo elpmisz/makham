@@ -11,8 +11,6 @@ $ISSUE = new Issue();
 $row = $ISSUE->issue_view([$uuid]);
 $items = (intval($row['type']) === 3 ? $ISSUE->exchange_view($uuid) : $ISSUE->item_view([$uuid]));
 
-use Spipu\Html2Pdf\Html2Pdf;
-
 ob_start();
 ?>
 <!DOCTYPE html>
@@ -29,23 +27,15 @@ ob_start();
       font-size: 75%;
     }
 
-    th {
-      font-size: 90%;
-      border: 1px solid #000;
-      padding: 5px 5px 5px 10px;
-    }
-
+    th,
     td {
       font-size: 90%;
       border: 1px solid #000;
-      padding: 5px 5px 5px 10px;
+      padding: 5px 10px;
     }
 
     @page {
-      margin-top: 1cm;
-      margin-bottom: 1cm;
-      margin-left: 1cm;
-      margin-right: 1cm;
+      margin: 1cm;
     }
 
     .no-border {
@@ -53,9 +43,7 @@ ob_start();
     }
 
     .bottom-border {
-      border-top: 0px;
-      border-left: 0px;
-      border-right: 0px;
+      border: 0;
       border-bottom: 1px solid #000 !important;
     }
 
@@ -78,68 +66,70 @@ ob_start();
 
 <body>
 
+  <!-- Header Section -->
   <table>
     <tr>
       <td class="text-left no-border" width="10%"></td>
       <td class="text-center no-border" width="80%">
-        <h2>ใบ<?php echo $row['type_name'] ?>สินค้า</h2>
+        <h2>ใบ<?php echo htmlspecialchars($row['type_name'], ENT_QUOTES, 'UTF-8'); ?>สินค้า</h2>
       </td>
       <td class="text-right no-border" width="10%"></td>
     </tr>
   </table>
 
+  <!-- Information Section -->
   <table>
     <tr>
-      <td class="no-border" width="20%">
-        ผู้ทำรายการ
-      </td>
+      <td class="no-border" width="20%">ผู้ทำรายการ</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['fullname'] ?>
+        <?php echo htmlspecialchars($row['fullname'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
-      <td class="no-border" width="20%">
-        เลขที่เอกสาร
-      </td>
+      <td class="no-border" width="20%">เลขที่เอกสาร</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['ticket'] ?>
+        <?php echo htmlspecialchars($row['ticket'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
     </tr>
     <tr>
-      <td class="no-border" width="20%">
-        ประเภท
-      </td>
+      <td class="no-border" width="20%">ประเภท</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['type_name'] ?>
+        <?php echo htmlspecialchars($row['type_name'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
-      <td class="no-border" width="20%">
-        วันที่
-      </td>
+      <td class="no-border" width="20%">วันที่</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['created'] ?>
+        <?php echo htmlspecialchars($row['created'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
     </tr>
+    <?php if (intval($row['type']) === 2) : ?>
+      <tr>
+        <td class="no-border" width="20%">เพื่อ</td>
+        <td class="bottom-border" width="30%">
+          <?php echo htmlspecialchars($row['group_name'], ENT_QUOTES, 'UTF-8'); ?>
+        </td>
+        <td class="no-border" width="20%"></td>
+        <td class="no-border" width="30%"></td>
+      </tr>
+    <?php endif; ?>
     <tr>
-      <td class="no-border" width="20%">
-        วันที่นำเข้า
-      </td>
+      <td class="no-border" width="20%">วันที่นำเข้า</td>
       <td class="bottom-border" width="30%">
-        <?php echo $row['date'] ?>
+        <?php echo htmlspecialchars($row['date'], ENT_QUOTES, 'UTF-8'); ?>
       </td>
       <td class="no-border" width="20%"></td>
       <td class="no-border" width="30%"></td>
     </tr>
   </table>
 
+  <!-- Details Section -->
   <table>
     <tr>
-      <td class="no-border" width="20%">
-        รายละเอียด
-      </td>
+      <td class="no-border" width="20%">รายละเอียด</td>
       <td class="bottom-border" width="80%">
-        <?php echo str_replace("\n", "<br>", $row['text']) ?>
+        <?php echo nl2br(htmlspecialchars($row['text'], ENT_QUOTES, 'UTF-8')); ?>
       </td>
     </tr>
   </table>
 
+  <!-- Items Section -->
   <?php if (intval($row['type']) === 3) : ?>
     <table style="margin-top: 20px;">
       <tr>
@@ -153,30 +143,25 @@ ob_start();
         <th width="10%">ปริมาณ<br>(ตรวจสอบ)</th>
         <th width="10%">หน่วยนับ</th>
       </tr>
-      <?php
-      foreach ($items as $key => $item) :
-        $key++;
-      ?>
+      <?php foreach ($items as $key => $item) : ?>
         <tr>
-          <td class="text-center">
-            <?php echo $key ?>
-          </td>
-          <td><?php echo $item['product_name'] ?></td>
-          <td><?php echo str_replace("(", "<br>(", $item['send_location']) ?></td>
-          <td><?php echo str_replace("(", "<br>(", $item['send_store']) ?></td>
-          <td><?php echo str_replace("(", "<br>(", $item['receive_location']) ?></td>
-          <td><?php echo str_replace("(", "<br>(", $item['receive_store']) ?></td>
+          <td class="text-center"><?php echo htmlspecialchars($key + 1, ENT_QUOTES, 'UTF-8'); ?></td>
+          <td><?php echo htmlspecialchars($item['product_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+          <td><?php echo nl2br(htmlspecialchars($item['send_location'], ENT_QUOTES, 'UTF-8')); ?></td>
+          <td><?php echo nl2br(htmlspecialchars($item['send_store'], ENT_QUOTES, 'UTF-8')); ?></td>
+          <td><?php echo nl2br(htmlspecialchars($item['receive_location'], ENT_QUOTES, 'UTF-8')); ?></td>
+          <td><?php echo nl2br(htmlspecialchars($item['receive_store'], ENT_QUOTES, 'UTF-8')); ?></td>
           <td class="text-right">
-            <?php echo number_format($item['quantity'], 0) . ($item['unit_id'] === $item['unit'] ? "" : " <br>({$item['product_quantity']} {$item['product_unit']})") ?>
+            <?php echo htmlspecialchars(number_format($item['quantity'], 0), ENT_QUOTES, 'UTF-8') .
+              ($item['unit_id'] === $item['unit'] ? "" : " <br>({$item['product_quantity']} {$item['product_unit']})"); ?>
           </td>
           <td class="text-right">
-            <?php echo number_format($item['confirm'], 0) . ($item['unit_id'] === $item['unit'] ? "" : " <br>({$item['product_confirm']} {$item['product_unit']})") ?>
+            <?php echo htmlspecialchars(number_format($item['confirm'], 0), ENT_QUOTES, 'UTF-8') .
+              ($item['unit_id'] === $item['unit'] ? "" : " <br>({$item['product_confirm']} {$item['product_unit']})"); ?>
           </td>
-          <td class="text-center"><?php echo $item['unit_name'] ?></td>
+          <td class="text-center"><?php echo htmlspecialchars($item['unit_name'], ENT_QUOTES, 'UTF-8'); ?></td>
         </tr>
-      <?php
-      endforeach;
-      ?>
+      <?php endforeach; ?>
     </table>
   <?php else : ?>
     <table style="margin-top: 20px;">
@@ -185,34 +170,29 @@ ob_start();
         <th width="20%">วัตถุดิบ</th>
         <th width="30%">คลัง</th>
         <th width="20%">ห้อง</th>
-        <th width="10%">ปริมาณ <?php echo "({$row['type_name']})" ?></th>
+        <th width="10%">ปริมาณ <?php echo htmlspecialchars("({$row['type_name']})", ENT_QUOTES, 'UTF-8'); ?></th>
         <th width="12%">ปริมาณ<br>(ตรวจสอบ)</th>
         <th width="10%">หน่วยนับ</th>
       </tr>
-      <?php
-      foreach ($items as $key => $item) :
-        $key++;
-      ?>
+      <?php foreach ($items as $key => $item) : ?>
         <tr>
-          <td class="text-center">
-            <?php echo $key ?>
-          </td>
-          <td><?php echo $item['product_name'] ?></td>
-          <td><?php echo $item['location_name'] ?></td>
-          <td><?php echo $item['store_name'] ?></td>
-          <td class="text-right"><?php echo number_format($item['quantity'], 0, '.', ',') ?></td>
-          <td class="text-right"><?php echo number_format($item['confirm'], 0, '.', ',') ?></td>
-          <td class="text-center"><?php echo $item['unit_name'] ?></td>
+          <td class="text-center"><?php echo htmlspecialchars($key + 1, ENT_QUOTES, 'UTF-8'); ?></td>
+          <td><?php echo htmlspecialchars($item['product_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+          <td><?php echo htmlspecialchars($item['location_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+          <td><?php echo htmlspecialchars($item['store_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="text-right"><?php echo htmlspecialchars(number_format($item['quantity'], 0, '.', ','), ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="text-right"><?php echo htmlspecialchars(number_format($item['confirm'], 0, '.', ','), ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="text-center"><?php echo htmlspecialchars($item['unit_name'], ENT_QUOTES, 'UTF-8'); ?></td>
         </tr>
-      <?php
-      endforeach;
-      ?>
+      <?php endforeach; ?>
     </table>
   <?php endif; ?>
+
 </body>
 
 </html>
-<?
+<?php
+// รับข้อมูล HTML และล้าง buffer
 $html = ob_get_contents();
 ob_end_clean();
 

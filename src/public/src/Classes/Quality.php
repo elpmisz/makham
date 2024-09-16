@@ -246,6 +246,31 @@ class Quality
     return $stmt->execute($data);
   }
 
+  public function download()
+  {
+    $sql = "SELECT CONCAT('QC',YEAR(a.created),LPAD(a.last,5,'0')) ticket,
+    CONCAT(c.firstname,' ',c.lastname) fullname,
+    DATE_FORMAT(a.date,'%d/%m/%Y') `date`,DATE_FORMAT(a.receive,'%d/%m/%Y') receive,
+    b.name product_name,a.text,
+    (
+      CASE
+        WHEN a.status = 1 THEN 'รอตรวจสอบ'
+        WHEN a.status = 2 THEN 'ผ่านการตรวจสอบ'
+        WHEN a.status = 3 THEN 'ระงับการใช้งาน'
+        ELSE NULL
+      END
+    ) status_name,
+    DATE_FORMAT(a.created, '%d/%m/%Y, %H:%i น.') created
+    FROM inventory.quality a
+    LEFT JOIN inventory.product b
+    ON a.product_id = b.id
+    LEFT JOIN inventory.`user` c
+    ON a.user_id = c.login";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_NUM);
+  }
+
   public function auth_data()
   {
     $sql = "SELECT COUNT(*) FROM inventory.quality_auth";
