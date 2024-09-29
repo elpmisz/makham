@@ -68,7 +68,7 @@ class Store
 
   public function download()
   {
-    $sql = "SELECT a.uuid,a.room,a.floor,a.zone,a.text,
+    $sql = "SELECT a.room,a.floor,a.zone,a.text,
     (
       CASE
         WHEN a.status = 1 THEN 'ใช้งาน'

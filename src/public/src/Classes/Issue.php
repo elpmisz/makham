@@ -91,7 +91,7 @@ class Issue
 
   public function item_purchase($data)
   {
-    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,location_id,quantity,confirm,unit_id) VALUES(?,?,1,?,?,?,1)";
+    $sql = "INSERT INTO inventory.issue_item(issue_id,product_id,type,location_id,store_id,quantity,confirm,unit_id) VALUES(?,?,1,?,?,?,?,1)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -409,7 +409,7 @@ class Issue
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     $row = $stmt->fetch();
-    return (empty($row['qty_remain']) && intval($row['qty_remain']) === 0 ? "0 ลัง" : "{$row['qty_remain']} {$row['unit_name']}");
+    return (empty($row['qty_remain']) && intval($row['qty_remain']) === 0 ? "0" : "{$row['qty_remain']} {$row['unit_name']}");
   }
 
   public function item_confirm_remain($data)
@@ -440,7 +440,7 @@ class Issue
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     $row = $stmt->fetch();
-    return (empty($row['cf_remain']) && intval($row['cf_remain']) === 0 ? "0 ลัง" : "{$row['cf_remain']} {$row['unit_name']}");
+    return (empty($row['cf_remain']) && intval($row['cf_remain']) === 0 ? "0" : "{$row['cf_remain']} {$row['unit_name']}");
   }
 
   public function issue_update($data)
@@ -1069,7 +1069,20 @@ class Issue
   {
     $sql = "SELECT a.id 
     FROM inventory.store a
-    WHERE CONCAT('ห้อง ',a.room,' ชั้น ',a.`floor`,' โซน ',a.`zone`) = ?";
+    WHERE a.room = ?
+    AND a.floor = ?
+    AND a.zone = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    $row = $stmt->fetch();
+    return (isset($row['id']) ? $row['id'] : "");
+  }
+
+  public function unit_id($data)
+  {
+    $sql = "SELECT a.id 
+    FROM inventory.unit a
+    WHERE a.name = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     $row = $stmt->fetch();

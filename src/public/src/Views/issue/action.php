@@ -350,20 +350,24 @@ if ($action === "upload") {
         $name = (isset($value[1]) ? $value[1] : "");
         $location = (isset($value[2]) ? $value[2] : "");
         $location_id = (!empty($location) ? $ISSUE->location_id([$location]) : "");
-        $store = (isset($value[3]) ? $value[3] : "");
-        $store_id = (!empty($store) ? $ISSUE->store_id([$store]) : "");
-        $amount = (isset($value[4]) ? $value[4] : "");
-        $per = (isset($value[5]) ? $value[5] : "");
+        $room = (isset($value[3]) ? $value[3] : "");
+        $floor = (isset($value[4]) ? $value[4] : "");
+        $zone = (isset($value[5]) ? $value[5] : "");
+        $store_id = (!empty($room) ? $ISSUE->store_id([$room, $floor, $zone]) : "");
+        $amount = (isset($value[6]) ? $value[6] : "");
+        $unit = (isset($value[7]) ? $value[7] : "");
+        $unit_id = (!empty($unit) ? $ISSUE->unit_id([$unit]) : "");
+        $per = (isset($value[8]) ? $value[8] : "");
 
         $product_count = $ISSUE->product_count([$code, $name]);
         if (intval($product_count) === 0) {
-          $ISSUE->product_insert([$code, $name, $per, 4]);
+          $ISSUE->product_insert([$code, $name, $per, $unit_id]);
         }
         $product_id = (intval($product_count) === 0 ? $ISSUE->product_last_id() : $ISSUE->product_id([$code]));
 
-        $item_count = $ISSUE->item_count([$issue_id, $product_id, $location_id, $store_id, 4]);
+        $item_count = $ISSUE->item_count([$issue_id, $product_id, $location_id, $store_id, $unit_id]);
         if (intval($item_count) === 0) {
-          $ISSUE->item_import([$issue_id, $product_id, 1, $location_id, $store_id, $amount, $amount, 4]);
+          $ISSUE->item_import([$issue_id, $product_id, 1, $location_id, $store_id, $amount, $amount, $unit_id]);
         }
       }
     }

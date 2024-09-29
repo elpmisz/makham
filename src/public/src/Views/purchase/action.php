@@ -142,7 +142,7 @@ if ($action === "check") {
       $item_confirm = (isset($_POST['item_confirm'][$key]) ? $VALIDATION->input($_POST['item_confirm'][$key]) : "");
 
       $PURCHASE->purchase_item_update([$item_confirm, $item_id]);
-      $ISSUE->item_purchase([$issue_id, $item_product, $item_location, $item_confirm, $item_confirm]);
+      $ISSUE->item_purchase([$issue_id, $item_product, $item_location, $item_store, $item_confirm, $item_confirm]);
     }
 
     $PURCHASE->purchase_process([$status, $uuid]);

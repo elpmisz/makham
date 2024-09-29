@@ -80,19 +80,16 @@ if ($action === "upload") {
 
     foreach ($data as $key => $value) {
       if (!in_array($key, [0])) {
-        $uuid = (isset($value[0]) ? $value[0] : "");
-        $room = (isset($value[1]) ? $value[1] : "");
-        $floor = (isset($value[2]) ? $value[2] : "");
-        $zone = (isset($value[3]) ? $value[3] : "");
-        $text = (isset($value[4]) ? $value[4] : "");
-        $status = (isset($value[5]) ? $value[5] : "");
+        $room = (isset($value[0]) ? $value[0] : "");
+        $floor = (isset($value[1]) ? $value[1] : "");
+        $zone = (isset($value[2]) ? $value[2] : "");
+        $text = (isset($value[3]) ? $value[3] : "");
+        $status = (isset($value[4]) ? $value[4] : "");
         $status = ($status === "ใช้งาน" ? 1 : 2);
 
         $count = $STORE->store_count([$room, $zone, $floor]);
 
-        if (intval($count) > 0) {
-          $STORE->store_update([$room, $zone, $floor, $text, $status, $uuid]);
-        } else {
+        if (intval($count) === 0) {
           $STORE->store_insert([$room, $zone, $floor, $text]);
         }
       }
